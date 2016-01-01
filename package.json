@@ -1,6 +1,6 @@
 {
   "name": "compago",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A minimalistic MV* framework for modern browsers written in ES2015.",
   "keywords": [
     "mvc",
@@ -21,6 +21,7 @@
   "jspm": {
     "main": "index",
     "format": "es6",
+    "jspmNodeConversion": false,
     "directories": {
       "lib": "src"
     },
