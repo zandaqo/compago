@@ -2,7 +2,7 @@
   "name": "Compago",
   "namelower": "compago",
   "version": "1.0.0",
-  "description": "",
+  "description": "A minimalistic MV* framework for modern browsers written in ES2015.",
   "keywords": [
     "mvc",
     "framework",
