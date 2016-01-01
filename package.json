@@ -1,0 +1,40 @@
+{
+  "name": "Compago",
+  "namelower": "compago",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "mvc",
+    "framework",
+    "client-side",
+    "mv*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scriptare/compago.git"
+  },
+  "homepage": "https://github.com/scriptare/compago#readme",
+  "bugs": {
+    "url": "https://github.com/scriptare/compago/issues"
+  },
+  "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
+  "license": "MIT",
+  "jspm": {
+    "main": "index",
+    "format": "es6",
+    "directories": {
+      "lib": "src"
+    },
+    "dependencies": {
+      "compago-ajax": "npm:compago-ajax@^1.0.0",
+      "compago-collection": "npm:compago-collection@^1.0.0",
+      "compago-layout": "npm:compago-layout@^1.0.0",
+      "compago-list": "npm:compago-list@^1.0.0",
+      "compago-listener": "npm:compago-listener@^1.0.3",
+      "compago-model": "npm:compago-model@^1.0.1",
+      "compago-region": "npm:compago-region@^1.0.0",
+      "compago-router": "npm:compago-router@^1.0.0",
+      "compago-view": "npm:compago-view@^1.0.0"
+    }
+  }
+}
