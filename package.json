@@ -21,20 +21,23 @@
   "jspm": {
     "main": "index",
     "format": "es6",
-    "jspmNodeConversion": false,
     "directories": {
       "lib": "src"
     },
     "dependencies": {
-      "compago-ajax": "npm:compago-ajax@^1.0.0",
-      "compago-collection": "npm:compago-collection@^1.0.0",
-      "compago-layout": "npm:compago-layout@^1.0.0",
-      "compago-list": "npm:compago-list@^1.0.0",
-      "compago-listener": "npm:compago-listener@^1.0.3",
-      "compago-model": "npm:compago-model@^1.0.1",
-      "compago-region": "npm:compago-region@^1.0.0",
-      "compago-router": "npm:compago-router@^1.0.0",
-      "compago-view": "npm:compago-view@^1.0.0"
+      "compago-ajax": "npm:compago-ajax@^1.0.1",
+      "compago-collection": "npm:compago-collection@^1.0.2",
+      "compago-layout": "npm:compago-layout@^1.0.1",
+      "compago-list": "npm:compago-list@^1.0.2",
+      "compago-listener": "npm:compago-listener@^1.0.4",
+      "compago-model": "npm:compago-model@^1.0.2",
+      "compago-region": "npm:compago-region@^1.0.1",
+      "compago-router": "npm:compago-router@^1.0.2",
+      "compago-view": "npm:compago-view@^1.0.1"
+    },
+    "devDependencies": {
+      "traceur": "github:jmcriffey/bower-traceur@0.0.92",
+      "traceur-runtime": "github:jmcriffey/bower-traceur-runtime@0.0.92"
     }
   }
 }
