@@ -23,9 +23,9 @@ Manages an ordered set of models providing methods to create, sort, and dispose 
     * [.has(model)](#Collection__has) ⇒ boolean
     * [.at(index)](#Collection__at) ⇒ [Model](#Model) \| undefined
     * [.where(attributes, [first])](#Collection__where) ⇒ [Array.&lt;Model&gt;](#Model)
-    * [.read([options])](#Collection__read) ⇒ \*
+    * [.read([options])](#Collection__read) ⇒ Promise
     * [.toJSON()](#Collection__toJSON) ⇒ Array
-    * [.sync(method, options)](#Collection__sync) ⇒ \*
+    * [.sync(method, options)](#Collection__sync) ⇒ Promise
     * [.dispose([options])](#Collection__dispose) ⇒ this
     * [.on(obj, name, callback)](#Collection__on) ⇒ this
     * [.off([obj], [name], [callback])](#Collection__off) ⇒ this
@@ -576,7 +576,7 @@ collection.where({ day: 'monday' }, true);
 ```
 <a id="Collection__read"></a>
 
-### collection.read([options]) ⇒ \*
+### collection.read([options]) ⇒ Promise
 Updates the collection with its stored version.
 
 **Kind**: instance method of [Collection](#Collection)  
@@ -625,7 +625,7 @@ Creates a copy of the collection's models for JSON stringification.
 **Returns**: Array - an array of stringified models  
 <a id="Collection__sync"></a>
 
-### collection.sync(method, options) ⇒ \*
+### collection.sync(method, options) ⇒ Promise
 The general method to synchronize the collection.
 Proxies to the `sync` method of the storage if it's specified.
 
@@ -696,6 +696,8 @@ collection.dispose({ save: true });
 <a id="Controller"></a>
 
 ## Controller
+The Controller in MVC.
+
 **Kind**: global class  
 **Mixes**: [Listener](#Listener)  
 
@@ -964,7 +966,7 @@ and removes all event listeners.
 <a id="Model"></a>
 
 ## Model
-Provides functionality for managing changes on data models.
+The Model in MVC.
 
 **Kind**: global class  
 **Mixes**: [Listener](#Listener)  

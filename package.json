@@ -1,7 +1,7 @@
 {
   "name": "compago",
-  "version": "2.0.0",
-  "description": "A minimalistic MVC framework for modern browsers.",
+  "version": "2.0.1",
+  "description": "A minimalist MVC framework for modern browsers.",
   "browser": "src/index.js",
   "module": "src/index.js",
   "keywords": [

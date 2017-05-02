@@ -6,7 +6,7 @@ import Listener from './listener';
 const _opt = Object.seal(Object.create(null));
 
 /**
- * Provides functionality for managing changes on data models.
+ * The Model in MVC.
  *
  * @mixes Listener
  */

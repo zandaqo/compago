@@ -9,6 +9,8 @@ const _reSplitEvents = /(\w+)\s+?(.*)/;
 const _opt = Object.seal(Object.create(null));
 
 /**
+ * The Controller in MVC.
+ *
  * @mixes Listener
  */
 class Controller {
