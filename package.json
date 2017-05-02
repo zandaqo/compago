@@ -11,7 +11,7 @@
     "frontend"
   ],
   "scripts": {
-    "test": "jest > nul",
+    "test": "jest",
     "lint": "eslint src/index.js tests/unit.test.js",
     "coverage:report": "cat ./coverage/lcov.info | codecov",
     "docs:api": "jsdoc2md --configure jsdoc.json --global-index-format none --partial tooling/docs/*.hbs --helper tooling/docs/helpers.js --no-gfm --files src/*.js > docs/API.md",

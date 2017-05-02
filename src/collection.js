@@ -443,7 +443,7 @@ class Collection {
    * @param {boolean} [options.silent]   whether to avoid firing events
    * @param {boolean} [options.reset]   whether to pass the response data through the
    *                                      `Collection#reset` method instead of `Collection#set`.
-   * @returns {*}
+   * @returns {Promise}
    * @example
    * collection.read()
    *  .then((response) => console.log(response))
@@ -482,7 +482,7 @@ class Collection {
    *
    * @param {string} method the internal method name.
    * @param {Object} options
-   * @returns {*}
+   * @returns {Promise}
    */
   sync(method, options) {
     if (this.storage) return this.storage.sync(method, this, options);
