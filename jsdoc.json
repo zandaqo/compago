@@ -1,0 +1,7 @@
+{
+  "plugins": [
+    "plugins/underscore",
+    "node_modules/jsdoc-plugin-false-booleans/false-booleans.js",
+    "node_modules/jsdoc-plugin-named-defaults/named-defaults.js"
+  ]
+}

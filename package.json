@@ -1,13 +1,24 @@
 {
   "name": "compago",
-  "version": "1.0.1",
-  "description": "A minimalistic MV* framework for modern browsers written in ES2015.",
+  "version": "2.0.0",
+  "description": "A minimalistic MVC framework for modern browsers.",
+  "browser": "src/index.js",
+  "module": "src/index.js",
   "keywords": [
     "mvc",
     "framework",
     "client-side",
-    "mv*"
+    "frontend"
   ],
+  "scripts": {
+    "test": "jest > nul",
+    "lint": "eslint src/index.js tests/unit.test.js",
+    "coverage:report": "cat ./coverage/lcov.info | codecov",
+    "docs:api": "jsdoc2md --configure jsdoc.json --global-index-format none --partial tooling/docs/*.hbs --helper tooling/docs/helpers.js --no-gfm --files src/*.js > docs/API.md",
+    "docs:install": "gitbook install",
+    "docs:build": "npm run docs:api && gitbook build",
+    "docs:serve": "npm run docs:api && gitbook serve"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/scriptare/compago.git"
@@ -18,26 +29,78 @@
   },
   "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
   "license": "MIT",
-  "jspm": {
-    "main": "index",
-    "format": "es6",
-    "directories": {
-      "lib": "src"
-    },
-    "dependencies": {
-      "compago-ajax": "npm:compago-ajax@^1.0.1",
-      "compago-collection": "npm:compago-collection@^1.0.2",
-      "compago-layout": "npm:compago-layout@^1.0.1",
-      "compago-list": "npm:compago-list@^1.0.2",
-      "compago-listener": "npm:compago-listener@^1.0.4",
-      "compago-model": "npm:compago-model@^1.0.2",
-      "compago-region": "npm:compago-region@^1.0.1",
-      "compago-router": "npm:compago-router@^1.0.2",
-      "compago-view": "npm:compago-view@^1.0.1"
-    },
-    "devDependencies": {
-      "traceur": "github:jmcriffey/bower-traceur@0.0.92",
-      "traceur-runtime": "github:jmcriffey/bower-traceur-runtime@0.0.92"
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "rules": {
+      "no-underscore-dangle": 0,
+      "no-nested-ternary": 1,
+      "no-plusplus": 0,
+      "no-bitwise": 1,
+      "no-continue": 1,
+      "no-param-reassign": [
+        2,
+        {
+          "props": false
+        }
+      ],
+      "eqeqeq": [
+        2,
+        "smart"
+      ],
+      "valid-jsdoc": [
+        2,
+        {
+          "prefer": {
+            "return": "returns"
+          },
+          "requireReturnDescription": false,
+          "requireParamDescription": false
+        }
+      ]
     }
+  },
+  "babel": {
+    "env": {
+      "test": {
+        "presets": [
+          "node6"
+        ]
+      }
+    }
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/src/**",
+      "!**/node_modules/**",
+      "!**/tests/**"
+    ],
+    "coverageDirectory": "<rootDir>/coverage",
+    "coverageReporters": [
+      "lcov"
+    ],
+    "roots": [
+      "<rootDir>/tests"
+    ]
+  },
+  "dependencies": {
+    "clone": "^2.1.1",
+    "deep-equal": "^1.0.1",
+    "path-to-regexp": "^1.7.0",
+    "querystring": "^0.2.0"
+  },
+  "devDependencies": {
+    "babel-jest": "^19.0.0",
+    "babel-preset-node6": "^11.0.0",
+    "codecov.io": "^0.1.6",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.1.3",
+    "eslint-plugin-import": "^2.2.0",
+    "gitbook-cli": "^2.3.0",
+    "istanbul": "^1.1.0-alpha.1",
+    "jest": "^19.0.2",
+    "jsdoc-plugin-false-booleans": "^1.0.0",
+    "jsdoc-plugin-named-defaults": "^1.1.1",
+    "jsdoc-to-markdown": "^3.0.0"
   }
 }

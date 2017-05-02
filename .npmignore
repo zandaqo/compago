@@ -1,0 +1,11 @@
+.idea
+node_modules
+coverage
+_book
+.gitignore
+.npmignore
+tests
+book.json
+jsdoc.json
+tooling
+docs

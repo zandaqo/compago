@@ -1,9 +1,6 @@
-export { default as Listener } from 'compago-listener';
-export { default as Model } from 'compago-model';
-export { default as View } from 'compago-view';
-export { default as Collection } from 'compago-collection';
-export { default as Region } from 'compago-region';
-export { default as Router } from 'compago-router';
-export { default as List } from 'compago-list';
-export { default as Layout } from 'compago-layout';
-export { default as Ajax } from 'compago-ajax';
+export { default as Listener } from './listener';
+export { default as Model } from './model';
+export { default as Collection } from './collection';
+export { default as Router } from './router';
+export { default as Ajax } from './remote-storage';
+export { default as Controller } from './controller';
