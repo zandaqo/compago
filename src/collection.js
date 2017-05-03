@@ -212,9 +212,10 @@ class Collection {
    * // resets the collection but avoids disposing the removed models
    */
   reset(models, { silent, save } = _opt) {
+    const previousModels = this.models;
     this.clear({ silent: true, save });
     this.add(models, { silent: true });
-    if (!silent) this.emit('reset', { save, previousModels: this.models });
+    if (!silent) this.emit('reset', { save, previousModels });
     return this;
   }
 
