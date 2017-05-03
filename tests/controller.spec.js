@@ -15,6 +15,13 @@ window.Element.prototype.closest = function (selector) {
   return null;
 };
 
+window.MutationObserver = class {
+  constructor() {
+    this.observe = jest.fn();
+    this.disconnect = jest.fn();
+  }
+};
+
 describe('Controller', () => {
   let v;
   let el;
@@ -45,6 +52,7 @@ describe('Controller', () => {
         },
         model,
         renderEvents: 'change',
+        renderAttributes: ['data-id'],
       });
       expect(nv instanceof Controller).toBe(true);
       expect(nv.el.className).toBe('unordered-list');
@@ -53,6 +61,8 @@ describe('Controller', () => {
       expect(nv.model._events.get('change')[0]).toEqual([nv, nv.render]);
       expect(nv._regionSelectors.region).toBe('#region');
       expect(nv._regionControllers).toBe(undefined);
+      expect(nv._observer instanceof window.MutationObserver).toBe(true);
+      expect(nv._observer.observe).toHaveBeenCalled();
     });
   });
 
@@ -260,9 +270,11 @@ describe('Controller', () => {
   describe('dispose', () => {
     it('prepares the controller to be disposed', () => {
       v.on(v, 'render', v.someMethod);
+      v._observeAttributes(['data-id']);
       v.dispose();
-      expect(v._events).toBe(undefined);
+      expect(v._events).toBeUndefined();
       expect(v._listeners.size).toEqual(0);
+      expect(v._observer).toBeUndefined();
     });
 
     it('removes the controller element from the DOM', () => {
@@ -517,8 +529,15 @@ describe('Controller', () => {
     });
   });
 
-  xdescribe('_observeAttributes', () => {
-    // todo wait for MutationObserver support in jsdom
+  describe('_observeAttributes', () => {
+    it('sets up a MutationObserver to watch for changes in attributes', () => {
+      const controller = new Controller();
+      expect(controller._observer).toBeUndefined();
+      controller._observeAttributes(['data-id']);
+      expect(controller._observer instanceof window.MutationObserver).toBe(true);
+      expect(controller._observer.observe.mock.calls[0])
+        .toEqual([controller.el, { attributes: true, attributeFilter: ['data-id'] }]);
+    });
   });
 
   describe('_handleDebounce', () => {

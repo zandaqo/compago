@@ -397,17 +397,16 @@ class Controller {
   }
 
   /**
-   * Sets up a Mutation Observer to watch for changes in attributes of the controller.
+   * Sets up a MutationObserver to watch for changes in attributes of the controller.
    *
-   * @param {Array} attributeFilter the list attributes to watch
+   * @param {Array.<String>} attributeFilter the list attributes to watch
    * @returns {void}
    */
   _observeAttributes(attributeFilter) {
-    const observer = new MutationObserver(() => {
+    this._observer = new MutationObserver(() => {
       this.render();
     });
-    observer.observe(this.el, { attributes: true, attributeFilter });
-    this._observer = observer;
+    this._observer.observe(this.el, { attributes: true, attributeFilter });
   }
 
   /**
