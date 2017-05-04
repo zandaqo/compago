@@ -1,3 +1,5 @@
+
+
 <a id="Collection"></a>
 
 ## Collection
@@ -103,23 +105,7 @@ The general method to modify the collection.
 
 **Example**  
 ```js
-let collection = new Collection([model0]);
-collection.set([model1, model2]);
-// resets the collection models to `[model1, model2]` emitting `add` events on both models,
-// removes and disposes the existing `model0` which emits the `remove` event
-
-collection.set(model3, { keep: true });
-// adds `model3` to the list of collection models without removing the existing models
-
-collection.set(model4, { keep: true, at: 0 });
-// adds `model4` at the beginning of the collection
-
-collection.set([model2, model3], { save: true });
-// removes all models except `model2` and `model3` from the collection without disposing
-// the removed models
-
-collection.set([model1, model4], { keep: true, unsorted: true });
-// avoids sorting the resulting list of models
+let collection = new Collection([model0]);collection.set([model1, model2]);// resets the collection models to `[model1, model2]` emitting `add` events on both models,// removes and disposes the existing `model0` which emits the `remove` eventcollection.set(model3, { keep: true });// adds `model3` to the list of collection models without removing the existing modelscollection.set(model4, { keep: true, at: 0 });// adds `model4` at the beginning of the collectioncollection.set([model2, model3], { save: true });// removes all models except `model2` and `model3` from the collection without disposing// the removed modelscollection.set([model1, model4], { keep: true, unsorted: true });// avoids sorting the resulting list of models
 ```
 <a id="Collection__add"></a>
 
@@ -153,15 +139,7 @@ Adds a model or a list of models to the collection.
 
 **Example**  
 ```js
-let collection = new Collection();
-collection.add(model0);
-// adds `model0` to the collection emitting `add` event on the model
-
-collection.add(model1, { at: 0 });
-// adds `model1` at the beginning of the list of collection models
-
-collection.add(model3, { unsorted: true });
-// adds `model3` and avoids re-sorting the resulting list
+let collection = new Collection();collection.add(model0);// adds `model0` to the collection emitting `add` event on the modelcollection.add(model1, { at: 0 });// adds `model1` at the beginning of the list of collection modelscollection.add(model3, { unsorted: true });// adds `model3` and avoids re-sorting the resulting list
 ```
 <a id="Collection__remove"></a>
 
@@ -192,12 +170,7 @@ Removes a model or a list of models from the collection.
 
 **Example**  
 ```js
-let collection = new Collection([model1, model2]);
-collection.remove(model1);
-// removes `model1` from the collection emitting `remove` event and disposes it
-
-collection.remove(mode2, { save: true });
-// removes `model2` from the collection but does not dispose it
+let collection = new Collection([model1, model2]);collection.remove(model1);// removes `model1` from the collection emitting `remove` event and disposes itcollection.remove(mode2, { save: true });// removes `model2` from the collection but does not dispose it
 ```
 <a id="Collection__clear"></a>
 
@@ -225,12 +198,7 @@ Removes all models from the collection firing a single `clear` event.
 
 **Example**  
 ```js
-collection.clear();
-// removes and disposes all the existing models in the collection
-// emitting a single `clear` event
-
-collection.clear({ save: true });
-// removes all models without disposing them
+collection.clear();// removes and disposes all the existing models in the collection// emitting a single `clear` eventcollection.clear({ save: true });// removes all models without disposing them
 ```
 <a id="Collection__reset"></a>
 
@@ -261,11 +229,7 @@ Resets the collection with specified list of models firing a single `reset` even
 
 **Example**  
 ```js
-collection.reset([model1, model2]);
-// resets the collection emitting a single `reset` event
-
-collection.reset([model1, model2], { save: true });
-// resets the collection but avoids disposing the removed models
+collection.reset([model1, model2]);// resets the collection emitting a single `reset` eventcollection.reset([model1, model2], { save: true });// resets the collection but avoids disposing the removed models
 ```
 <a id="Collection__push"></a>
 
@@ -296,8 +260,7 @@ Adds a model(s) to the end of the collection.
 
 **Example**  
 ```js
-collection.push(model);
-// adds model to the end of the collection
+collection.push(model);// adds model to the end of the collection
 ```
 <a id="Collection__pop"></a>
 
@@ -326,11 +289,7 @@ Removes a model from the end of the collection.
 
 **Example**  
 ```js
-collection.pop();
-// removes the last model from the collection, disposes and returns it
-
-collection.pop({ save: true });
-// removes and returns the last model of the collection without disposing it
+collection.pop();// removes the last model from the collection, disposes and returns itcollection.pop({ save: true });// removes and returns the last model of the collection without disposing it
 ```
 <a id="Collection__unshift"></a>
 
@@ -361,8 +320,7 @@ Adds a model(s) to the beginning of the collection.
 
 **Example**  
 ```js
-collection.unshift(model);
-// adds model to the beginning of the collection
+collection.unshift(model);// adds model to the beginning of the collection
 ```
 <a id="Collection__shift"></a>
 
@@ -391,11 +349,7 @@ Removes a model from the beginning of the collection.
 
 **Example**  
 ```js
-collection.shift();
-// removes the first model from the collection, disposes and returns it
-
-collection.shift({ save: true });
-// removes and returns the fist model of the collection without disposing it
+collection.shift();// removes the first model from the collection, disposes and returns itcollection.shift({ save: true });// removes and returns the fist model of the collection without disposing it
 ```
 <a id="Collection__sort"></a>
 
@@ -428,18 +382,7 @@ Sorts the collection.
 
 **Example**  
 ```js
-collection.sort();
-// attemps to sort the collection using collection predefined comparator from `this.comparator`
-// emitting the `sort` event
-
-collection.sort({ comparator: '_id' });
-// sorts models according to their `_id` field in ascending order
-
-collection.sort({ comparator: '_id', descending: true });
-// sorts according to `_id` field in descending order
-
-collection.sort({ comparator: (a,b) => a > b });
-// sorts according to the provided comparator function
+collection.sort();// attemps to sort the collection using collection predefined comparator from `this.comparator`// emitting the `sort` eventcollection.sort({ comparator: '_id' });// sorts models according to their `_id` field in ascending ordercollection.sort({ comparator: '_id', descending: true });// sorts according to `_id` field in descending ordercollection.sort({ comparator: (a,b) => a > b });// sorts according to the provided comparator function
 ```
 <a id="Collection__reverse"></a>
 
@@ -464,8 +407,7 @@ Reverses the order of the models in the collection.
 
 **Example**  
 ```js
-collection.reverse();
-// reverses the order of models in the collection emitting the `sort` event
+collection.reverse();// reverses the order of models in the collection emitting the `sort` event
 ```
 <a id="Collection__get"></a>
 
@@ -489,8 +431,7 @@ Gets a model from the collection by its id.
 
 **Example**  
 ```js
-collection.get('M123');
-// returns a model with id `M123` if it's present in the collection
+collection.get('M123');// returns a model with id `M123` if it's present in the collection
 ```
 <a id="Collection__has"></a>
 
@@ -514,8 +455,7 @@ Checks whether the collection has the model.
 
 **Example**  
 ```js
-collection.has(model1);
-// returns `true` if collection has the `model1` in it
+collection.has(model1);// returns `true` if collection has the `model1` in it
 ```
 <a id="Collection__at"></a>
 
@@ -539,8 +479,7 @@ Returns a model at the given index.
 
 **Example**  
 ```js
-collection.at(3);
-// returns the third model of the collection
+collection.at(3);// returns the third model of the collection
 ```
 <a id="Collection__where"></a>
 
@@ -567,12 +506,7 @@ Returns models with matching attributes.
 
 **Example**  
 ```js
-collection.where({ day: 'monday', author: 'Joe'});
-// returns all models whose `day` and `author` attributes values equal
-// `monday` and `Joe`, respectively
-
-collection.where({ day: 'monday' }, true);
-// returns the first matching model
+collection.where({ day: 'monday', author: 'Joe'});// returns all models whose `day` and `author` attributes values equal// `monday` and `Joe`, respectivelycollection.where({ day: 'monday' }, true);// returns the first matching model
 ```
 <a id="Collection__read"></a>
 
@@ -607,14 +541,7 @@ Updates the collection with its stored version.
 
 **Example**  
 ```js
-collection.read()
- .then((response) => console.log(response))
- .catch((error) => console.log(error));
-// updates the collection with the stored version and logs the response if successful,
-// otherwise logs the error
-
-collection.read({ reset: true });
-// resets the models with the retrieved ones instead of updating the collection
+collection.read() .then((response) => console.log(response)) .catch((error) => console.log(error));// updates the collection with the stored version and logs the response if successful,// otherwise logs the errorcollection.read({ reset: true });// resets the models with the retrieved ones instead of updating the collection
 ```
 <a id="Collection__toJSON"></a>
 
@@ -626,8 +553,7 @@ Creates a copy of the collection's models for JSON stringification.
 <a id="Collection__sync"></a>
 
 ### collection.sync(method, options) ⇒ Promise
-The general method to synchronize the collection.
-Proxies to the `sync` method of the storage if it's specified.
+The general method to synchronize the collection.Proxies to the `sync` method of the storage if it's specified.
 
 **Kind**: instance method of [Collection](#Collection)  
 <table>
@@ -671,11 +597,7 @@ Prepares the collection to be disposed.
 
 **Example**  
 ```js
-collection.dispose();
-// disposes the collection disposing all its models and emitting the `dispose` event
-
-collection.dispose({ save: true });
-// disposes the collection without disposing its models
+collection.dispose();// disposes the collection disposing all its models and emitting the `dispose` eventcollection.dispose({ save: true });// disposes the collection without disposing its models
 ```
 <a id="Collection__on"></a>
 
