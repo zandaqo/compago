@@ -105,7 +105,23 @@ The general method to modify the collection.
 
 **Example**  
 ```js
-let collection = new Collection([model0]);collection.set([model1, model2]);// resets the collection models to `[model1, model2]` emitting `add` events on both models,// removes and disposes the existing `model0` which emits the `remove` eventcollection.set(model3, { keep: true });// adds `model3` to the list of collection models without removing the existing modelscollection.set(model4, { keep: true, at: 0 });// adds `model4` at the beginning of the collectioncollection.set([model2, model3], { save: true });// removes all models except `model2` and `model3` from the collection without disposing// the removed modelscollection.set([model1, model4], { keep: true, unsorted: true });// avoids sorting the resulting list of models
+let collection = new Collection([model0]);
+collection.set([model1, model2]);
+// resets the collection models to `[model1, model2]` emitting `add` events on both models,
+// removes and disposes the existing `model0` which emits the `remove` event
+
+collection.set(model3, { keep: true });
+// adds `model3` to the list of collection models without removing the existing models
+
+collection.set(model4, { keep: true, at: 0 });
+// adds `model4` at the beginning of the collection
+
+collection.set([model2, model3], { save: true });
+// removes all models except `model2` and `model3` from the collection without disposing
+// the removed models
+
+collection.set([model1, model4], { keep: true, unsorted: true });
+// avoids sorting the resulting list of models
 ```
 <a id="Collection__add"></a>
 
@@ -139,7 +155,15 @@ Adds a model or a list of models to the collection.
 
 **Example**  
 ```js
-let collection = new Collection();collection.add(model0);// adds `model0` to the collection emitting `add` event on the modelcollection.add(model1, { at: 0 });// adds `model1` at the beginning of the list of collection modelscollection.add(model3, { unsorted: true });// adds `model3` and avoids re-sorting the resulting list
+let collection = new Collection();
+collection.add(model0);
+// adds `model0` to the collection emitting `add` event on the model
+
+collection.add(model1, { at: 0 });
+// adds `model1` at the beginning of the list of collection models
+
+collection.add(model3, { unsorted: true });
+// adds `model3` and avoids re-sorting the resulting list
 ```
 <a id="Collection__remove"></a>
 
@@ -170,7 +194,12 @@ Removes a model or a list of models from the collection.
 
 **Example**  
 ```js
-let collection = new Collection([model1, model2]);collection.remove(model1);// removes `model1` from the collection emitting `remove` event and disposes itcollection.remove(mode2, { save: true });// removes `model2` from the collection but does not dispose it
+let collection = new Collection([model1, model2]);
+collection.remove(model1);
+// removes `model1` from the collection emitting `remove` event and disposes it
+
+collection.remove(mode2, { save: true });
+// removes `model2` from the collection but does not dispose it
 ```
 <a id="Collection__clear"></a>
 
@@ -198,7 +227,12 @@ Removes all models from the collection firing a single `clear` event.
 
 **Example**  
 ```js
-collection.clear();// removes and disposes all the existing models in the collection// emitting a single `clear` eventcollection.clear({ save: true });// removes all models without disposing them
+collection.clear();
+// removes and disposes all the existing models in the collection
+// emitting a single `clear` event
+
+collection.clear({ save: true });
+// removes all models without disposing them
 ```
 <a id="Collection__reset"></a>
 
@@ -229,7 +263,11 @@ Resets the collection with specified list of models firing a single `reset` even
 
 **Example**  
 ```js
-collection.reset([model1, model2]);// resets the collection emitting a single `reset` eventcollection.reset([model1, model2], { save: true });// resets the collection but avoids disposing the removed models
+collection.reset([model1, model2]);
+// resets the collection emitting a single `reset` event
+
+collection.reset([model1, model2], { save: true });
+// resets the collection but avoids disposing the removed models
 ```
 <a id="Collection__push"></a>
 
@@ -260,7 +298,8 @@ Adds a model(s) to the end of the collection.
 
 **Example**  
 ```js
-collection.push(model);// adds model to the end of the collection
+collection.push(model);
+// adds model to the end of the collection
 ```
 <a id="Collection__pop"></a>
 
@@ -279,7 +318,7 @@ Removes a model from the end of the collection.
 <tr>
     <td>[options]</td><td>Object</td><td></td><td></td>
     </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>reset</code> event</p>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
 </td>
     </tr><tr>
     <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
@@ -289,7 +328,11 @@ Removes a model from the end of the collection.
 
 **Example**  
 ```js
-collection.pop();// removes the last model from the collection, disposes and returns itcollection.pop({ save: true });// removes and returns the last model of the collection without disposing it
+collection.pop();
+// removes the last model from the collection, disposes and returns it
+
+collection.pop({ save: true });
+// removes and returns the last model of the collection without disposing it
 ```
 <a id="Collection__unshift"></a>
 
@@ -320,7 +363,8 @@ Adds a model(s) to the beginning of the collection.
 
 **Example**  
 ```js
-collection.unshift(model);// adds model to the beginning of the collection
+collection.unshift(model);
+// adds model to the beginning of the collection
 ```
 <a id="Collection__shift"></a>
 
@@ -339,7 +383,7 @@ Removes a model from the beginning of the collection.
 <tr>
     <td>[options]</td><td>Object</td><td></td><td></td>
     </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>reset</code> event</p>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
 </td>
     </tr><tr>
     <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
@@ -349,7 +393,11 @@ Removes a model from the beginning of the collection.
 
 **Example**  
 ```js
-collection.shift();// removes the first model from the collection, disposes and returns itcollection.shift({ save: true });// removes and returns the fist model of the collection without disposing it
+collection.shift();
+// removes the first model from the collection, disposes and returns it
+
+collection.shift({ save: true });
+// removes and returns the fist model of the collection without disposing it
 ```
 <a id="Collection__sort"></a>
 
@@ -382,7 +430,18 @@ Sorts the collection.
 
 **Example**  
 ```js
-collection.sort();// attemps to sort the collection using collection predefined comparator from `this.comparator`// emitting the `sort` eventcollection.sort({ comparator: '_id' });// sorts models according to their `_id` field in ascending ordercollection.sort({ comparator: '_id', descending: true });// sorts according to `_id` field in descending ordercollection.sort({ comparator: (a,b) => a > b });// sorts according to the provided comparator function
+collection.sort();
+// attemps to sort the collection using collection predefined comparator from `this.comparator`
+// emitting the `sort` event
+
+collection.sort({ comparator: '_id' });
+// sorts models according to their `_id` field in ascending order
+
+collection.sort({ comparator: '_id', descending: true });
+// sorts according to `_id` field in descending order
+
+collection.sort({ comparator: (a,b) => a > b });
+// sorts according to the provided comparator function
 ```
 <a id="Collection__reverse"></a>
 
@@ -407,7 +466,8 @@ Reverses the order of the models in the collection.
 
 **Example**  
 ```js
-collection.reverse();// reverses the order of models in the collection emitting the `sort` event
+collection.reverse();
+// reverses the order of models in the collection emitting the `sort` event
 ```
 <a id="Collection__get"></a>
 
@@ -431,7 +491,8 @@ Gets a model from the collection by its id.
 
 **Example**  
 ```js
-collection.get('M123');// returns a model with id `M123` if it's present in the collection
+collection.get('M123');
+// returns a model with id `M123` if it's present in the collection
 ```
 <a id="Collection__has"></a>
 
@@ -455,7 +516,8 @@ Checks whether the collection has the model.
 
 **Example**  
 ```js
-collection.has(model1);// returns `true` if collection has the `model1` in it
+collection.has(model1);
+// returns `true` if collection has the `model1` in it
 ```
 <a id="Collection__at"></a>
 
@@ -479,7 +541,8 @@ Returns a model at the given index.
 
 **Example**  
 ```js
-collection.at(3);// returns the third model of the collection
+collection.at(3);
+// returns the third model of the collection
 ```
 <a id="Collection__where"></a>
 
@@ -506,7 +569,12 @@ Returns models with matching attributes.
 
 **Example**  
 ```js
-collection.where({ day: 'monday', author: 'Joe'});// returns all models whose `day` and `author` attributes values equal// `monday` and `Joe`, respectivelycollection.where({ day: 'monday' }, true);// returns the first matching model
+collection.where({ day: 'monday', author: 'Joe'});
+// returns all models whose `day` and `author` attributes values equal
+// `monday` and `Joe`, respectively
+
+collection.where({ day: 'monday' }, true);
+// returns the first matching model
 ```
 <a id="Collection__read"></a>
 
@@ -541,7 +609,14 @@ Updates the collection with its stored version.
 
 **Example**  
 ```js
-collection.read() .then((response) => console.log(response)) .catch((error) => console.log(error));// updates the collection with the stored version and logs the response if successful,// otherwise logs the errorcollection.read({ reset: true });// resets the models with the retrieved ones instead of updating the collection
+collection.read()
+ .then((response) => console.log(response))
+ .catch((error) => console.log(error));
+// updates the collection with the stored version and logs the response if successful,
+// otherwise logs the error
+
+collection.read({ reset: true });
+// resets the models with the retrieved ones instead of updating the collection
 ```
 <a id="Collection__toJSON"></a>
 
@@ -553,7 +628,8 @@ Creates a copy of the collection's models for JSON stringification.
 <a id="Collection__sync"></a>
 
 ### collection.sync(method, options) ⇒ Promise
-The general method to synchronize the collection.Proxies to the `sync` method of the storage if it's specified.
+The general method to synchronize the collection.
+Proxies to the `sync` method of the storage if it's specified.
 
 **Kind**: instance method of [Collection](#Collection)  
 <table>
@@ -597,7 +673,11 @@ Prepares the collection to be disposed.
 
 **Example**  
 ```js
-collection.dispose();// disposes the collection disposing all its models and emitting the `dispose` eventcollection.dispose({ save: true });// disposes the collection without disposing its models
+collection.dispose();
+// disposes the collection disposing all its models and emitting the `dispose` event
+
+collection.dispose({ save: true });
+// disposes the collection without disposing its models
 ```
 <a id="Collection__on"></a>
 
@@ -884,6 +964,574 @@ and removes all event listeners.
 <a id="Controller__free"></a>
 
 ### controller.free() ⇒ this
+**Mixes**: [free](#Listener.free)  
+<a id="ModelArray"></a>
+
+## ModelArray ⇐ Array
+Manages an ordered set of models providing methods to create, sort, and dispose of the models.
+
+**Kind**: global class  
+**Extends**: Array  
+**Mixes**: [Listener](#Listener)  
+
+* [ModelArray](#ModelArray) ⇐ Array
+    * [new ModelArray([models], [options])](#new_ModelArray_new)
+    * [.set(models, options)](#ModelArray__set) ⇒ this
+    * [.unset(models, [options])](#ModelArray__unset) ⇒ this
+    * [.push(models, [options])](#ModelArray__push) ⇒ this
+    * [.pop([options])](#ModelArray__pop) ⇒ [Model](#Model)
+    * [.unshift(models, [options])](#ModelArray__unshift) ⇒ this
+    * [.shift([options])](#ModelArray__shift) ⇒ [Model](#Model)
+    * [.sort([options])](#ModelArray__sort) ⇒ this
+    * [.reverse([options])](#ModelArray__reverse) ⇒ this
+    * [.splice(start, [deleteCount], [items], [options])](#ModelArray__splice) ⇒ Array
+    * [.get(id)](#ModelArray__get) ⇒ [Model](#Model) \| undefined
+    * [.where(attributes, [first])](#ModelArray__where) ⇒ [Array.&lt;Model&gt;](#Model)
+    * [.read([options])](#ModelArray__read) ⇒ Promise
+    * [.toJSON()](#ModelArray__toJSON) ⇒ Array
+    * [.sync(method, options)](#ModelArray__sync) ⇒ Promise
+    * [.dispose([options])](#ModelArray__dispose) ⇒ this
+    * [.on(obj, name, callback)](#ModelArray__on) ⇒ this
+    * [.off([obj], [name], [callback])](#ModelArray__off) ⇒ this
+    * [.emit(name, [data], [emitter])](#ModelArray__emit) ⇒ this
+    * [.free()](#ModelArray__free) ⇒ this
+
+<a id="new_ModelArray_new"></a>
+
+### new ModelArray([models], [options])
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[models]</td><td><a href="#Model">Array.&lt;Model&gt;</a></td><td><p>models to add to the array</p>
+</td>
+    </tr><tr>
+    <td>[options]</td><td>Object</td><td></td>
+    </tr><tr>
+    <td>[options.storage]</td><td>Object</td><td><p>the storage controller for the array</p>
+</td>
+    </tr><tr>
+    <td>[options.model]</td><td>Object</td><td><p>the class of models in the array</p>
+</td>
+    </tr><tr>
+    <td>[options.comparator]</td><td>function | string</td><td><p>a function or an attribute name
+                                                  that will be used to sort the array</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a id="ModelArray__set"></a>
+
+### modelArray.set(models, options) ⇒ this
+The general method to modify the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>models</td><td>Array | Object</td><td></td><td><p>a model, a list of models or objects to be added
+                               to the array or updated if already present</p>
+</td>
+    </tr><tr>
+    <td>options</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.at]</td><td>number</td><td></td><td><p>the position at which the model(s) should be placed</p>
+</td>
+    </tr><tr>
+    <td>[options.keep]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid removing the models not present
+                                         in the supplied list</p>
+</td>
+    </tr><tr>
+    <td>[options.skip]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid updating existing models</p>
+</td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.unsorted]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid sorting the array</p>
+</td>
+    </tr><tr>
+    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+let modelArray = new ModelArray([model0]);
+modelArray.set([model1, model2]);
+// resets the array models to `[model1, model2]` emitting `add` events on both models,
+// removes and disposes the existing `model0` which emits the `remove` event
+
+modelArray.set(model3, { keep: true });
+// adds `model3` to the list of array models without removing the existing models
+
+modelArray.set(model4, { keep: true, at: 0 });
+// adds `model4` at the beginning of the array
+
+modelArray.set([model2, model3], { save: true });
+// removes all models except `model2` and `model3` from the array without disposing
+// the removed models
+
+modelArray.set([model1, model4], { keep: true, unsorted: true });
+// avoids sorting the resulting list of models
+```
+<a id="ModelArray__unset"></a>
+
+### modelArray.unset(models, [options]) ⇒ this
+Removes a model or a list of models from the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>models</td><td><a href="#Model">Model</a> | <a href="#Model">Array.&lt;Model&gt;</a></td><td></td><td><p>the model(s) to remove from the array</p>
+</td>
+    </tr><tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+let modelArray = new ModelArray([model1, model2]);
+modelArray.unset(model1);
+// removes `model1` from the array emitting `remove` event and disposes it
+
+modelArray.unset(mode2, { save: true });
+// removes `model2` from the array but does not dispose it
+```
+<a id="ModelArray__push"></a>
+
+### modelArray.push(models, [options]) ⇒ this
+Adds a model(s) to the end of the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>models</td><td>Object | Array</td><td></td><td><p>the model(s) or objects to be added to the array.</p>
+</td>
+    </tr><tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.unsorted]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid sorting the array</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.push(model);
+// adds model to the end of the array
+```
+<a id="ModelArray__pop"></a>
+
+### modelArray.pop([options]) ⇒ [Model](#Model)
+Removes a model from the end of the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+**Returns**: [Model](#Model) - the removed model  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.pop();
+// removes the last model from the array, disposes and returns it
+
+modelArray.pop({ save: true });
+// removes and returns the last model of the array without disposing it
+```
+<a id="ModelArray__unshift"></a>
+
+### modelArray.unshift(models, [options]) ⇒ this
+Adds a model(s) to the beginning of the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>models</td><td>Object | Array</td><td></td><td><p>the model(s) or objects to be added to the array.</p>
+</td>
+    </tr><tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.unsorted]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid sorting the array</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.unshift(model);
+// adds model to the beginning of the array
+```
+<a id="ModelArray__shift"></a>
+
+### modelArray.shift([options]) ⇒ [Model](#Model)
+Removes a model from the beginning of the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+**Returns**: [Model](#Model) - the removed model  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.shift();
+// removes the first model from the array, disposes and returns it
+
+modelArray.shift({ save: true });
+// removes and returns the fist model of the array without disposing it
+```
+<a id="ModelArray__sort"></a>
+
+### modelArray.sort([options]) ⇒ this
+Sorts the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.comparator]</td><td>function | string</td><td></td><td><p>a comparator function or an attribute name
+                                                for sorting</p>
+</td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>sort</code> event</p>
+</td>
+    </tr><tr>
+    <td>[options.descending]</td><td>boolean</td><td><code>false</code></td><td><p>whether to sort in descending order if the comparator is
+                                       an attribute name</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.sort();
+// attemps to sort the array using its predefined comparator from `this.comparator`
+// emitting the `sort` event
+
+modelArray.sort({ comparator: '_id' });
+// sorts models according to their `_id` field in ascending order
+
+modelArray.sort({ comparator: '_id', descending: true });
+// sorts according to `_id` field in descending order
+
+modelArray.sort({ comparator: (a,b) => a > b });
+// sorts according to the provided comparator function
+```
+<a id="ModelArray__reverse"></a>
+
+### modelArray.reverse([options]) ⇒ this
+Reverses the order of the models in the array.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>sort</code> event</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.reverse();
+// reverses the order of models in the array emitting the `sort` event
+```
+<a id="ModelArray__splice"></a>
+
+### modelArray.splice(start, [deleteCount], [items], [options]) ⇒ Array
+Changes the array in place by removing and/or replacing its models
+the same way as Array#splice.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>start</td><td>number</td><td></td><td><p>index at which to start changing the array</p>
+</td>
+    </tr><tr>
+    <td>[deleteCount]</td><td>number</td><td></td><td><p>the number of old array elements to remove,
+                               defaults to the length of the array</p>
+</td>
+    </tr><tr>
+    <td>[items]</td><td><a href="#Model">Model</a> | Object | Array</td><td></td><td><p>the models to add to the array,
+                                       beginning at the start index</p>
+</td>
+    </tr><tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
+</td>
+    </tr><tr>
+    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+const modelArray = new ModelArray([model1, model2, model3]);
+const result = modelArray.splice(0, 1);
+// result is `[model1]`
+// modelArray is `[model2, model3]`
+```
+<a id="ModelArray__get"></a>
+
+### modelArray.get(id) ⇒ [Model](#Model) \| undefined
+Gets a model from the array by its id.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+**Returns**: [Model](#Model) \| undefined - a model or `undefined` if no model is found  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>id</td><td>string</td><td><p>the model&#39;s id</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.get('M123');
+// returns a model with id `M123` if it's present in the array
+```
+<a id="ModelArray__where"></a>
+
+### modelArray.where(attributes, [first]) ⇒ [Array.&lt;Model&gt;](#Model)
+Returns models with matching attributes.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+**Returns**: [Array.&lt;Model&gt;](#Model) - an array of matching models  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>attributes</td><td>Object</td><td></td><td><p>a hash of attributes to match models against</p>
+</td>
+    </tr><tr>
+    <td>[first]</td><td>boolean</td><td><code>false</code></td><td><p>whether to return the first matching model</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.where({ day: 'monday', author: 'Joe'});
+// returns all models whose `day` and `author` attributes values equal
+// `monday` and `Joe`, respectively
+
+modelArray.where({ day: 'monday' }, true);
+// returns the first matching model
+```
+<a id="ModelArray__read"></a>
+
+### modelArray.read([options]) ⇒ Promise
+Updates the array with its stored version.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.success]</td><td>function</td><td></td><td><p>the success callback</p>
+</td>
+    </tr><tr>
+    <td>[options.error]</td><td>function</td><td></td><td><p>the error callback</p>
+</td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing events</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.read()
+ .then((response) => console.log(response))
+ .catch((error) => console.log(error));
+// updates the array with the stored version and logs the response if successful,
+// otherwise logs the error
+```
+<a id="ModelArray__toJSON"></a>
+
+### modelArray.toJSON() ⇒ Array
+Creates a copy of the array's models for JSON stringification.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+**Returns**: Array - an array of stringified models  
+<a id="ModelArray__sync"></a>
+
+### modelArray.sync(method, options) ⇒ Promise
+The general method to synchronize the array.
+Proxies to the `sync` method of the storage if it's specified.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>method</td><td>string</td><td><p>the internal method name.</p>
+</td>
+    </tr><tr>
+    <td>options</td><td>Object</td><td></td>
+    </tr>  </tbody>
+</table>
+
+<a id="ModelArray__dispose"></a>
+
+### modelArray.dispose([options]) ⇒ this
+Prepares the array to be disposed.
+
+**Kind**: instance method of [ModelArray](#ModelArray)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[options]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing <code>dispose</code> event</p>
+</td>
+    </tr><tr>
+    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+modelArray.dispose();
+// disposes the array disposing all its models and emitting the `dispose` event
+
+modelArray.dispose({ save: true });
+// disposes the array without disposing its models
+```
+<a id="ModelArray__on"></a>
+
+### modelArray.on(obj, name, callback) ⇒ this
+**Mixes**: [on](#Listener.on)  
+<a id="ModelArray__off"></a>
+
+### modelArray.off([obj], [name], [callback]) ⇒ this
+**Mixes**: [off](#Listener.off)  
+<a id="ModelArray__emit"></a>
+
+### modelArray.emit(name, [data], [emitter]) ⇒ this
+**Mixes**: [emit](#Listener.emit)  
+<a id="ModelArray__free"></a>
+
+### modelArray.free() ⇒ this
 **Mixes**: [free](#Listener.free)  
 <a id="Model"></a>
 
@@ -1393,7 +2041,7 @@ The general method for synchronization.
                   Internal method names are mapped to HTTP methods in <code>RemoteStorage.methods</code>.</p>
 </td>
     </tr><tr>
-    <td>model</td><td><a href="#Model">Model</a> | <a href="#Collection">Collection</a></td><td></td><td><p>a model or a collection to be synchronized</p>
+    <td>model</td><td><a href="#Model">Model</a> | <a href="#Collection">Collection</a> | <a href="#ModelArray">ModelArray</a></td><td></td><td><p>a model or a collection to be synchronized</p>
 </td>
     </tr><tr>
     <td>options</td><td>Object</td><td></td><td></td>

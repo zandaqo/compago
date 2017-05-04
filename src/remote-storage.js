@@ -39,7 +39,7 @@ class RemoteStorage {
    *
    * @param {string} method a method name to execute.
    *                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`.
-   * @param {(Model|Collection)} model a model or a collection to be synchronized
+   * @param {(Model|Collection|ModelArray)} model a model or a collection to be synchronized
    * @param {Object} options
    * @param {boolean} [options.silent] whether to avoid firing any events
    * @param {Boolean} [options.patch] whether to send only changed attributes (if present)
