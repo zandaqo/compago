@@ -68,7 +68,7 @@ class ModelArray extends Array {
   set(models = [], options = {}) {
     const { keep, at, silent, unsorted } = options;
 
-    const sortable = this.comparator && (at == null) && !unsorted;
+    const sortable = this.comparator && (!Number.isInteger(at)) && !unsorted;
     const parseResults = this._parseModels(models, options, sortable);
     const [modelSet, toAdd] = parseResults;
     let sort = parseResults[2];
@@ -84,7 +84,7 @@ class ModelArray extends Array {
 
     if (toAdd.length) {
       if (sortable) sort = true;
-      if (at != null) {
+      if (Number.isInteger(at)) {
         super.splice(at, 0, ...toAdd);
       } else {
         super.push(...toAdd);
@@ -98,7 +98,7 @@ class ModelArray extends Array {
     let currentAt = at;
     for (let i = 0; i < toAdd.length; i++) {
       toAdd[i].emit('add', { at: currentAt, sort, collection: this });
-      if (at != null) currentAt += 1;
+      if (Number.isInteger(at)) currentAt += 1;
     }
 
     if (sort) this.emit('sort');
@@ -509,7 +509,7 @@ class ModelArray extends Array {
     }
     if (eventName === (`change:${model.constructor.idAttribute}`)) {
       this._byId[model.previous[model.constructor.idAttribute]] = undefined;
-      if (model.id != null) this._byId[model.id] = model;
+      if (model.id !== undefined) this._byId[model.id] = model;
     }
     this.emit(eventName, event, model);
   }

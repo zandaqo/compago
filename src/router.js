@@ -181,7 +181,7 @@ class Router {
    * @returns {string}
    */
   _getFragment(fragment) {
-    if (fragment != null) return fragment.trim();
+    if (fragment !== undefined) return fragment.trim();
     const root = this.root;
     const location = this.location;
     let newFragment = decodeURIComponent(location.pathname + location.search + location.hash);

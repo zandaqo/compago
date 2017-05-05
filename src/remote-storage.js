@@ -31,7 +31,7 @@ class RemoteStorage {
    * @returns {boolean} True if the model is already stored on the server
    */
   static isStored(model) {
-    return model.id != null;
+    return model.id !== undefined;
   }
 
   /**

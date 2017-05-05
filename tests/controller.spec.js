@@ -16,7 +16,8 @@ window.Element.prototype.closest = function (selector) {
 };
 
 window.MutationObserver = class {
-  constructor() {
+  constructor(callback) {
+    this.callback = callback;
     this.observe = jest.fn();
     this.disconnect = jest.fn();
   }
@@ -497,6 +498,11 @@ describe('Controller', () => {
       expect(parentController._regionControllers.region).toBeUndefined();
       expect(regionEl.hasChildNodes()).toBe(false);
     });
+
+    it('returns if no region is set up', () => {
+      const controller = new Controller();
+      expect(controller._onRegionDispose()).toBeUndefined();
+    });
   });
 
   describe('_disposeRegions', () => {
@@ -537,6 +543,15 @@ describe('Controller', () => {
       expect(controller._observer instanceof window.MutationObserver).toBe(true);
       expect(controller._observer.observe.mock.calls[0])
         .toEqual([controller.el, { attributes: true, attributeFilter: ['data-id'] }]);
+    });
+
+    it('renders the view in response to changes in watched attributes', () => {
+      const controller = new Controller();
+      controller._observeAttributes(['data-id']);
+      jest.spyOn(controller, 'render');
+      controller._observer.callback();
+      expect(controller.render.mock.calls.length).toBe(1);
+      controller.render.mockRestore();
     });
   });
 

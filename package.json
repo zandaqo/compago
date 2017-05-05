@@ -43,10 +43,6 @@
           "props": false
         }
       ],
-      "eqeqeq": [
-        2,
-        "smart"
-      ],
       "valid-jsdoc": [
         2,
         {

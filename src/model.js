@@ -59,7 +59,7 @@ class Model {
    * // saves the previous value of the `foo` attribute in `model.previous`
    */
   set(attributes, options = _opt) {
-    if (attributes == null) return this;
+    if (!attributes) return this;
 
     const { unset, silent, valid, nested, past, circular = false } = options;
 
@@ -223,7 +223,7 @@ class Model {
    * @returns {boolean}
    */
   has(attribute) {
-    return this.data[attribute] != null;
+    return this.data[attribute] !== undefined;
   }
 
   /**

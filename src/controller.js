@@ -364,7 +364,7 @@ class Controller {
    *
    * @returns {void}
    */
-  _onRegionDispose({ emitter: controller }) {
+  _onRegionDispose({ emitter: controller } = _opt) {
     if (!this._regionControllers) return;
     const regions = Object.keys(this._regionControllers);
     for (let i = 0; i < regions.length; i++) {
