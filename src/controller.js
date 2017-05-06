@@ -10,6 +10,9 @@ const _opt = Object.seal(Object.create(null));
 
 /**
  * The Controller in MVC.
+ * It manages its Model and View while handling user interactions. Controller handles user input
+ * through DOM events and updates its Model accordingly. It listens to updates on its Model
+ * to re-render its View.
  *
  * @mixes Listener
  */

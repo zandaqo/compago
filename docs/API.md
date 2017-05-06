@@ -4,6 +4,9 @@
 
 ## Controller
 The Controller in MVC.
+It manages its Model and View while handling user interactions. Controller handles user input
+through DOM events and updates its Model accordingly. It listens to updates on its Model
+to re-render its View.
 
 **Kind**: global class  
 **Mixes**: [Listener](#Listener)  
@@ -842,6 +845,8 @@ modelArray.dispose({ save: true });
 
 ## Model
 The Model in MVC.
+It manages data and business logic. Models handle synchronization with a persistence layer
+through storage controllers and notify subscribers through events when their data is changed.
 
 **Kind**: global class  
 **Mixes**: [Listener](#Listener)  

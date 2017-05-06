@@ -7,6 +7,8 @@ const _opt = Object.seal(Object.create(null));
 
 /**
  * The Model in MVC.
+ * It manages data and business logic. Models handle synchronization with a persistence layer
+ * through storage controllers and notify subscribers through events when their data is changed.
  *
  * @mixes Listener
  */
