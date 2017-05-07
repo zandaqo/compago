@@ -190,10 +190,13 @@ describe('Model', () => {
       expect(m.get('something')).toBe(undefined);
     });
 
-    it('returns a hash of attributes', () => {
-      expect(m.get(['answer', 'question'])).toEqual({ answer: 42, question: '' });
-      expect(m.get([])).toEqual({});
-      expect(m.get(['something'])).toEqual({ something: undefined });
+    it('returns a value of a getter if present', () => {
+      class SomeModel extends Model {
+        get someValue() { return 1; }
+      }
+      const someModel = new SomeModel();
+      expect(someModel.get('someValue')).toBe(1);
+      expect(someModel.get('clear')).toBeUndefined();
     });
   });
 

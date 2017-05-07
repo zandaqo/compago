@@ -189,24 +189,19 @@ class Model {
   }
 
   /**
-   * Gets a value of an attribute.
-   * If an array of attribute names is supplied, returns a hash of attributes and their values.
+   * Gets a value of a data attribute. If not present, looks it up among the model's getters.
+   * For simplicity's sake, any property that isn't a function is considered a getter.
    *
-   * @param {(string|Array)} attribute an attribute name or a list of names
-   * @returns {*} either the value of the attribute or a hash of attribute values
+   * @param {string} attribute an attribute or getter name
+   * @returns {*} the value of the data attribute or getter
    * @example
    * model.get('foo');
    * // returns the value of the `foo` attribute
-   * model.get(['foo', 'bar']);
-   * // returns an object with 'foo' and 'bar' attributes and their values
    */
   get(attribute) {
-    if (!Array.isArray(attribute)) return this.data[attribute];
-    const result = {};
-    for (let i = attribute.length - 1; i >= 0; i--) {
-      result[attribute[i]] = this.data[attribute[i]];
-    }
-    return result;
+    if (this.data.hasOwnProperty(attribute)) return this.data[attribute];
+    const getter = this[attribute];
+    return typeof getter !== 'function' ? getter : undefined;
   }
 
   /**
@@ -215,7 +210,7 @@ class Model {
    * @type {*}
    */
   get id() {
-    return this.get(this.constructor.idAttribute);
+    return this.data[this.constructor.idAttribute];
   }
 
   /**
