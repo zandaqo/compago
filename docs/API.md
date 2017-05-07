@@ -855,13 +855,13 @@ through storage controllers and notify subscribers through events when their dat
     * [new Model([attributes], [options])](#new_Model_new)
     * _instance_
         * [.id](#Model__id) : \*
-        * [.changes](#Model__changes) : Object \| boolean
         * [.set(attributes, [options])](#Model__set) ⇒ this \| boolean
         * [.unset(keys, [options])](#Model__unset) ⇒ this \| boolean
         * [.validate()](#Model__validate) ⇒ \*
         * [.clear([options])](#Model__clear) ⇒ this
         * [.get(attribute)](#Model__get) ⇒ \*
         * [.has(attribute)](#Model__has) ⇒ boolean
+        * [.changes()](#Model__changes) ⇒ Object \| boolean
         * [.toJSON()](#Model__toJSON) ⇒ Object
         * [.read([options])](#Model__read) ⇒ Promise
         * [.write([options])](#Model__write) ⇒ Promise
@@ -912,12 +912,6 @@ through storage controllers and notify subscribers through events when their dat
 
 ### model.id : \*
 The model's permanent `id`.
-
-**Kind**: instance property of [Model](#Model)  
-<a id="Model__changes"></a>
-
-### model.changes : Object \| boolean
-A hash of changed attributes since the last `set` operation or `false` if no changes are found.
 
 **Kind**: instance property of [Model](#Model)  
 <a id="Model__set"></a>
@@ -1057,11 +1051,11 @@ model.clear();
 <a id="Model__get"></a>
 
 ### model.get(attribute) ⇒ \*
-Gets a value of an attribute.
-If an array of attribute names is supplied, returns a hash of attributes and their values.
+Gets a value of a data attribute. If not present, looks it up among the model's getters.
+For simplicity's sake, any property that isn't a function is considered a getter.
 
 **Kind**: instance method of [Model](#Model)  
-**Returns**: \* - either the value of the attribute or a hash of attribute values  
+**Returns**: \* - the value of the data attribute or getter  
 <table>
   <thead>
     <tr>
@@ -1070,7 +1064,7 @@ If an array of attribute names is supplied, returns a hash of attributes and the
   </thead>
   <tbody>
 <tr>
-    <td>attribute</td><td>string | Array</td><td><p>an attribute name or a list of names</p>
+    <td>attribute</td><td>string</td><td><p>an attribute or getter name</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -1079,8 +1073,6 @@ If an array of attribute names is supplied, returns a hash of attributes and the
 ```js
 model.get('foo');
 // returns the value of the `foo` attribute
-model.get(['foo', 'bar']);
-// returns an object with 'foo' and 'bar' attributes and their values
 ```
 <a id="Model__has"></a>
 
@@ -1101,6 +1093,13 @@ Checks whether the model has the attribute.
     </tr>  </tbody>
 </table>
 
+<a id="Model__changes"></a>
+
+### model.changes() ⇒ Object \| boolean
+Returns a hash of changed attributes since the last `set` operation or `false`
+if no changes are found.
+
+**Kind**: instance method of [Model](#Model)  
 <a id="Model__toJSON"></a>
 
 ### model.toJSON() ⇒ Object

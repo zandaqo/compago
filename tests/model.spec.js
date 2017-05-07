@@ -210,9 +210,9 @@ describe('Model', () => {
   describe('changes', () => {
     it('returns a hash of changed attributes or `false`', () => {
       m.set({ answer: 40 }, { past: true });
-      expect(m.changes).toEqual({ answer: 40 });
+      expect(m.changes()).toEqual({ answer: 40 });
       m.previous = {};
-      expect(m.changes).toBe(false);
+      expect(m.changes()).toBe(false);
     });
   });
 

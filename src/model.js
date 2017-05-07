@@ -224,11 +224,12 @@ class Model {
   }
 
   /**
-   * A hash of changed attributes since the last `set` operation or `false` if no changes are found.
+   * Returns a hash of changed attributes since the last `set` operation or `false`
+   * if no changes are found.
    *
-   * @type {(Object|boolean)}
+   * @returns {(Object|boolean)}
    */
-  get changes() {
+  changes() {
     const keys = Object.keys(this.previous);
     if (!keys.length) return false;
     const result = {};
