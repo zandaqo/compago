@@ -63,7 +63,7 @@ class Controller {
    * @returns {HTMLElement} the DOM element of the controller
    */
   render() {
-    if (this.view) this.view(this.el, this);
+    if (this.view) this.view(this);
     return this.el;
   }
 

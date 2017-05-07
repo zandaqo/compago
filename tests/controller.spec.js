@@ -74,7 +74,7 @@ describe('Controller', () => {
       const result = v.render();
       expect(result).toBe(v.el);
       expect(v.view.mock.calls.length).toBe(1);
-      expect(v.view.mock.calls[0]).toEqual([v.el, v]);
+      expect(v.view.mock.calls[0]).toEqual([v]);
     });
   });
 
