@@ -37,4 +37,4 @@ import { Model, Controller } from 'compago';
 ```
 
 ## Example
- * [compago-todo](https://github.com/scriptare/compago-todo)
+ * [compago-todo](https://github.com/scriptare/compago-todo) An example of a Todo app that uses JSX and Incremental DOM for Views.
