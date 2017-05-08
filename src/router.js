@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 import pathToRegExp from 'path-to-regexp';
 import qs from 'querystring';
 import Listener from './listener';
@@ -42,7 +40,7 @@ class Router {
     this.fragment = '';
     this._onPopstateEvent = this._onPopstateEvent.bind(this);
     const names = Object.keys(routes);
-    for (let i = 0, l = names.length; i < l; i++) {
+    for (let i = 0, l = names.length; i < l; i += 1) {
       const name = names[i];
       this.addRoute(name, routes[name]);
     }
@@ -81,7 +79,7 @@ class Router {
    */
   removeRoute(name) {
     const routes = this.routes;
-    for (let i = 0, l = routes.length; i < l; i++) {
+    for (let i = 0, l = routes.length; i < l; i += 1) {
       if (routes[i].route === name) {
         routes.splice(i, 1);
         return this;
@@ -210,7 +208,7 @@ class Router {
     this.fragment = this._getFragment(fragment);
     const [pathString, hash] = this.fragment.split('#', 2);
     const [path, queryString] = pathString.split('?', 2);
-    for (let i = 0, l = this.routes.length; i < l; i++) {
+    for (let i = 0, l = this.routes.length; i < l; i += 1) {
       const route = this.routes[i];
       if (route.test(path)) {
         const params = this.constructor._extractParameters(route, path);
@@ -238,9 +236,9 @@ class Router {
     if (matches.length < 2) return params;
     const keys = route.keys;
     let n = 0;
-    for (let i = 1, len = matches.length; i < len; ++i) {
+    for (let i = 1, len = matches.length; i < len; i += 1) {
       const key = keys[i - 1];
-      const prop = key ? key.name : n++;
+      const prop = key ? key.name : n += 1;
       const val = (typeof matches[i] !== 'string') ? matches[i] : decodeURIComponent(matches[i]);
 
       if (val !== undefined || !params.hasOwnProperty(prop)) {

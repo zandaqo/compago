@@ -76,7 +76,7 @@ class Collection {
     const toRemove = [];
 
     if (!keep) {
-      for (let i = this.models.length - 1; i >= 0; i--) {
+      for (let i = this.models.length - 1; i >= 0; i -= 1) {
         const model = this.models[i];
         if (!modelSet.has(model)) toRemove.push(model);
       }
@@ -97,7 +97,7 @@ class Collection {
     if (silent) return this;
 
     let currentAt = at;
-    for (let i = 0; i < toAdd.length; i++) {
+    for (let i = 0; i < toAdd.length; i += 1) {
       toAdd[i].emit('add', { at: currentAt, sort, collection: this });
       if (at != null) currentAt += 1;
     }
@@ -152,7 +152,7 @@ class Collection {
   remove(models, { silent, save } = _opt) {
     let hasChanged = false;
     const modelsArray = [].concat(models);
-    for (let i = 0; i < modelsArray.length; i++) {
+    for (let i = 0; i < modelsArray.length; i += 1) {
       const model = modelsArray[i];
       const index = this.models.indexOf(model);
       if (!~index) continue;
@@ -185,7 +185,7 @@ class Collection {
    */
   clear({ silent, save } = _opt) {
     const models = this.models;
-    for (let i = 0; i < models.length; i++) {
+    for (let i = 0; i < models.length; i += 1) {
       const model = models[i];
       this._removeReference(model);
       if (!save) model.dispose();
@@ -429,7 +429,7 @@ class Collection {
     const keys = Object.keys(attributes);
     if (!keys.length) return [];
     return this.models[first ? 'find' : 'filter']((model) => {
-      for (let i = 0; i < keys.length; i++) {
+      for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
         if (attributes[key] !== model.get(key)) return false;
       }
@@ -528,7 +528,7 @@ class Collection {
     const toAdd = [];
     let sort = false;
     const attrsArray = [].concat(models);
-    for (let i = 0; i < attrsArray.length; i++) {
+    for (let i = 0; i < attrsArray.length; i += 1) {
       const attrs = attrsArray[i];
       const isModel = !!(attrs instanceof this.Model);
       const existing = isModel ? this.models[this.models.indexOf(attrs)] :

@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 import Listener from './listener';
 
 /** Used as a source of default options for methods to avoid creating new objects on every call. */

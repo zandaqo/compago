@@ -72,8 +72,8 @@ to re-render its View.
 ### controller.render() ⇒ HTMLElement
 Renders the controller.
 
-By default, invokes `this.view` supplying the controller's element and model if present,
- prepares the controller's regions, and returns the controller's DOM element.
+By default, invokes `this.view` supplying the controller
+and returns the controller's DOM element.
 
 **Kind**: instance method of [Controller](#Controller)  
 **Returns**: HTMLElement - the DOM element of the controller  

@@ -1,6 +1,3 @@
-/* eslint-env jest, browser */
-/* globals jest, expect*/
-
 import Listener from '../src/listener';
 import Model from '../src/model';
 import ModelArray from '../src/model-array';

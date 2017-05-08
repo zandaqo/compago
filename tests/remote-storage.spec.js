@@ -1,6 +1,3 @@
-/* eslint-env jest, browser */
-/* globals jest, expect */
-
 import RemoteStorage from '../src/remote-storage';
 
 class MockResponse {

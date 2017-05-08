@@ -74,7 +74,7 @@ class Model {
     if (!changing) this.previous = {};
 
     const attrs = Object.keys(attributes);
-    for (let i = attrs.length - 1; i >= 0; i--) {
+    for (let i = attrs.length - 1; i >= 0; i -= 1) {
       let current = this.data;
       let key = attrs[i];
       let firstKey = key;
@@ -110,7 +110,7 @@ class Model {
 
     if (!silent) {
       if (changes.length) this._pending = true;
-      for (let i = changes.length - 1; i >= 0; i--) {
+      for (let i = changes.length - 1; i >= 0; i -= 1) {
         this.emit(`change:${changes[i]}`, { options });
       }
     }
@@ -153,7 +153,7 @@ class Model {
     const keysArray = (typeof keys === 'string') ? [keys] : keys;
     if (!Array.isArray(keysArray)) return false;
 
-    for (let i = keysArray.length - 1; i >= 0; i--) {
+    for (let i = keysArray.length - 1; i >= 0; i -= 1) {
       attrs[keysArray[i]] = undefined;
     }
     options.unset = true;
@@ -233,7 +233,7 @@ class Model {
     const keys = Object.keys(this.previous);
     if (!keys.length) return false;
     const result = {};
-    for (let i = keys.length - 1; i >= 0; i--) {
+    for (let i = keys.length - 1; i >= 0; i -= 1) {
       result[keys[i]] = this.data[keys[i]];
     }
     return result;
@@ -382,7 +382,7 @@ class Model {
   static _resolveNested(path, obj) {
     const changes = [];
     let current = obj;
-    for (let j = 0; j < path.length - 1; j++) {
+    for (let j = 0; j < path.length - 1; j += 1) {
       changes[j] = path[j - 1] ? (`${path[j - 1]}:${path[j]}`) : path[j];
       current = current[path[j]];
     }

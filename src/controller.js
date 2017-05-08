@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 import Listener from './listener';
 
 /** Used to split event names and selectors in handler declaration. */
@@ -57,8 +55,8 @@ class Controller {
   /**
    * Renders the controller.
    *
-   * By default, invokes `this.view` supplying the controller's element and model if present,
-   *  prepares the controller's regions, and returns the controller's DOM element.
+   * By default, invokes `this.view` supplying the controller
+   * and returns the controller's DOM element.
    *
    * @returns {HTMLElement} the DOM element of the controller
    */
@@ -262,7 +260,7 @@ class Controller {
     if (!el || (el.nodeType !== 1)) el = document.createElement(this.tagName);
     if (!(attributes)) return el;
     const names = Object.keys(attributes);
-    for (let i = names.length - 1; i >= 0; i--) {
+    for (let i = names.length - 1; i >= 0; i -= 1) {
       const key = names[i];
       el.setAttribute(key, attributes[key]);
     }
@@ -326,7 +324,7 @@ class Controller {
     const name = event.type.toLowerCase();
     const handlers = this.handlers && this.handlers.get(name);
     if (!handlers) return;
-    for (let i = 0, l = handlers.length; i < l; i++) {
+    for (let i = 0, l = handlers.length; i < l; i += 1) {
       let data;
       let selector;
       let cb = handlers[i];
@@ -370,7 +368,7 @@ class Controller {
   _onRegionDispose({ emitter: controller } = _opt) {
     if (!this._regionControllers) return;
     const regions = Object.keys(this._regionControllers);
-    for (let i = 0; i < regions.length; i++) {
+    for (let i = 0; i < regions.length; i += 1) {
       const region = regions[i];
       if (this._regionControllers[region] === controller) {
         this._regionControllers[region] = undefined;
@@ -389,7 +387,7 @@ class Controller {
     const regions = this._regionControllers;
     this._regionControllers = undefined;
     const regionNames = Object.keys(regions);
-    for (let i = 0; i < regionNames.length; i++) {
+    for (let i = 0; i < regionNames.length; i += 1) {
       const name = regionNames[i];
       const region = regions[name];
       if (region instanceof Controller) {

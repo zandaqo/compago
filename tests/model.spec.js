@@ -1,6 +1,3 @@
-/* eslint-env jest, browser */
-/* globals jest, expect */
-
 import Model from '../src/model';
 
 describe('Model', () => {

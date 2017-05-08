@@ -1,6 +1,3 @@
-/* eslint-env jest, browser */
-/* globals jest, expect */
-
 import Router from '../src/router';
 
 describe('Router', () => {

@@ -75,7 +75,7 @@ class ModelArray extends Array {
     const toRemove = [];
 
     if (!keep) {
-      for (let i = this.length - 1; i >= 0; i--) {
+      for (let i = this.length - 1; i >= 0; i -= 1) {
         const model = this[i];
         if (!modelSet.has(model)) toRemove.push(model);
       }
@@ -96,7 +96,7 @@ class ModelArray extends Array {
     if (silent) return this;
 
     let currentAt = at;
-    for (let i = 0; i < toAdd.length; i++) {
+    for (let i = 0; i < toAdd.length; i += 1) {
       toAdd[i].emit('add', { at: currentAt, sort, collection: this });
       if (Number.isInteger(at)) currentAt += 1;
     }
@@ -125,7 +125,7 @@ class ModelArray extends Array {
   unset(models, { silent, save } = _opt) {
     let hasChanged = false;
     const modelsArray = [].concat(models);
-    for (let i = 0; i < modelsArray.length; i++) {
+    for (let i = 0; i < modelsArray.length; i += 1) {
       const model = modelsArray[i];
       const index = this.indexOf(model);
       if (!~index) continue;
@@ -360,7 +360,7 @@ class ModelArray extends Array {
     const keys = Object.keys(attributes);
     if (!keys.length) return [];
     const result = this[first ? 'find' : 'filter']((model) => {
-      for (let i = 0; i < keys.length; i++) {
+      for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
         if (attributes[key] !== model.get(key)) return false;
       }
@@ -454,7 +454,7 @@ class ModelArray extends Array {
     const toAdd = [];
     let sort = false;
     const attrsArray = [].concat(models);
-    for (let i = 0; i < attrsArray.length; i++) {
+    for (let i = 0; i < attrsArray.length; i += 1) {
       const attrs = attrsArray[i];
       const isModel = !!(attrs instanceof this.Model);
       const existing = isModel ? this[this.indexOf(attrs)] :

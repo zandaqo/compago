@@ -1,10 +1,12 @@
 .idea
-node_modules
-coverage
 _book
+coverage
+docs
+node_modules
+tests
 .gitignore
 .npmignore
-tests
+.codeclimate.yml
+.eslintrc.yml
 book.json
 jsdoc.json
-docs

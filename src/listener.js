@@ -44,7 +44,7 @@ const Listener = {
     const listeners = this._listeners || (this._listeners = new Map());
     const listensTo = listeners.get(obj) || listeners.set(obj, []).get(obj);
 
-    for (let i = 0, l = names.length; i < l; i++) {
+    for (let i = 0, l = names.length; i < l; i += 1) {
       const eventName = names[i];
       const event = events.get(eventName) || events.set(eventName, []).get(eventName);
       event.push([this, callback]);
@@ -89,12 +89,12 @@ const Listener = {
     }
     listeners.forEach((listensTo, listener) => {
       const names = nameList || listensTo;
-      for (let i = names.length - 1; i >= 0; i--) {
+      for (let i = names.length - 1; i >= 0; i -= 1) {
         let hasListener;
         const eventName = names[i];
         const events = listener._events && listener._events.get(eventName);
         if (!events) continue;
-        for (let j = events.length - 1; j >= 0; j--) {
+        for (let j = events.length - 1; j >= 0; j -= 1) {
           if (events[j][0] === emitter) {
             if (callback && callback !== events[j][1]) {
               hasListener = true;
@@ -144,7 +144,7 @@ const Listener = {
     data.emitter = emitter;
     const handlers = event ? all ? [].concat(event, all) : event.slice() : all ? all.slice() : [];
     if (handlers.length) {
-      for (let i = 0, l = handlers.length; i < l; i++) {
+      for (let i = 0, l = handlers.length; i < l; i += 1) {
         handlers[i][1].call(handlers[i][0], data);
       }
     }

@@ -1,6 +1,3 @@
-/* eslint-env jest */
-/* globals jest, expect */
-
 import Listener from '../src/listener';
 
 describe('Listener', () => {
