@@ -60,7 +60,7 @@
     "querystring": "^0.2.0"
   },
   "devDependencies": {
-    "babel-jest": "^19.0.0",
+    "babel-jest": "^20.0.0",
     "babel-preset-node6": "^11.0.0",
     "codecov.io": "^0.1.6",
     "dmd-plugin-gitbook": "0.0.1",
@@ -69,7 +69,7 @@
     "eslint-plugin-import": "^2.2.0",
     "gitbook-cli": "^2.3.0",
     "istanbul": "^1.1.0-alpha.1",
-    "jest": "^19.0.2",
+    "jest": "^20.0.0",
     "jsdoc-plugin-false-booleans": "^1.0.0",
     "jsdoc-plugin-named-defaults": "^1.1.1",
     "jsdoc-to-markdown": "^3.0.0"

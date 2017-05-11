@@ -16,3 +16,6 @@ rules:
       return: returns
     requireReturnDescription: false
     requireParamDescription: false
+  import/extensions:
+    - off
+    - never
