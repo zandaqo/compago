@@ -1,6 +1,6 @@
 {
   "name": "compago",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A minimalist MVC framework for modern browsers.",
   "browser": "src/index.js",
   "module": "src/index.js",
@@ -32,8 +32,8 @@
   "babel": {
     "env": {
       "test": {
-        "presets": [
-          "node6"
+        "plugins": [
+          "transform-es2015-modules-commonjs"
         ]
       }
     }
@@ -60,16 +60,15 @@
     "querystring": "^0.2.0"
   },
   "devDependencies": {
-    "babel-jest": "^20.0.0",
-    "babel-preset-node6": "^11.0.0",
+    "babel-jest": "^20.0.3",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "codecov.io": "^0.1.6",
     "dmd-plugin-gitbook": "0.0.1",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.1.3",
-    "eslint-plugin-import": "^2.2.0",
-    "gitbook-cli": "^2.3.0",
-    "istanbul": "^1.1.0-alpha.1",
-    "jest": "^20.0.0",
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb-base": "^11.3.2",
+    "eslint-plugin-import": "^2.7.0",
+    "gitbook-cli": "^2.3.2",
+    "jest": "^20.0.4",
     "jsdoc-plugin-false-booleans": "^1.0.0",
     "jsdoc-plugin-named-defaults": "^1.1.1",
     "jsdoc-to-markdown": "^3.0.0"
