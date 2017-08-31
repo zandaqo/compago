@@ -12,7 +12,6 @@ const _opt = Object.seal(Object.create(null));
  * @private
  */
 class Collection {
-
   /**
    * @param {Array.<Model>} [models] models to add to the collection
    * @param {Object} [options]

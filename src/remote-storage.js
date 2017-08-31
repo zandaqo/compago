@@ -9,7 +9,6 @@ const _opt = Object.seal(Object.create(null));
  * @mixes Listener
  */
 class RemoteStorage {
-
   /**
    * @param {Object} [options]
    * @param {string} [options.url] the base URL for requests, by default uses the window's origin

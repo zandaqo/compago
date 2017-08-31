@@ -1,5 +1,4 @@
 import pathToRegExp from 'path-to-regexp';
-import qs from 'querystring';
 import Listener from './listener';
 
 /** Used as a source of default options for methods to avoid creating new objects on every call. */
@@ -17,7 +16,6 @@ const _reTrailingSlash = /\/+$/g;
  * @mixes Listener
  */
 class Router {
-
   /**
    * @param {Object} [options]
    * @param {Object} [options.routes] a hash of routes
@@ -212,9 +210,8 @@ class Router {
       const route = this.routes[i];
       if (route.test(path)) {
         const params = this.constructor._extractParameters(route, path);
-        const query = qs.parse(queryString);
         const name = route.route;
-        const data = { route: name, params, query, hash };
+        const data = { route: name, params, query: queryString, hash };
         this.emit(`route:${name}`, data);
         this.emit('route', data);
         return true;

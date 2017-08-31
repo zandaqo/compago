@@ -250,7 +250,7 @@ describe('Router', () => {
       expect(fileCallbackSpy.mock.calls[0][0].emitter).toBe(r);
       expect(fileCallbackSpy.mock.calls[0][0].route).toEqual('file');
       expect(fileCallbackSpy.mock.calls[0][0].params).toEqual({ name: 'index.txt' });
-      expect(fileCallbackSpy.mock.calls[0][0].query.q).toBe('abc');
+      expect(fileCallbackSpy.mock.calls[0][0].query).toBe('q=abc');
       expect(fileCallbackSpy.mock.calls[0][0].hash).toEqual('anchor');
 
       expect(eventNames).toEqual(['route:file', 'route']);

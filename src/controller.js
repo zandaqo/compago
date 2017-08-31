@@ -15,7 +15,6 @@ const _opt = Object.seal(Object.create(null));
  * @mixes Listener
  */
 class Controller {
-
   /**
    * @param {Object} [options]
    * @param {(HTMLElement|string)} [options.el] the DOM element for the controller

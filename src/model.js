@@ -13,7 +13,6 @@ const _opt = Object.seal(Object.create(null));
  * @mixes Listener
  */
 class Model {
-
   /**
    * @param {Object} [attributes] the attributes to be set on a newly created model
    * @param {Object} [options]

@@ -11,7 +11,6 @@ const _opt = Object.seal(Object.create(null));
  * @extends Array
  */
 class ModelArray extends Array {
-
   /**
    * @param {Array.<Model>} [models] models to add to the array
    * @param {Object} [options]

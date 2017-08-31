@@ -14,7 +14,6 @@ const _reEventSplitter = /\s+/;
  * // listener.doSomething is invoked.
  */
 const Listener = {
-
   _events: undefined,
 
   _listeners: undefined,

@@ -1,6 +1,6 @@
 {
   "name": "compago",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "A minimalist MVC framework for modern browsers.",
   "browser": "src/index.js",
   "module": "src/index.js",
@@ -56,8 +56,7 @@
   "dependencies": {
     "clone": "^2.1.1",
     "deep-equal": "^1.0.1",
-    "path-to-regexp": "^1.7.0",
-    "querystring": "^0.2.0"
+    "path-to-regexp": "^1.7.0"
   },
   "devDependencies": {
     "babel-jest": "^20.0.3",
