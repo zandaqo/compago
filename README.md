@@ -1,10 +1,10 @@
 # Compago
 
 [![npm](https://img.shields.io/npm/v/compago.svg?style=flat-square)](https://www.npmjs.com/package/compago)
-[![David-dm](https://david-dm.org/scriptare/compago.svg?style=flat-square)](https://david-dm.org/scriptare/compago)
-[![Travis branch](https://img.shields.io/travis/scriptare/compago.svg?style=flat-square)](https://travis-ci.org/scriptare/compago)
-[![Codecov](https://img.shields.io/codecov/c/github/scriptare/compago.svg?style=flat-square)](https://codecov.io/github/scriptare/compago)
-[![Code Climate](https://img.shields.io/codeclimate/github/scriptare/compago.svg?style=flat-square)](https://codeclimate.com/github/scriptare/compago)
+[![David-dm](https://david-dm.org/zandaqo/compago.svg?style=flat-square)](https://david-dm.org/zandaqo/compago)
+[![Travis branch](https://img.shields.io/travis/zandaqo/compago.svg?style=flat-square)](https://travis-ci.org/zandaqo/compago)
+[![Codecov](https://img.shields.io/codecov/c/github/zandaqo/compago.svg?style=flat-square)](https://codecov.io/github/zandaqo/compago)
+[![Code Climate](https://img.shields.io/codeclimate/github/zandaqo/compago.svg?style=flat-square)](https://codeclimate.com/github/zandaqo/compago)
 
 A minimalist MVC framework for building Single Page Applications using the power of ES2015 and modern browsers. 
 Compago evolved from [Backbone.js](http://backbonejs.org) with which it shares the general approach 
@@ -37,4 +37,4 @@ import { Model, Controller } from 'compago';
 ```
 
 ## Example
- * [compago-todo](https://github.com/scriptare/compago-todo) An example of a Todo app that uses JSX and Incremental DOM for Views.
+ * [compago-todo](https://github.com/zandaqo/compago-todo) An example of a Todo app that uses JSX and Incremental DOM for Views.

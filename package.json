@@ -21,11 +21,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/scriptare/compago.git"
+    "url": "https://github.com/zandaqo/compago.git"
   },
-  "homepage": "https://github.com/scriptare/compago#readme",
+  "homepage": "https://github.com/zandaqo/compago#readme",
   "bugs": {
-    "url": "https://github.com/scriptare/compago/issues"
+    "url": "https://github.com/zandaqo/compago/issues"
   },
   "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
   "license": "MIT",
