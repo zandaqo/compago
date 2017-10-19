@@ -30,7 +30,6 @@ class Model {
    *
    * @param {Object} attributes the attributes to be assigned to the model
    * @returns {this}
-   * @example
    *
    */
   assign(attributes) {
@@ -46,7 +45,6 @@ class Model {
    * @param {Object} [target=this.data] the target object to be merged, uses model's attributes by
    *                                    default
    * @returns {Object} the target object
-   * @example
    */
   merge(source, target = this.data) {
     const keys = Object.keys(source);

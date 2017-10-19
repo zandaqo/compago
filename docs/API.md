@@ -855,13 +855,11 @@ through storage controllers and notify subscribers through events when their dat
     * [new Model([attributes], [options])](#new_Model_new)
     * _instance_
         * [.id](#Model__id) : \*
-        * [.set(attributes, [options])](#Model__set) ⇒ this \| boolean
-        * [.unset(keys, [options])](#Model__unset) ⇒ this \| boolean
-        * [.validate()](#Model__validate) ⇒ \*
-        * [.clear([options])](#Model__clear) ⇒ this
+        * [.assign(attributes)](#Model__assign) ⇒ this
+        * [.merge(source, [target])](#Model__merge) ⇒ Object
+        * [.reset([attributes], [options])](#Model__reset) ⇒ this
         * [.get(attribute)](#Model__get) ⇒ \*
         * [.has(attribute)](#Model__has) ⇒ boolean
-        * [.changes()](#Model__changes) ⇒ Object \| boolean
         * [.toJSON()](#Model__toJSON) ⇒ Object
         * [.read([options])](#Model__read) ⇒ Promise
         * [.write([options])](#Model__write) ⇒ Promise
@@ -874,6 +872,7 @@ through storage controllers and notify subscribers through events when their dat
         * [.free()](#Model__free) ⇒ this
     * _static_
         * [.idAttribute](#Model_idAttribute) : string
+        * [.proxies](#Model_proxies) : WeakMap
 
 <a id="new_Model_new"></a>
 
@@ -881,29 +880,20 @@ through storage controllers and notify subscribers through events when their dat
 <table>
   <thead>
     <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
+      <th>Param</th><th>Type</th><th>Description</th>
     </tr>
   </thead>
   <tbody>
 <tr>
-    <td>[attributes]</td><td>Object</td><td></td><td><p>the attributes to be set on a newly created model</p>
+    <td>[attributes]</td><td>Object</td><td><p>the attributes to be set on a newly created model</p>
 </td>
     </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
+    <td>[options]</td><td>Object</td><td></td>
     </tr><tr>
-    <td>[options.collection]</td><td>Object</td><td></td><td><p>the collection to which the model should belong</p>
+    <td>[options.collection]</td><td>Object</td><td><p>the collection to which the model should belong</p>
 </td>
     </tr><tr>
-    <td>[options.storage]</td><td>Object</td><td></td><td><p>the storage engine for the model</p>
-</td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting <code>change</code> events</p>
-</td>
-    </tr><tr>
-    <td>[options.valid]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid validating the attributes</p>
-</td>
-    </tr><tr>
-    <td>[options.nested]</td><td>boolean</td><td><code>false</code></td><td><p>whether to make changes on nested objects</p>
+    <td>[options.storage]</td><td>Object</td><td><p>the storage engine for the model</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -914,13 +904,33 @@ through storage controllers and notify subscribers through events when their dat
 The model's permanent `id`.
 
 **Kind**: instance property of [Model](#Model)  
-<a id="Model__set"></a>
+<a id="Model__assign"></a>
 
-### model.set(attributes, [options]) ⇒ this \| boolean
-The general method to modify the model's data.
+### model.assign(attributes) ⇒ this
+Assigns given attributes to the model.
 
 **Kind**: instance method of [Model](#Model)  
-**Returns**: this \| boolean - either the model if successful or `false` if validation fails  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>attributes</td><td>Object</td><td><p>the attributes to be assigned to the model</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+<a id="Model__merge"></a>
+
+### model.merge(source, [target]) ⇒ Object
+Merges two objects, if no target object proveded merges given source object to the model's
+attributes.
+
+**Kind**: instance method of [Model](#Model)  
+**Returns**: Object - the target object  
 <table>
   <thead>
     <tr>
@@ -929,100 +939,19 @@ The general method to modify the model's data.
   </thead>
   <tbody>
 <tr>
-    <td>attributes</td><td>Object</td><td></td><td><p>the hash of attributes to set on the model</p>
+    <td>source</td><td>Object</td><td></td><td><p>the source object to be merged with the target object.</p>
 </td>
     </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.unset]</td><td>boolean</td><td><code>false</code></td><td><p>whether to remove specified <code>attributes</code> from the model</p>
-</td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting <code>change</code> events</p>
-</td>
-    </tr><tr>
-    <td>[options.valid]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid validating attributes</p>
-</td>
-    </tr><tr>
-    <td>[options.nested]</td><td>boolean</td><td><code>false</code></td><td><p>whether to make changes on nested objects</p>
-</td>
-    </tr><tr>
-    <td>[options.past]</td><td>boolean</td><td><code>false</code></td><td><p>whether to keep the previous values of the attributes
-                                 in <code>this.previous</code> after the method finishes</p>
-</td>
-    </tr><tr>
-    <td>[options.circular]</td><td>boolean</td><td><code>false</code></td><td><p>whether the provided attributes have circular references</p>
+    <td>[target]</td><td>Object</td><td><code>this.data</code></td><td><p>the target object to be merged, uses model&#39;s attributes by
+                                   default</p>
 </td>
     </tr>  </tbody>
 </table>
 
-**Example**  
-```js
-model.set({ foo: 'bar' });
-// sets attribute `foo` on the model to 'bar'
+<a id="Model__reset"></a>
 
-model.set({ foo: 'bar' }, { valid: true});
-// skips validation for attributes
-
-model.set({ value: 2, 'nestedObj.nestedValue': 1 }, { nested: true });
-// sets `value` to 2 and `nestedValue` of the `nestedObj` to `1`
-
-model.set({ foo: 1 }, { past: true });
-// saves the previous value of the `foo` attribute in `model.previous`
-```
-<a id="Model__unset"></a>
-
-### model.unset(keys, [options]) ⇒ this \| boolean
-Removes specified attributes from the model.
-
-**Kind**: instance method of [Model](#Model)  
-**Returns**: this \| boolean - either the model if successful or `false` if validation fails  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>keys</td><td>Array | string</td><td></td><td><p>the attribute name(s) to be removed from the model</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting <code>change</code> events</p>
-</td>
-    </tr><tr>
-    <td>[options.valid]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid validating attributes</p>
-</td>
-    </tr><tr>
-    <td>[options.nested]</td><td>boolean</td><td><code>false</code></td><td><p>whether to make changes on nested objects</p>
-</td>
-    </tr><tr>
-    <td>[options.past]</td><td>boolean</td><td><code>false</code></td><td><p>whether to keep the previous values of the attributes
-                                 in <code>this.previous</code> after the method finishes</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-**Example**  
-```js
-model.unset('foo');
-// the `foo` attribute is removed from the model
-
-model.unset(['foo', 'bar']);
-// both 'foo' and 'bar' attributes are removed
-```
-<a id="Model__validate"></a>
-
-### model.validate() ⇒ \*
-Override to include all necessary data validation and coercion logic specific to the model.
-The convention is for `validate` to return `false` if data is valid.
-
-**Kind**: instance method of [Model](#Model)  
-<a id="Model__clear"></a>
-
-### model.clear([options]) ⇒ this
-Clears all attributes on the model firing a single `clear` event.
+### model.reset([attributes], [options]) ⇒ this
+Resets all attributes on the model with given attributes firing a single `change` event.
 
 **Kind**: instance method of [Model](#Model)  
 <table>
@@ -1033,20 +962,23 @@ Clears all attributes on the model firing a single `clear` event.
   </thead>
   <tbody>
 <tr>
+    <td>[attributes]</td><td>Object</td><td></td><td></td>
+    </tr><tr>
     <td>[options]</td><td>Object</td><td></td><td></td>
     </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing <code>clear</code> event</p>
-</td>
-    </tr><tr>
-    <td>[options.past]</td><td>boolean</td><td><code>false</code></td><td><p>whether to save the current model data in <code>this.previous</code></p>
+    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>change</code> event</p>
 </td>
     </tr>  </tbody>
 </table>
 
 **Example**  
 ```js
-model.clear();
+model.reset();
 // all attributes are removed from the model
+
+model.reset({ foo: bar });
+model.data
+//=>{ foo: bar }
 ```
 <a id="Model__get"></a>
 
@@ -1093,13 +1025,6 @@ Checks whether the model has the attribute.
     </tr>  </tbody>
 </table>
 
-<a id="Model__changes"></a>
-
-### model.changes() ⇒ Object \| boolean
-Returns a hash of changed attributes since the last `set` operation or `false`
-if no changes are found.
-
-**Kind**: instance method of [Model](#Model)  
 <a id="Model__toJSON"></a>
 
 ### model.toJSON() ⇒ Object
@@ -1125,11 +1050,11 @@ Resets the model's state from the storage.
     <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting events</p>
 </td>
     </tr><tr>
-    <td>[options.valid]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid validating attributes</p>
+    <td>[options.skip]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid updating existing attributes
+                               with the received ones</p>
 </td>
     </tr><tr>
-    <td>[options.past]</td><td>boolean</td><td><code>false</code></td><td><p>whether to keep the previous values of the attributes
-                                in <code>this.previous</code> after the method finishes</p>
+    <td>[options.method]</td><td>string</td><td><code>&quot;assign&quot;</code></td><td><p>the name of the method to update existing attributes</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -1140,11 +1065,11 @@ model.read().then((response) => console.log(response)).catch((error) => console.
 // updates the model with the stored version and logs the response if successful,
 // otherwise logs the error
 
-model.read({ valid: true });
-// skips validation of the retrieved attributes
+model.read({ skip: true });
+// skips updating the model with the received attributes
 
-model.read({ past: true });
-// saves the previous values of changed attributes in `model.previous`
+model.read({ method: 'merge' });
+// merges received attributes with the existing ones instead of assigning them
 ```
 <a id="Model__write"></a>
 
@@ -1166,11 +1091,11 @@ with the response object.
     <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting events</p>
 </td>
     </tr><tr>
-    <td>[options.valid]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid validating attributes if model is updated</p>
+    <td>[options.skip]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid updating existing attributes
+                                with the received ones</p>
 </td>
     </tr><tr>
-    <td>[options.past]</td><td>boolean</td><td><code>false</code></td><td><p>whether to keep the previous values of the attributes
-                                 in <code>this.previous</code> if model is updated</p>
+    <td>[options.method]</td><td>string</td><td><code>&quot;assign&quot;</code></td><td><p>the name of the method to update existing attributes</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -1181,11 +1106,11 @@ model.write().then((response) => console.log(response)).catch((error) => console
 // writes the model into the storage and logs the response if successful,
 // otherwise logs the error
 
-model.write({ valid: true });
-// skips validation of the retrieved attributes if the storage any
+model.write({ skip: true });
+// skips updating the model with the received attributes
 
-model.write({ past: true });
-// saves the previous values of changed attributes in `model.previous`
+model.write({ method: 'merge' });
+// merges received attributes with the existing ones instead of assigning them
 ```
 <a id="Model__erase"></a>
 
@@ -1289,6 +1214,12 @@ model.dispose();
 The id property name for the models of the class.
 
 **Kind**: static property of [Model](#Model)  
+<a id="Model_proxies"></a>
+
+### Model.proxies : WeakMap
+The WeakMap holding references to metadata associated with proxies in Model#data.
+
+**Kind**: static property of [Model](#Model)  
 <a id="RemoteStorage"></a>
 
 ## RemoteStorage
@@ -1350,7 +1281,7 @@ The general method for synchronization.
                   Internal method names are mapped to HTTP methods in <code>RemoteStorage.methods</code>.</p>
 </td>
     </tr><tr>
-    <td>model</td><td><a href="#Model">Model</a> | <a href="#new_Collection_new">Collection</a> | <a href="#ModelArray">ModelArray</a></td><td></td><td><p>a model or a collection to be synchronized</p>
+    <td>model</td><td><a href="#Model">Model</a> | Collection | <a href="#ModelArray">ModelArray</a></td><td></td><td><p>a model or a collection to be synchronized</p>
 </td>
     </tr><tr>
     <td>options</td><td>Object</td><td></td><td></td>
