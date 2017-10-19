@@ -455,15 +455,15 @@ class ModelArray extends Array {
     const attrsArray = [].concat(models);
     for (let i = 0; i < attrsArray.length; i += 1) {
       const attrs = attrsArray[i];
-      const isModel = !!(attrs instanceof this.Model);
+      const isModel = (attrs instanceof this.Model);
       const existing = isModel ? this[this.indexOf(attrs)] :
         this.get(attrs[this.Model.idAttribute]);
 
       if (existing) {
         if (!keep) modelSet.add(existing);
         if (!skip && !isModel) {
-          existing.set(attrs, Object.assign(options, { past: true }));
-          if (sortable && sortAttr && (sortAttr in existing.previous)) sort = true;
+          existing.assign(attrs);
+          if (sortable && sortAttr) sort = true;
         }
       } else {
         const model = this._prepareModel(attrs, options);
@@ -484,13 +484,10 @@ class ModelArray extends Array {
    * @returns {Model|boolean}
    */
   _prepareModel(data, options) {
+    if (typeof data !== 'object') return false;
     if (data instanceof Model) return data;
     options.collection = this;
-    const model = new this.Model(data, options);
-    if (!model.validate(data, options)) return model;
-    options.data = data;
-    this.emit('invalid', options);
-    return false;
+    return new this.Model(data, options);
   }
 
   /**
@@ -500,14 +497,14 @@ class ModelArray extends Array {
    * @returns {void}
    */
   _onModelEvent(event) {
-    const { event: eventName, emitter: model, collection } = event;
+    const { event: eventName, emitter: model, collection, previous } = event;
     if ((eventName === 'add' || eventName === 'remove') && collection !== this) return;
     if (eventName === 'dispose') {
       this.unset(model, { save: true });
       return;
     }
-    if (eventName === (`change:${model.constructor.idAttribute}`)) {
-      this._byId[model.previous[model.constructor.idAttribute]] = undefined;
+    if (eventName === `change:${model.constructor.idAttribute}`) {
+      this._byId[previous] = undefined;
       if (model.id !== undefined) this._byId[model.id] = model;
     }
     this.emit(eventName, event, model);

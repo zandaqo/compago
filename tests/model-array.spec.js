@@ -88,20 +88,6 @@ describe('ModelArray', () => {
       expect(c[0] instanceof Model).toBe(true);
     });
 
-    it('does not add invalid objects', () => {
-      class InvalidModel extends Model {
-        validate() {
-          return true;
-        }
-      }
-      const nc = new ModelArray(undefined, { model: InvalidModel });
-      nc.someMethod = jest.fn();
-      nc.on(nc, 'update', nc.someMethod);
-      nc.push({});
-      expect(nc.length).toBe(0);
-      expect(nc.someMethod).not.toHaveBeenCalled();
-    });
-
     it('updates existing models', () => {
       c.set({ _id: 1, name: 'Ford' });
       c.set({ _id: 1, name: 'Arthur' }, { keep: true });
@@ -127,9 +113,9 @@ describe('ModelArray', () => {
 
     it('sets models in a correct order', () => {
       c.comparator = 'order';
-      m1.set({ order: 3 });
-      m2.set({ order: 2 });
-      m3.set({ order: 1 });
+      m1.assign({ order: 3 });
+      m2.assign({ order: 2 });
+      m3.assign({ order: 1 });
       c.push([m1, m2, m3]);
       expect(Array.from(c)).toEqual([m3, m2, m1]);
     });
@@ -144,9 +130,9 @@ describe('ModelArray', () => {
     });
 
     it('fires `sort` event if models have been sorted unless `silent:true`', () => {
-      m1.set({ order: 3 });
-      m2.set({ order: 2 });
-      m3.set({ order: 1 });
+      m1.assign({ order: 3 });
+      m2.assign({ order: 2 });
+      m3.assign({ order: 1 });
       c.comparator = 'order';
       c.someMethod = jest.fn();
       c.on(c, 'sort', c.someMethod);
@@ -352,7 +338,7 @@ describe('ModelArray', () => {
   describe('get', () => {
     it('returns a model', () => {
       c.set(m1);
-      m1.set({ _id: 1 });
+      m1.assign({ _id: 1 });
       expect(c.get(1)).toBe(m1);
       expect(c.get(2)).toBeFalsy();
     });
@@ -469,16 +455,7 @@ describe('ModelArray', () => {
     it('prepares a model to be added to the array', () => {
       expect(c._prepareModel(m1, {})).toBe(m1);
       expect(c._prepareModel({}, {}) instanceof Model).toBe(true);
-      class M extends Model {
-        validate() {
-          return true;
-        }
-      }
-      const b = new ModelArray([], { model: M });
-      const emitSpy = jest.spyOn(b, 'emit');
-      expect(b._prepareModel({}, {})).toBe(false);
-      expect(b.emit).toHaveBeenCalled();
-      emitSpy.mockRestore();
+      expect(c._prepareModel(1, {})).toBe(false);
     });
   });
 

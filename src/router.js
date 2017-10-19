@@ -240,7 +240,7 @@ class Router {
       const prop = key ? key.name : n += 1;
       const val = (typeof matches[i] !== 'string') ? matches[i] : decodeURIComponent(matches[i]);
 
-      if (val !== undefined || !params.hasOwnProperty(prop)) {
+      if (val !== undefined || !Reflect.has(params, prop)) {
         params[prop] = val;
       }
     }
