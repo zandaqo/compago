@@ -50,11 +50,9 @@ describe('RemoteStorage', () => {
       response = new MockResponse(200, { 'content-type': 'application/json' }, {});
     });
 
-    it('rejects if an invalid method is used', () => {
-      return storage.sync().catch((error) => {
-        expect(error.message).toBe('Method is not found.');
-      });
-    });
+    it('rejects if an invalid method is used', () => storage.sync().catch((error) => {
+      expect(error.message).toBe('Method is not found.');
+    }));
 
     it('reads a model', () => {
       const result = { name: 'Arthur' };

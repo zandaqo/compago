@@ -152,9 +152,11 @@ describe('Controller', () => {
     let model;
 
     beforeEach(() => {
-      parentController = new Controller({ regions: {
-        region: '#region',
-      } });
+      parentController = new Controller({
+        regions: {
+          region: '#region',
+        },
+      });
       const regionEl = document.createElement('div');
       regionEl.setAttribute('id', 'region');
       parentController.el.appendChild(regionEl);
@@ -248,9 +250,11 @@ describe('Controller', () => {
 
   describe('renderRegion', () => {
     it('renders content inside a given region', () => {
-      const controller = new Controller({ regions: {
-        region: '#region',
-      } });
+      const controller = new Controller({
+        regions: {
+          region: '#region',
+        },
+      });
       const regionEl = document.createElement('div');
       regionEl.setAttribute('id', 'region');
       controller.el.appendChild(regionEl);
@@ -504,10 +508,12 @@ describe('Controller', () => {
 
   describe('_disposeRegions', () => {
     it('disposes all regions of the controller', () => {
-      const parentController = new Controller({ regions: {
-        regionOne: '#regionone',
-        regionTwo: '#regiontwo',
-      } });
+      const parentController = new Controller({
+        regions: {
+          regionOne: '#regionone',
+          regionTwo: '#regiontwo',
+        },
+      });
       const regionOne = document.createElement('div');
       regionOne.setAttribute('id', 'regionone');
       const regionTwo = document.createElement('div');

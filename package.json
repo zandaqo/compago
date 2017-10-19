@@ -58,15 +58,15 @@
     "path-to-regexp": "^2.0.0"
   },
   "devDependencies": {
-    "babel-jest": "^20.0.3",
+    "babel-jest": "^21.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "codecov.io": "^0.1.6",
     "dmd-plugin-gitbook": "0.0.1",
-    "eslint": "^4.5.0",
-    "eslint-config-airbnb-base": "^11.3.2",
-    "eslint-plugin-import": "^2.7.0",
+    "eslint": "^4.9.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
     "gitbook-cli": "^2.3.2",
-    "jest": "^20.0.4",
+    "jest": "^21.2.1",
     "jsdoc-plugin-false-booleans": "^1.0.0",
     "jsdoc-plugin-named-defaults": "^1.1.1",
     "jsdoc-to-markdown": "^3.0.0"
