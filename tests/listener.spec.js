@@ -18,13 +18,13 @@ describe('Listener', () => {
     it('adds an event listener', () => {
       a.on(b, 'someEvent anotherEvent', a.firstMethod);
       a.on(b, 'someEvent', a.secondMethod);
-      expect(b._events.get('someEvent')[0][0]).toBe(a);
-      expect(b._events.get('someEvent')[0][1]).toBe(a.firstMethod);
-      expect(b._events.get('someEvent')[1][0]).toBe(a);
-      expect(b._events.get('someEvent')[1][1]).toBe(a.secondMethod);
-      expect(b._events.get('someEvent')[0][0]).toBe(a);
-      expect(b._events.get('someEvent')[0][1]).toBe(a.firstMethod);
-      expect(a._listeners.get(b)).toEqual(['someEvent', 'anotherEvent']);
+      expect(b[Symbol.for('c_events')].get('someEvent')[0][0]).toBe(a);
+      expect(b[Symbol.for('c_events')].get('someEvent')[0][1]).toBe(a.firstMethod);
+      expect(b[Symbol.for('c_events')].get('someEvent')[1][0]).toBe(a);
+      expect(b[Symbol.for('c_events')].get('someEvent')[1][1]).toBe(a.secondMethod);
+      expect(b[Symbol.for('c_events')].get('someEvent')[0][0]).toBe(a);
+      expect(b[Symbol.for('c_events')].get('someEvent')[0][1]).toBe(a.firstMethod);
+      expect(a[Symbol.for('c_listeners')].get(b)).toEqual(['someEvent', 'anotherEvent']);
     });
   });
 
@@ -36,11 +36,11 @@ describe('Listener', () => {
       b.on(b, 'otherEvent', () => {
       });
       a.off(b, 'someEvent', a.firstMethod);
-      expect(b._events.get('someEvent')[0][1]).toBe(a.secondMethod);
-      expect(a._listeners.get(b)).toEqual(['someEvent']);
+      expect(b[Symbol.for('c_events')].get('someEvent')[0][1]).toBe(a.secondMethod);
+      expect(a[Symbol.for('c_listeners')].get(b)).toEqual(['someEvent']);
       a.off(b, 'someEvent', a.secondMethod);
-      expect(b._events.get('someEvent')).toEqual([[c, c.someMethod]]);
-      expect(a._listeners.get(b)).toBe(undefined);
+      expect(b[Symbol.for('c_events')].get('someEvent')).toEqual([[c, c.someMethod]]);
+      expect(a[Symbol.for('c_listeners')].get(b)).toBe(undefined);
     });
 
     it('returns if no valid listener is present', () => {
@@ -55,24 +55,24 @@ describe('Listener', () => {
       a.on(b, 'someEvent', a.firstMethod);
       a.on(b, 'someEvent', a.secondMethod);
       a.on(b, 'anotherEvent', a.firstMethod);
-      expect(b._events.get('anotherEvent').length).toBe(1);
-      expect(b._events.get('someEvent').length).toBe(2);
+      expect(b[Symbol.for('c_events')].get('anotherEvent').length).toBe(1);
+      expect(b[Symbol.for('c_events')].get('someEvent').length).toBe(2);
       a.off(b, 'someEvent');
-      expect(b._events.get('someEvent')).toBe(undefined);
-      expect(b._events.get('anotherEvent').length).toBe(1);
-      expect(a._listeners.get(b)).toEqual(['anotherEvent']);
+      expect(b[Symbol.for('c_events')].get('someEvent')).toBe(undefined);
+      expect(b[Symbol.for('c_events')].get('anotherEvent').length).toBe(1);
+      expect(a[Symbol.for('c_listeners')].get(b)).toEqual(['anotherEvent']);
     });
 
     it('removes all listeners set up by the object', () => {
       a.on(b, 'someEvent', a.firstMethod);
       a.on(b, 'someEvent', a.secondMethod);
       a.on(a, 'anotherEvent', a.firstMethod);
-      expect(b._events.get('someEvent').length).toBe(2);
-      expect(a._events.get('anotherEvent').length).toBe(1);
+      expect(b[Symbol.for('c_events')].get('someEvent').length).toBe(2);
+      expect(a[Symbol.for('c_events')].get('anotherEvent').length).toBe(1);
       a.off();
-      expect(b._events.get('someEvent')).toBe(undefined);
-      expect(a._events.get('anotherEvent')).toBe(undefined);
-      expect(a._listeners.size).toBe(0);
+      expect(b[Symbol.for('c_events')].get('someEvent')).toBe(undefined);
+      expect(a[Symbol.for('c_events')].get('anotherEvent')).toBe(undefined);
+      expect(a[Symbol.for('c_listeners')].size).toBe(0);
     });
   });
 
@@ -138,10 +138,10 @@ describe('Listener', () => {
       expect(b.free()).toBe(b);
       a.on(b, 'someEvent', a.firstMethod);
       a.on(b, 'anotherEvent', a.secondMethod);
-      expect(a._listeners.size).toBe(1);
+      expect(a[Symbol.for('c_listeners')].size).toBe(1);
       b.free();
-      expect(b._events).toBe(undefined);
-      expect(a._listeners.size).toBe(0);
+      expect(b[Symbol.for('c_events')]).toBe(undefined);
+      expect(a[Symbol.for('c_listeners')].size).toBe(0);
     });
   });
 });

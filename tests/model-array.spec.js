@@ -431,7 +431,7 @@ describe('ModelArray', () => {
       expect(c.length).toBe(3);
       c.dispose();
       expect(c.length).toBe(0);
-      expect(c._listeners.size).toEqual(0);
+      expect(c[Symbol.for('c_listeners')].size).toEqual(0);
     });
 
     it('fires `dispose` event unless `silent:true`', () => {
@@ -489,7 +489,7 @@ describe('ModelArray', () => {
       const m = new Model();
       c._addReference(m);
       expect(m.collection).toBe(c);
-      expect(m._events.get('all')[0]).toEqual([c, c._onModelEvent]);
+      expect(m[Symbol.for('c_events')].get('all')[0]).toEqual([c, c._onModelEvent]);
     });
   });
 
@@ -499,7 +499,7 @@ describe('ModelArray', () => {
       c._addReference(m);
       c._removeReference(m);
       expect(m.collection).toBe(undefined);
-      expect(m._events.get('all')).toBe(undefined);
+      expect(m[Symbol.for('c_events')].get('all')).toBe(undefined);
     });
   });
 });

@@ -409,11 +409,11 @@ describe('Model', () => {
   describe('dispose', () => {
     it('prepares the model to be disposed', () => {
       model.on(model, 'dispose', model.firstSpy);
-      expect(model._events).toBeDefined();
-      expect(model._listeners).toBeDefined();
+      expect(model[Symbol.for('c_events')]).toBeDefined();
+      expect(model[Symbol.for('c_listeners')]).toBeDefined();
       model.dispose();
-      expect(model._events).toBe(undefined);
-      expect(model._listeners.size).toEqual(0);
+      expect(model[Symbol.for('c_events')]).toBe(undefined);
+      expect(model[Symbol.for('c_listeners')].size).toEqual(0);
     });
 
     it('fires `dispose` event unless `silent:true`', () => {

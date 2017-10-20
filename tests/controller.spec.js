@@ -56,7 +56,7 @@ describe('Controller', () => {
       expect(nv.el.className).toBe('unordered-list');
       expect(nv.el.tagName).toBe('UL');
       expect(nv.model).toBe(model);
-      expect(nv.model._events.get('change')[0]).toEqual([nv, nv.render]);
+      expect(nv.model[Symbol.for('c_events')].get('change')[0]).toEqual([nv, nv.render]);
       expect(nv._regionSelectors.region).toBe('#region');
       expect(nv._regionControllers).toBe(undefined);
       expect(nv._observer instanceof window.MutationObserver).toBe(true);
@@ -274,8 +274,8 @@ describe('Controller', () => {
       v.on(v, 'render', v.someMethod);
       v._observeAttributes(['data-id']);
       v.dispose();
-      expect(v._events).toBeUndefined();
-      expect(v._listeners.size).toEqual(0);
+      expect(v[Symbol.for('c_events')]).toBeUndefined();
+      expect(v[Symbol.for('c_listeners')].size).toEqual(0);
       expect(v._observer).toBeUndefined();
     });
 

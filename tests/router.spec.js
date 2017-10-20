@@ -190,8 +190,8 @@ describe('Router', () => {
       r.on(r, 'dispose', r.someMethod);
       r.dispose();
       expect(r.someMethod).toHaveBeenCalled();
-      expect(r._events).toBe(undefined);
-      expect(r._listeners.size).toEqual(0);
+      expect(r[Symbol.for('c_events')]).toBe(undefined);
+      expect(r[Symbol.for('c_listeners')].size).toEqual(0);
       const otherMethod = jest.fn();
       r.on(r, 'dispose', otherMethod);
       r.dispose({ silent: true });

@@ -184,11 +184,11 @@ describe('RemoteStorage', () => {
     it('prepares the storage to be disposed', () => {
       storage.on(storage, 'dispose', () => {
       });
-      expect(storage._events).toBeDefined();
-      expect(storage._listeners).toBeDefined();
+      expect(storage[Symbol.for('c_events')]).toBeDefined();
+      expect(storage[Symbol.for('c_listeners')]).toBeDefined();
       storage.dispose();
-      expect(storage._events).toBe(undefined);
-      expect(storage._listeners.size).toEqual(0);
+      expect(storage[Symbol.for('c_events')]).toBe(undefined);
+      expect(storage[Symbol.for('c_listeners')].size).toEqual(0);
     });
 
     it('fires `dispose` event unless `silent:true`', () => {

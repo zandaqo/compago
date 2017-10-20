@@ -14,9 +14,9 @@ const _reEventSplitter = /\s+/;
  * // listener.doSomething is invoked.
  */
 const Listener = {
-  _events: undefined,
+  [Symbol.for('c_events')]: undefined,
 
-  _listeners: undefined,
+  [Symbol.for('c_listeners')]: undefined,
 
   /**
    * Adds an event listener for the specified event(s).
@@ -39,8 +39,8 @@ const Listener = {
    */
   on(obj, name, callback) {
     const names = _reEventSplitter.test(name) ? name.split(_reEventSplitter) : [name];
-    const events = obj._events || (obj._events = new Map());
-    const listeners = this._listeners || (this._listeners = new Map());
+    const events = obj[Symbol.for('c_events')] || (obj[Symbol.for('c_events')] = new Map());
+    const listeners = this[Symbol.for('c_listeners')] || (this[Symbol.for('c_listeners')] = new Map());
     const listensTo = listeners.get(obj) || listeners.set(obj, []).get(obj);
 
     for (let i = 0, l = names.length; i < l; i += 1) {
@@ -75,14 +75,14 @@ const Listener = {
    */
   off(obj, name, callback) {
     const emitter = this;
-    const allListeners = this._listeners;
+    const allListeners = this[Symbol.for('c_listeners')];
     if (!allListeners || !allListeners.size) return this;
     const nameList = name ? _reEventSplitter.test(name) ?
       name.split(_reEventSplitter) : [name] : undefined;
     const deleteListener = !name && !callback;
     let listeners = allListeners;
     if (obj) {
-      if (!obj._events || !obj._events.size) return this;
+      if (!obj[Symbol.for('c_events')] || !obj[Symbol.for('c_events')].size) return this;
       listeners = new Map();
       listeners.set(obj, allListeners.get(obj));
     }
@@ -91,7 +91,7 @@ const Listener = {
       for (let i = names.length - 1; i >= 0; i -= 1) {
         let hasListener;
         const eventName = names[i];
-        const events = listener._events && listener._events.get(eventName);
+        const events = listener[Symbol.for('c_events')] && listener[Symbol.for('c_events')].get(eventName);
         if (!events) continue;
         for (let j = events.length - 1; j >= 0; j -= 1) {
           if (events[j][0] === emitter) {
@@ -105,7 +105,7 @@ const Listener = {
         if (!deleteListener && !hasListener) {
           listensTo.splice(listensTo.indexOf(eventName), 1);
         }
-        if (!events.length) listener._events.delete(eventName);
+        if (!events.length) listener[Symbol.for('c_events')].delete(eventName);
       }
       if (deleteListener || !listensTo[0]) allListeners.delete(listener);
     });
@@ -136,9 +136,9 @@ const Listener = {
    */
   emit(name, data = {}, emitter = this) {
     if (!name) return this;
-    if (!this._events || !this._events.size) return this;
-    const event = this._events.get(name);
-    const all = this._events.get('all');
+    if (!this[Symbol.for('c_events')] || !this[Symbol.for('c_events')].size) return this;
+    const event = this[Symbol.for('c_events')].get(name);
+    const all = this[Symbol.for('c_events')].get('all');
     data.event = name;
     data.emitter = emitter;
     const handlers = event ? all ? [].concat(event, all) : event.slice() : all ? all.slice() : [];
@@ -165,14 +165,14 @@ const Listener = {
    * // equivalent to `Collection.off(Model), Controller.off(Model)`
    */
   free() {
-    const events = this._events;
+    const events = this[Symbol.for('c_events')];
     if (!events) return this;
     events.forEach((event) => {
       event.forEach((listener) => {
-        listener[0]._listeners.delete(this);
+        listener[0][Symbol.for('c_listeners')].delete(this);
       });
     });
-    this._events = undefined;
+    this[Symbol.for('c_events')] = undefined;
     return this;
   },
 };
