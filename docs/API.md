@@ -19,10 +19,6 @@ to re-render its View.
     * [.show(region, content, [options])](#Controller__show) ⇒ this
     * [.renderRegion(regionElement, [content])](#Controller__renderRegion) ⇒ this
     * [.dispose([options])](#Controller__dispose) ⇒ this
-    * [.on(obj, name, callback)](#Controller__on) ⇒ this
-    * [.off([obj], [name], [callback])](#Controller__off) ⇒ this
-    * [.emit(name, [data], [emitter])](#Controller__emit) ⇒ this
-    * [.free()](#Controller__free) ⇒ this
 
 <a id="new_Controller_new"></a>
 
@@ -257,22 +253,6 @@ and removes all event listeners.
     </tr>  </tbody>
 </table>
 
-<a id="Controller__on"></a>
-
-### controller.on(obj, name, callback) ⇒ this
-**Mixes**: [on](#Listener.on)  
-<a id="Controller__off"></a>
-
-### controller.off([obj], [name], [callback]) ⇒ this
-**Mixes**: [off](#Listener.off)  
-<a id="Controller__emit"></a>
-
-### controller.emit(name, [data], [emitter]) ⇒ this
-**Mixes**: [emit](#Listener.emit)  
-<a id="Controller__free"></a>
-
-### controller.free() ⇒ this
-**Mixes**: [free](#Listener.free)  
 <a id="ModelArray"></a>
 
 ## ModelArray ⇐ Array
@@ -299,10 +279,6 @@ Manages an ordered set of models providing methods to create, sort, and dispose 
     * [.toJSON()](#ModelArray__toJSON) ⇒ Array
     * [.sync(method, options)](#ModelArray__sync) ⇒ Promise
     * [.dispose([options])](#ModelArray__dispose) ⇒ this
-    * [.on(obj, name, callback)](#ModelArray__on) ⇒ this
-    * [.off([obj], [name], [callback])](#ModelArray__off) ⇒ this
-    * [.emit(name, [data], [emitter])](#ModelArray__emit) ⇒ this
-    * [.free()](#ModelArray__free) ⇒ this
 
 <a id="new_ModelArray_new"></a>
 
@@ -825,22 +801,6 @@ modelArray.dispose();
 modelArray.dispose({ save: true });
 // disposes the array without disposing its models
 ```
-<a id="ModelArray__on"></a>
-
-### modelArray.on(obj, name, callback) ⇒ this
-**Mixes**: [on](#Listener.on)  
-<a id="ModelArray__off"></a>
-
-### modelArray.off([obj], [name], [callback]) ⇒ this
-**Mixes**: [off](#Listener.off)  
-<a id="ModelArray__emit"></a>
-
-### modelArray.emit(name, [data], [emitter]) ⇒ this
-**Mixes**: [emit](#Listener.emit)  
-<a id="ModelArray__free"></a>
-
-### modelArray.free() ⇒ this
-**Mixes**: [free](#Listener.free)  
 <a id="Model"></a>
 
 ## Model
@@ -855,21 +815,15 @@ through storage controllers and notify subscribers through events when their dat
     * [new Model([attributes], [options])](#new_Model_new)
     * _instance_
         * [.id](#Model__id) : \*
+        * [.set([attributes])](#Model__set) ⇒ this
         * [.assign(attributes)](#Model__assign) ⇒ this
         * [.merge(source, [target])](#Model__merge) ⇒ Object
-        * [.reset([attributes], [options])](#Model__reset) ⇒ this
-        * [.get(attribute)](#Model__get) ⇒ \*
-        * [.has(attribute)](#Model__has) ⇒ boolean
         * [.toJSON()](#Model__toJSON) ⇒ Object
         * [.read([options])](#Model__read) ⇒ Promise
         * [.write([options])](#Model__write) ⇒ Promise
         * [.erase([options])](#Model__erase) ⇒ Promise
         * [.sync(method, options)](#Model__sync) ⇒ Promise
         * [.dispose([options])](#Model__dispose) ⇒ this
-        * [.on(obj, name, callback)](#Model__on) ⇒ this
-        * [.off([obj], [name], [callback])](#Model__off) ⇒ this
-        * [.emit(name, [data], [emitter])](#Model__emit) ⇒ this
-        * [.free()](#Model__free) ⇒ this
     * _static_
         * [.idAttribute](#Model_idAttribute) : string
         * [.proxies](#Model_proxies) : WeakMap
@@ -904,6 +858,34 @@ through storage controllers and notify subscribers through events when their dat
 The model's permanent `id`.
 
 **Kind**: instance property of [Model](#Model)  
+<a id="Model__set"></a>
+
+### model.set([attributes]) ⇒ this
+Resets all attributes on the model with given attributes.
+
+**Kind**: instance method of [Model](#Model)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>[attributes]</td><td>Object</td><td><p>the attributes to be set on the model</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+model.set();
+// all attributes are removed from the model
+
+model.set({ foo: bar });
+model
+//=>{ foo: bar }
+```
 <a id="Model__assign"></a>
 
 ### model.assign(attributes) ⇒ this
@@ -942,85 +924,8 @@ attributes.
     <td>source</td><td>Object</td><td></td><td><p>the source object to be merged with the target object.</p>
 </td>
     </tr><tr>
-    <td>[target]</td><td>Object</td><td><code>this.data</code></td><td><p>the target object to be merged, uses model&#39;s attributes by
+    <td>[target]</td><td>Object</td><td><code>this</code></td><td><p>the target object to be merged, uses model&#39;s attributes by
                                    default</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-<a id="Model__reset"></a>
-
-### model.reset([attributes], [options]) ⇒ this
-Resets all attributes on the model with given attributes firing a single `change` event.
-
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[attributes]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>change</code> event</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-**Example**  
-```js
-model.reset();
-// all attributes are removed from the model
-
-model.reset({ foo: bar });
-model.data
-//=>{ foo: bar }
-```
-<a id="Model__get"></a>
-
-### model.get(attribute) ⇒ \*
-Gets a value of a data attribute. If not present, looks it up among the model's getters.
-For simplicity's sake, any property that isn't a function is considered a getter.
-
-**Kind**: instance method of [Model](#Model)  
-**Returns**: \* - the value of the data attribute or getter  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>attribute</td><td>string</td><td><p>an attribute or getter name</p>
-</td>
-    </tr>  </tbody>
-</table>
-
-**Example**  
-```js
-model.get('foo');
-// returns the value of the `foo` attribute
-```
-<a id="Model__has"></a>
-
-### model.has(attribute) ⇒ boolean
-Checks whether the model has the attribute.
-
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>attribute</td><td>string</td><td><p>the attribute name to look for</p>
 </td>
     </tr>  </tbody>
 </table>
@@ -1192,22 +1097,6 @@ set up by the model or on the model.
 model.dispose();
 // prepares the model for disposal
 ```
-<a id="Model__on"></a>
-
-### model.on(obj, name, callback) ⇒ this
-**Mixes**: [on](#Listener.on)  
-<a id="Model__off"></a>
-
-### model.off([obj], [name], [callback]) ⇒ this
-**Mixes**: [off](#Listener.off)  
-<a id="Model__emit"></a>
-
-### model.emit(name, [data], [emitter]) ⇒ this
-**Mixes**: [emit](#Listener.emit)  
-<a id="Model__free"></a>
-
-### model.free() ⇒ this
-**Mixes**: [free](#Listener.free)  
 <a id="Model_idAttribute"></a>
 
 ### Model.idAttribute : string
@@ -1217,7 +1106,7 @@ The id property name for the models of the class.
 <a id="Model_proxies"></a>
 
 ### Model.proxies : WeakMap
-The WeakMap holding references to metadata associated with proxies in Model#data.
+The WeakMap holding references to metadata associated with proxies in Model.
 
 **Kind**: static property of [Model](#Model)  
 <a id="RemoteStorage"></a>
@@ -1233,10 +1122,6 @@ Facilitates interaction with a REST server through the Fetch API.
     * _instance_
         * [.sync(method, model, options)](#RemoteStorage__sync) ⇒ Promise
         * [.dispose([options])](#RemoteStorage__dispose) ⇒ this
-        * [.on(obj, name, callback)](#RemoteStorage__on) ⇒ this
-        * [.off([obj], [name], [callback])](#RemoteStorage__off) ⇒ this
-        * [.emit(name, [data], [emitter])](#RemoteStorage__emit) ⇒ this
-        * [.free()](#RemoteStorage__free) ⇒ this
     * _static_
         * [.methods](#RemoteStorage_methods)
         * [.isStored(model)](#RemoteStorage_isStored) ⇒ boolean
@@ -1324,22 +1209,6 @@ Prepares the storage controller to be disposed.
     </tr>  </tbody>
 </table>
 
-<a id="RemoteStorage__on"></a>
-
-### remoteStorage.on(obj, name, callback) ⇒ this
-**Mixes**: [on](#Listener.on)  
-<a id="RemoteStorage__off"></a>
-
-### remoteStorage.off([obj], [name], [callback]) ⇒ this
-**Mixes**: [off](#Listener.off)  
-<a id="RemoteStorage__emit"></a>
-
-### remoteStorage.emit(name, [data], [emitter]) ⇒ this
-**Mixes**: [emit](#Listener.emit)  
-<a id="RemoteStorage__free"></a>
-
-### remoteStorage.free() ⇒ this
-**Mixes**: [free](#Listener.free)  
 <a id="RemoteStorage_methods"></a>
 
 ### RemoteStorage.methods
@@ -1382,10 +1251,6 @@ Handles client-side routing and navigation utilizing the History API.
     * [.stop()](#Router__stop) ⇒ this
     * [.navigate(fragment, [options])](#Router__navigate) ⇒ boolean
     * [.dispose([options])](#Router__dispose) ⇒ this
-    * [.on(obj, name, callback)](#Router__on) ⇒ this
-    * [.off([obj], [name], [callback])](#Router__off) ⇒ this
-    * [.emit(name, [data], [emitter])](#Router__emit) ⇒ this
-    * [.free()](#Router__free) ⇒ this
 
 <a id="new_Router_new"></a>
 
@@ -1577,52 +1442,35 @@ Prepares the router to be disposed.
 router.dispose();
 // stops the router, removes the routes and event listeners
 ```
-<a id="Router__on"></a>
-
-### router.on(obj, name, callback) ⇒ this
-**Mixes**: [on](#Listener.on)  
-<a id="Router__off"></a>
-
-### router.off([obj], [name], [callback]) ⇒ this
-**Mixes**: [off](#Listener.off)  
-<a id="Router__emit"></a>
-
-### router.emit(name, [data], [emitter]) ⇒ this
-**Mixes**: [emit](#Listener.emit)  
-<a id="Router__free"></a>
-
-### router.free() ⇒ this
-**Mixes**: [free](#Listener.free)  
 <a id="Listener"></a>
 
-## Listener
+## Listener ⇒ class
 Provides methods for event handling.
 
 **Kind**: global mixin  
-**Example**  
-```js
-const emitter = Object.assign({}, Listener);
-const listener = Object.assign({}, Listener);
-listener.on(emitter, 'someEvent', listener.doSomething);
-emitter.emit('someEvent');
-// listener.doSomething is invoked.
-```
+**Returns**: class - a new Listener class extending the base class  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>Base</td><td>class</td><td><p>the base class to extend with Listener</p>
+</td>
+    </tr>  </tbody>
+</table>
 
-* [Listener](#Listener)
-    * [.on(obj, name, callback)](#Listener_on) ⇒ this
-    * [.off([obj], [name], [callback])](#Listener_off) ⇒ this
-    * [.emit(name, [data], [emitter])](#Listener_emit) ⇒ this
-    * [.free()](#Listener_free) ⇒ this
+<a id="undefinedon"></a>
 
-<a id="Listener_on"></a>
-
-### Listener.on(obj, name, callback) ⇒ this
+## undefinedon(obj, name, callback) ⇒ this
 Adds an event listener for the specified event(s).
 
 The `callback` will be called with `this` being the listener
 whenever `obj` emits the `name` event.
 
-**Kind**: static method of [Listener](#Listener)  
+**Kind**: global function  
 <table>
   <thead>
     <tr>
@@ -1651,12 +1499,12 @@ Controller.on(Model, 'change', Controller.render);
 Collection.on(Model, 'add remove', Collection.count);
 // `Collection.count` will be invoked every time the Model emits an `add` or a `remove` event.
 ```
-<a id="Listener_off"></a>
+<a id="undefinedoff"></a>
 
-### Listener.off([obj], [name], [callback]) ⇒ this
+## undefinedoff([obj], [name], [callback]) ⇒ this
 Removes event listeners set up by the host object on other objects.
 
-**Kind**: static method of [Listener](#Listener)  
+**Kind**: global function  
 <table>
   <thead>
     <tr>
@@ -1690,12 +1538,12 @@ Controller.off(Model, 'change');
 Controller.off(Model, 'change', this.render);
 // `this.render` won't be invoked when the Model emits a `change` event.
 ```
-<a id="Listener_emit"></a>
+<a id="undefinedemit"></a>
 
-### Listener.emit(name, [data], [emitter]) ⇒ this
+## undefinedemit(name, [data], [emitter]) ⇒ this
 Emits `name` and `all` events invoking all the callbacks subscribed to the events.
 
-**Kind**: static method of [Listener](#Listener)  
+**Kind**: global function  
 <table>
   <thead>
     <tr>
@@ -1729,14 +1577,14 @@ Collection.emit('change', {}, Model);
 // the third argument can be used to change event emitter,
 // listeners will be invoked with a parameter `{event: 'change', emitter: Model}`
 ```
-<a id="Listener_free"></a>
+<a id="undefinedfree"></a>
 
-### Listener.free() ⇒ this
+## undefinedfree() ⇒ this
 Removes all callbacks bound by other objects to the host object.
 
 It is used to easily dispose of the object.
 
-**Kind**: static method of [Listener](#Listener)  
+**Kind**: global function  
 **Example**  
 ```js
 Controller.on(Model, 'change', this.render);
