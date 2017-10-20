@@ -20,9 +20,44 @@ class Model extends Listener() {
    */
   constructor(attributes = {}, { collection, storage } = _opt) {
     super();
-    this[Symbol.for('c_collection')] = collection;
-    this[Symbol.for('c_storage')] = storage;
-    this.reset(attributes, { silent: true });
+    Object.defineProperties(this, {
+      [Symbol.for('c_collection')]: {
+        value: collection,
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      },
+      [Symbol.for('c_storage')]: {
+        value: storage,
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      },
+    });
+    this.set(attributes);
+    return this.constructor._getProxy(this, '', this, [this]);
+  }
+
+  /**
+   * Resets all attributes on the model with given attributes.
+   *
+   * @param {Object} [attributes] the attributes to be set on the model
+   * @returns {this}
+   * @example
+   * model.set();
+   * // all attributes are removed from the model
+   *
+   * model.set({ foo: bar });
+   * model
+   * //=>{ foo: bar }
+   */
+  set(attributes = {}) {
+    const keys = Object.keys(this);
+    for (let i = 0; i < keys.length; i += 1) {
+      delete this[keys[i]];
+    }
+    Object.assign(this, attributes);
+    return this;
   }
 
   /**
@@ -33,7 +68,7 @@ class Model extends Listener() {
    *
    */
   assign(attributes) {
-    Object.assign(this.data, attributes);
+    Object.assign(this, attributes);
     return this;
   }
 
@@ -42,11 +77,11 @@ class Model extends Listener() {
    * attributes.
    *
    * @param {Object} source the source object to be merged with the target object.
-   * @param {Object} [target=this.data] the target object to be merged, uses model's attributes by
+   * @param {Object} [target=this] the target object to be merged, uses model's attributes by
    *                                    default
    * @returns {Object} the target object
    */
-  merge(source, target = this.data) {
+  merge(source, target = this) {
     const keys = Object.keys(source);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
@@ -62,34 +97,12 @@ class Model extends Listener() {
   }
 
   /**
-   * Resets all attributes on the model with given attributes firing a single `change` event.
-   *
-   * @param {Object} [attributes]
-   * @param {Object} [options]
-   * @param {boolean} [options.silent] whether to avoid firing the `change` event
-   * @returns {this}
-   * @example
-   * model.reset();
-   * // all attributes are removed from the model
-   *
-   * model.reset({ foo: bar });
-   * model.data
-   * //=>{ foo: bar }
-   */
-  reset(attributes = {}, { silent } = _opt) {
-    const previous = this.toJSON();
-    this.data = Model._getProxy(attributes, '', this, [attributes]);
-    if (!silent) this.emit('change', { previous });
-    return this;
-  }
-
-  /**
    * The model's permanent `id`.
    *
    * @type {*}
    */
   get id() {
-    return this.data[this.constructor.idAttribute];
+    return this[this.constructor.idAttribute];
   }
 
   /**
@@ -98,7 +111,7 @@ class Model extends Listener() {
    * @returns {Object}
    */
   toJSON() {
-    return Object.assign({}, this.data);
+    return Object.assign({}, this);
   }
 
   /**
@@ -246,23 +259,15 @@ class Model extends Listener() {
   }
 
   /**
-   * Sets up Proxy objects on Model#data to monitor changes.
+   * Sets up Proxy objects on Model to monitor changes.
    *
    * @param {Object} target the target object to watch for the new Proxy
-   * @param {string} path the string path to the object in Model#data
-   * @param {Model} model the model to which the proxy should belong
+   * @param {string} path the string path to the object in Model
+   * @param {Object} model the model to which the proxy should belong
    * @param {Array} processed an array of already processed objects
    * @returns {Proxy} a new Proxy object
    */
   static _getProxy(target, path, model, processed) {
-    const keys = Object.keys(target);
-    for (let i = 0; i < keys.length; i += 1) {
-      const key = keys[i];
-      if (typeof target[key] === 'object' && !processed.includes(target[key])) {
-        processed.push(target[key]);
-        target[key] = this._getProxy(target[key], `${path}:${key}`, model, processed);
-      }
-    }
     let proxy;
     let handler = Model.proxies.get(target);
     if (handler) {
@@ -272,13 +277,26 @@ class Model extends Listener() {
     } else {
       handler = { path, model, set: this._setHandler, deleteProperty: this._deleteHandler };
       proxy = new Proxy(target, handler);
+      if (target === model) {
+        handler.model = proxy;
+        model = proxy;
+      }
       Model.proxies.set(proxy, handler);
+    }
+
+    const keys = Object.keys(target);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      if (typeof target[key] === 'object' && !processed.includes(target[key])) {
+        processed.push(target[key]);
+        target[key] = this._getProxy(target[key], `${path}:${key}`, model, processed);
+      }
     }
     return proxy;
   }
 
   /**
-   * Set operation trap for proxies on Model#data
+   * Set operation trap for proxies on Model
    *
    * @param {*} target
    * @param {string} property
@@ -286,6 +304,10 @@ class Model extends Listener() {
    * @returns {boolean}
    */
   static _setHandler(target, property, value) {
+    if (typeof property === 'symbol') {
+      target[property] = value;
+      return true;
+    }
     if (isEqual(target[property], value)) return true;
     const { path, model } = this;
     const previous = target[property];
@@ -296,7 +318,7 @@ class Model extends Listener() {
   }
 
   /**
-   * `delete` operation trap for proxies on Model#data
+   * `delete` operation trap for proxies on Model
    *
    * @param {*} target
    * @param {string} property
@@ -304,6 +326,10 @@ class Model extends Listener() {
    */
   static _deleteHandler(target, property) {
     if (!Reflect.has(target, property)) return true;
+    if (typeof property === 'symbol') {
+      delete target[property];
+      return true;
+    }
     const { path, model } = this;
     const previous = target[property];
     delete target[property];
@@ -319,7 +345,7 @@ class Model extends Listener() {
 Model.idAttribute = '_id';
 
 /**
- * The WeakMap holding references to metadata associated with proxies in Model#data.
+ * The WeakMap holding references to metadata associated with proxies in Model.
  * @type {WeakMap}
  */
 Model.proxies = new WeakMap();

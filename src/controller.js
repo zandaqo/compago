@@ -278,6 +278,7 @@ class Controller extends Listener() {
     const { value = 'value', bond, parse, nested = false, prevent } = data;
     if (prevent) event.preventDefault();
     const field = bond !== true ? bond : target.getAttribute('data-bond');
+    // todo use new model
     this.model.set({ [field]: typeof parse === 'function' ? parse(target[value]) : target[value] }, { nested });
   }
 

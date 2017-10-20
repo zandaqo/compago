@@ -11,8 +11,20 @@ const _reEventSplitter = /\s+/;
 const Listener = (Base = Object) => class extends Base {
   constructor(...args) {
     super(...args);
-    this[Symbol.for('c_events')] = undefined;
-    this[Symbol.for('c_listeners')] = undefined;
+    Object.defineProperties(this, {
+      [Symbol.for('c_events')]: {
+        value: undefined,
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      },
+      [Symbol.for('c_listeners')]: {
+        value: undefined,
+        enumerable: false,
+        writable: true,
+        configurable: true,
+      },
+    });
   }
 
   /**

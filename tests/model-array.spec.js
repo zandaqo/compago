@@ -91,7 +91,7 @@ describe('ModelArray', () => {
       c.set({ _id: 1, name: 'Ford' });
       c.set({ _id: 1, name: 'Arthur' }, { keep: true });
       expect(c.length).toBe(1);
-      expect(c[0].data.name).toBe('Arthur');
+      expect(c[0].name).toBe('Arthur');
     });
 
     it('re-sorts if updating existing modules change comparable field', () => {
@@ -101,12 +101,12 @@ describe('ModelArray', () => {
       const b = { _id: 2, name: 'Arthur' };
       c.set(a);
       c.set(b, { keep: true });
-      expect(c[0].data).toEqual(b);
-      expect(c[1].data).toEqual(a);
+      expect(c[0].toJSON()).toEqual(b);
+      expect(c[1].toJSON()).toEqual(a);
       c.on(c, 'sort', c.someMethod);
       c.set({ _id: 2, name: 'Zoidberg' }, { keep: true });
-      expect(c[0].data).toEqual(a);
-      expect(c[1].data).toEqual({ _id: 2, name: 'Zoidberg' });
+      expect(c[0].toJSON()).toEqual(a);
+      expect(c[1].toJSON()).toEqual({ _id: 2, name: 'Zoidberg' });
       expect(c.someMethod).toHaveBeenCalled();
     });
 
