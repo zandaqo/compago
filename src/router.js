@@ -15,7 +15,7 @@ const _reTrailingSlash = /\/+$/g;
  *
  * @mixes Listener
  */
-class Router {
+class Router extends Listener() {
   /**
    * @param {Object} [options]
    * @param {Object} [options.routes] a hash of routes
@@ -29,7 +29,7 @@ class Router {
    *           });
    */
   constructor({ routes = {}, root } = _opt) {
-    Object.assign(this, Listener);
+    super();
     this.routes = [];
     this.root = root ? (`/${root}`).replace(_reStartingSlash, '/').replace(_reTrailingSlash, '') : '';
     this.started = false;

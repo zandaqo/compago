@@ -8,7 +8,7 @@ const _opt = Object.seal(Object.create(null));
  *
  * @mixes Listener
  */
-class RemoteStorage {
+class RemoteStorage extends Listener() {
   /**
    * @param {Object} [options]
    * @param {string} [options.url] the base URL for requests, by default uses the window's origin
@@ -16,7 +16,7 @@ class RemoteStorage {
    *                                to use as the `init` parameter in calls to the global fetch()
    */
   constructor({ url = window.location.origin, init } = _opt) {
-    Object.assign(this, Listener);
+    super();
     this.url = url;
     this.init = init || { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'include' };
   }

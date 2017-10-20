@@ -14,7 +14,7 @@ const _opt = Object.seal(Object.create(null));
  *
  * @mixes Listener
  */
-class Controller {
+class Controller extends Listener() {
   /**
    * @param {Object} [options]
    * @param {(HTMLElement|string)} [options.el] the DOM element for the controller
@@ -31,7 +31,7 @@ class Controller {
   constructor(options = _opt) {
     const { el, tagName, attributes, handlers, model,
       view, renderEvents, renderAttributes, regions } = options;
-    Object.assign(this, Listener);
+    super();
     this.tagName = tagName || 'div';
     this.attributes = attributes;
     this.el = this._prepareElement(el);

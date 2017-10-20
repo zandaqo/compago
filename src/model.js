@@ -11,7 +11,7 @@ const _opt = Object.seal(Object.create(null));
  *
  * @mixes Listener
  */
-class Model {
+class Model extends Listener() {
   /**
    * @param {Object} [attributes] the attributes to be set on a newly created model
    * @param {Object} [options]
@@ -19,7 +19,7 @@ class Model {
    * @param {Object} [options.storage] the storage engine for the model
    */
   constructor(attributes = {}, { collection, storage } = _opt) {
-    Object.assign(this, Listener);
+    super();
     this[Symbol.for('c_collection')] = collection;
     this[Symbol.for('c_storage')] = storage;
     this.reset(attributes, { silent: true });

@@ -1,4 +1,3 @@
-import Listener from '../src/listener';
 import Model from '../src/model';
 import ModelArray from '../src/model-array';
 
@@ -443,7 +442,7 @@ describe('ModelArray', () => {
     });
 
     it('disposes removed models if `dispose:true`', () => {
-      const a = Object.assign({}, Listener);
+      const a = new Model();
       a.onDispose = jest.fn();
       a.on(m1, 'dispose', a.onDispose);
       c.dispose({ dispose: true });

@@ -4,19 +4,16 @@ const _reEventSplitter = /\s+/;
 /**
  * Provides methods for event handling.
  *
+ * @param {class} Base the base class to extend with Listener
+ * @returns {class} a new Listener class extending the base class
  * @mixin
- * @example
- *
- * const emitter = Object.assign({}, Listener);
- * const listener = Object.assign({}, Listener);
- * listener.on(emitter, 'someEvent', listener.doSomething);
- * emitter.emit('someEvent');
- * // listener.doSomething is invoked.
  */
-const Listener = {
-  [Symbol.for('c_events')]: undefined,
-
-  [Symbol.for('c_listeners')]: undefined,
+const Listener = (Base = Object) => class extends Base {
+  constructor(...args) {
+    super(...args);
+    this[Symbol.for('c_events')] = undefined;
+    this[Symbol.for('c_listeners')] = undefined;
+  }
 
   /**
    * Adds an event listener for the specified event(s).
@@ -50,7 +47,7 @@ const Listener = {
       if (!~listensTo.indexOf(eventName)) listensTo.push(eventName);
     }
     return this;
-  },
+  }
 
   /**
    * Removes event listeners set up by the host object on other objects.
@@ -111,7 +108,7 @@ const Listener = {
     });
 
     return this;
-  },
+  }
 
   /**
    * Emits `name` and `all` events invoking all the callbacks subscribed to the events.
@@ -148,7 +145,7 @@ const Listener = {
       }
     }
     return this;
-  },
+  }
 
   /**
    * Removes all callbacks bound by other objects to the host object.
@@ -174,7 +171,7 @@ const Listener = {
     });
     this[Symbol.for('c_events')] = undefined;
     return this;
-  },
+  }
 };
 
 export default Listener;

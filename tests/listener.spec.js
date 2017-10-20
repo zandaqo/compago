@@ -1,14 +1,15 @@
-import Listener from '../src/listener';
+import ListenerMixin from '../src/listener';
 
 describe('Listener', () => {
+  const Listener = ListenerMixin();
   let a;
   let b;
   let c;
 
   beforeEach(() => {
-    a = Object.assign({}, Listener);
-    b = Object.assign({}, Listener);
-    c = Object.assign({}, Listener);
+    a = new Listener();
+    b = new Listener();
+    c = new Listener();
     a.firstMethod = jest.fn();
     a.secondMethod = jest.fn();
     c.someMethod = jest.fn();

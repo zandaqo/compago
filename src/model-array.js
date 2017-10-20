@@ -10,7 +10,7 @@ const _opt = Object.seal(Object.create(null));
  * @mixes Listener
  * @extends Array
  */
-class ModelArray extends Array {
+class ModelArray extends Listener(Array) {
   /**
    * @param {Array.<Model>} [models] models to add to the array
    * @param {Object} [options]
@@ -22,7 +22,6 @@ class ModelArray extends Array {
   constructor(models, options = {}) {
     const { storage, model, comparator } = options;
     super();
-    Object.assign(this, Listener);
     this.storage = storage;
     this.Model = model || Model;
     this.comparator = comparator;
