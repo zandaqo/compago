@@ -355,10 +355,7 @@ describe('Controller', () => {
     let event;
 
     beforeEach(() => {
-      model = {
-        set: jest.fn(),
-      };
-      v.model = model;
+      v.model = {};
       input = document.createElement('input');
       input.setAttribute('id', 'name');
       v.el.appendChild(input);
@@ -370,17 +367,16 @@ describe('Controller', () => {
         'input #name': { bond: 'name' },
       });
       v._handle(event);
-      expect(model.set).toHaveBeenCalled();
-      expect(model.set.mock.calls[0]).toEqual([{ name: '' }, { nested: false }]);
+      expect(v.model).toEqual({ name: '' });
     });
 
     it('binds to a nested attribute of the model if `nested:true`', () => {
+      v.model = { name: {} };
       v.handlers = v._prepareHandlers({
         'input #name': { bond: 'name.first', nested: true },
       });
       v._handle(event);
-      expect(model.set).toHaveBeenCalled();
-      expect(model.set.mock.calls[0]).toEqual([{ 'name.first': '' }, { nested: true }]);
+      expect(v.model).toEqual({ name: { first: '' } });
     });
 
     it('prevents default action if `prevent:true`', () => {
@@ -388,8 +384,7 @@ describe('Controller', () => {
         'input #name': { bond: 'name', prevent: true },
       });
       v._handle(event);
-      expect(model.set).toHaveBeenCalled();
-      expect(model.set.mock.calls[0]).toEqual([{ name: '' }, { nested: false }]);
+      expect(v.model).toEqual({ name: '' });
       expect(event.preventDefault).toHaveBeenCalled();
     });
 
@@ -400,8 +395,7 @@ describe('Controller', () => {
       });
       input.value = '1';
       v._handle(event);
-      expect(model.set).toHaveBeenCalled();
-      expect(model.set.mock.calls[0]).toEqual([{ id: 1 }, { nested: false }]);
+      expect(v.model).toEqual({ id: 1 });
     });
 
     it('debounces handlers if `debounce` is set', () => {

@@ -277,9 +277,18 @@ class Controller extends Listener() {
   _handleBond(event, target, data) {
     const { value = 'value', bond, parse, nested = false, prevent } = data;
     if (prevent) event.preventDefault();
-    const field = bond !== true ? bond : target.getAttribute('data-bond');
-    // todo use new model
-    this.model.set({ [field]: typeof parse === 'function' ? parse(target[value]) : target[value] }, { nested });
+    const path = bond !== true ? bond : target.getAttribute('data-bond');
+    const content = typeof parse === 'function' ? parse(target[value]) : target[value];
+    let model = this.model;
+    let field = path;
+    if (nested) {
+      const chunks = path.split('.');
+      field = chunks[chunks.length - 1];
+      for (let i = 0; i < chunks.length - 1; i += 1) {
+        model = model[chunks[i]];
+      }
+    }
+    if (model) model[field] = content;
   }
 
   /**
