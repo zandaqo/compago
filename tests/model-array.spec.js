@@ -92,7 +92,7 @@ describe('ModelArray', () => {
       c.set({ _id: 1, name: 'Ford' });
       c.set({ _id: 1, name: 'Arthur' }, { keep: true });
       expect(c.length).toBe(1);
-      expect(c[0].get('name')).toBe('Arthur');
+      expect(c[0].data.name).toBe('Arthur');
     });
 
     it('re-sorts if updating existing modules change comparable field', () => {

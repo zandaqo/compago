@@ -188,29 +188,6 @@ describe('Model', () => {
     });
   });
 
-  describe('get', () => {
-    it('returns an attribute', () => {
-      expect(model.get('answer')).toBe(42);
-      expect(model.get('something')).toBe(undefined);
-    });
-
-    it('returns a value of a getter if present', () => {
-      class SomeModel extends Model {
-        get someValue() { return 1; }
-      }
-      const someModel = new SomeModel();
-      expect(someModel.get('someValue')).toBe(1);
-      expect(someModel.get('clear')).toBeUndefined();
-    });
-  });
-
-  describe('has', () => {
-    it('checks whether the model has an attribute', () => {
-      expect(model.has('answer')).toBe(true);
-      expect(model.has('something')).toBe(false);
-    });
-  });
-
   describe('toJSON', () => {
     it('returns a copy of attributes', () => {
       expect(model.toJSON()).toEqual(model.data);
@@ -229,7 +206,7 @@ describe('Model', () => {
         expect(response).toEqual({ answer: 40 });
         expect(model.firstSpy.mock.calls[0][0].event).toBe('sync');
         expect(model.firstSpy.mock.calls[0][0].emitter).toBe(model);
-        expect(model.get('answer')).toEqual(40);
+        expect(model.data.answer).toEqual(40);
       });
     });
 

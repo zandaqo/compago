@@ -253,8 +253,8 @@ class ModelArray extends Array {
     if (typeof comparator === 'string') {
       const attribute = comparator;
       comparator = (first, second) => {
-        let a = first.get(attribute);
-        let b = second.get(attribute);
+        let a = first.data[attribute];
+        let b = second.data[attribute];
 
         if (descending) {
           [a, b] = [b, a];
@@ -361,7 +361,7 @@ class ModelArray extends Array {
     const result = this[first ? 'find' : 'filter']((model) => {
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
-        if (attributes[key] !== model.get(key)) return false;
+        if (attributes[key] !== model.data[key]) return false;
       }
       return true;
     });

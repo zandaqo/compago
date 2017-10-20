@@ -84,38 +84,12 @@ class Model {
   }
 
   /**
-   * Gets a value of a data attribute. If not present, looks it up among the model's getters.
-   * For simplicity's sake, any property that isn't a function is considered a getter.
-   *
-   * @param {string} attribute an attribute or getter name
-   * @returns {*} the value of the data attribute or getter
-   * @example
-   * model.get('foo');
-   * // returns the value of the `foo` attribute
-   */
-  get(attribute) {
-    if (Reflect.has(this.data, attribute)) return this.data[attribute];
-    const getter = this[attribute];
-    return typeof getter !== 'function' ? getter : undefined;
-  }
-
-  /**
    * The model's permanent `id`.
    *
    * @type {*}
    */
   get id() {
     return this.data[this.constructor.idAttribute];
-  }
-
-  /**
-   * Checks whether the model has the attribute.
-   *
-   * @param {string} attribute the attribute name to look for
-   * @returns {boolean}
-   */
-  has(attribute) {
-    return this.data[attribute] !== undefined;
   }
 
   /**
