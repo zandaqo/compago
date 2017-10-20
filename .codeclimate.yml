@@ -7,4 +7,3 @@ ratings:
 exclude_paths:
   - "tests/"
   - "docs/"
-  - "src/collection.js"

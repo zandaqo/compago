@@ -20,8 +20,8 @@ class Model {
    */
   constructor(attributes = {}, { collection, storage } = _opt) {
     Object.assign(this, Listener);
-    this.collection = collection;
-    this.storage = storage;
+    this[Symbol.for('c_collection')] = collection;
+    this[Symbol.for('c_storage')] = storage;
     this.reset(attributes, { silent: true });
   }
 
@@ -234,8 +234,8 @@ class Model {
    * @returns {Promise}
    */
   sync(method, options) {
-    const storage = (this.collection && this.collection.storage) ?
-      this.collection.storage : this.storage;
+    const storage = (this[Symbol.for('c_collection')] && this[Symbol.for('c_collection')].storage) ?
+      this[Symbol.for('c_collection')].storage : this[Symbol.for('c_storage')];
     if (storage) return storage.sync(method, this, options);
     return Promise.reject(new Error('Storage is not defined.'));
   }

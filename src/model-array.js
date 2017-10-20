@@ -517,7 +517,7 @@ class ModelArray extends Array {
    * @returns {void}
    */
   _addReference(model) {
-    if (!model.collection) model.collection = this;
+    if (!model[Symbol.for('c_collection')]) model[Symbol.for('c_collection')] = this;
     if (model.id) this._byId[model.id] = model;
     this.on(model, 'all', this._onModelEvent);
   }
@@ -530,7 +530,7 @@ class ModelArray extends Array {
    */
   _removeReference(model) {
     this._byId[model.id] = undefined;
-    if (model.collection === this) model.collection = undefined;
+    if (model[Symbol.for('c_collection')] === this) model[Symbol.for('c_collection')] = undefined;
     this.off(model, 'all', this._onModelEvent);
   }
 }

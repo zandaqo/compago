@@ -14,8 +14,8 @@ describe('Model', () => {
       const storage = {};
       const m = new Model(undefined, { collection, storage });
       expect(m instanceof Model).toBe(true);
-      expect(m.collection).toBe(collection);
-      expect(m.storage).toBe(storage);
+      expect(m[Symbol.for('c_collection')]).toBe(collection);
+      expect(m[Symbol.for('c_storage')]).toBe(storage);
       expect(m.data).toEqual({});
     });
   });
@@ -384,21 +384,21 @@ describe('Model', () => {
 
   describe('sync', () => {
     it('calls `sync` method of the storage', () => {
-      model.storage = {};
-      model.storage.sync = jest.fn();
+      model[Symbol.for('c_storage')] = {};
+      model[Symbol.for('c_storage')].sync = jest.fn();
       model.sync();
-      expect(model.storage.sync).toHaveBeenCalled();
+      expect(model[Symbol.for('c_storage')].sync).toHaveBeenCalled();
     });
 
     it('prefers the storage of the collection', () => {
-      model.storage = {};
-      model.storage.sync = jest.fn();
-      model.collection = {};
-      model.collection.storage = {};
-      model.collection.storage.sync = jest.fn();
+      model[Symbol.for('c_storage')] = {};
+      model[Symbol.for('c_storage')].sync = jest.fn();
+      model[Symbol.for('c_collection')] = {};
+      model[Symbol.for('c_collection')].storage = {};
+      model[Symbol.for('c_collection')].storage.sync = jest.fn();
       model.sync();
-      expect(model.storage.sync).not.toHaveBeenCalled();
-      expect(model.collection.storage.sync).toHaveBeenCalled();
+      expect(model[Symbol.for('c_storage')].sync).not.toHaveBeenCalled();
+      expect(model[Symbol.for('c_collection')].storage.sync).toHaveBeenCalled();
     });
 
     it('rejects if no storage is found', () => model.sync().catch((error) => {

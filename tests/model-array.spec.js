@@ -41,7 +41,7 @@ describe('ModelArray', () => {
     it('sets models', () => {
       c.set([m1]);
       expect(c[0]).toBe(m1);
-      expect(m1.collection).toBe(c);
+      expect(m1[Symbol.for('c_collection')]).toBe(c);
     });
 
     it('resets models', () => {
@@ -476,7 +476,7 @@ describe('ModelArray', () => {
       c.push(m1);
       const emitSpy = jest.spyOn(c, 'emit');
       nc.push(m1);
-      expect(m1.collection).toBe(c);
+      expect(m1[Symbol.for('c_collection')]).toBe(c);
       expect(Array.from(c)).toEqual([m1]);
       expect(Array.from(nc)).toEqual([m1]);
       expect(c.emit).not.toHaveBeenCalled();
@@ -488,7 +488,7 @@ describe('ModelArray', () => {
     it('ties a model to the array', () => {
       const m = new Model();
       c._addReference(m);
-      expect(m.collection).toBe(c);
+      expect(m[Symbol.for('c_collection')]).toBe(c);
       expect(m[Symbol.for('c_events')].get('all')[0]).toEqual([c, c._onModelEvent]);
     });
   });
@@ -498,7 +498,7 @@ describe('ModelArray', () => {
       const m = new Model();
       c._addReference(m);
       c._removeReference(m);
-      expect(m.collection).toBe(undefined);
+      expect(m[Symbol.for('c_collection')]).toBe(undefined);
       expect(m[Symbol.for('c_events')].get('all')).toBe(undefined);
     });
   });
