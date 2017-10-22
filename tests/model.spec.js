@@ -115,6 +115,17 @@ describe('Model', () => {
     });
   });
 
+  describe('set', () => {
+    it('sets the model with given attributes', () => {
+      const spy = jest.fn();
+      model.on(model, 'change', spy);
+      const attributes = { name: 'Ford' };
+      model.set(attributes);
+      expect(model.toJSON()).toEqual(attributes);
+      expect(spy.mock.calls.length).toBe(4);
+    });
+  });
+
   describe('assing', () => {
     it('assigns attributes to the model', () => {
       const attributes = {
@@ -170,17 +181,6 @@ describe('Model', () => {
       model.merge({ first: arr });
       expect(model.first).toEqual([4, 2, 3, 5]);
       expect(firstSpy.mock.calls.length).toBe(2);
-    });
-  });
-
-  describe('set', () => {
-    it('sets the model with given attributes', () => {
-      const spy = jest.fn();
-      model.on(model, 'change', spy);
-      const attributes = { name: 'Ford' };
-      model.set(attributes);
-      expect(model.toJSON()).toEqual(attributes);
-      expect(spy.mock.calls.length).toBe(4);
     });
   });
 
@@ -407,6 +407,20 @@ describe('Model', () => {
       model.on(model, 'dispose', otherMethod);
       model.dispose({ silent: true });
       expect(otherMethod).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('definePrivate', () => {
+    it('sets up private non-enumerable, non-configurable properties defined by symbols', () => {
+      Model.definePrivate(model, {
+        model_private_a: 1,
+        model_private_b: 2,
+      });
+      expect(Reflect.has(model, Symbol.for('model_private_a'))).toBe(true);
+      expect(Reflect.has(model, Symbol.for('model_private_b'))).toBe(true);
+      expect(model[Symbol.for('model_private_a')]).toBe(1);
+      expect(Reflect.has(Object.assign({}, model), Symbol.for('model_private_a'))).toBe(false);
+      expect(Reflect.has(Object.assign({}, model), Symbol.for('model_private_b'))).toBe(false);
     });
   });
 });
