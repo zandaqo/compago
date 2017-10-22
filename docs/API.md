@@ -827,6 +827,7 @@ through storage controllers and notify subscribers through events when their dat
     * _static_
         * [.idAttribute](#Model_idAttribute) : string
         * [.proxies](#Model_proxies) : WeakMap
+        * [.definePrivate(model, properties)](#Model_definePrivate) ⇒ void
 
 <a id="new_Model_new"></a>
 
@@ -1109,6 +1110,36 @@ The id property name for the models of the class.
 The WeakMap holding references to metadata associated with proxies in Model.
 
 **Kind**: static property of [Model](#Model)  
+<a id="Model_definePrivate"></a>
+
+### Model.definePrivate(model, properties) ⇒ void
+Given a hash of property names and their initial values,
+sets them up on the given model as non-enumerable and non-configurable properties
+defined by Symbols in the global storage, where Symbol keys correspond to givn property names.
+
+**Kind**: static method of [Model](#Model)  
+<table>
+  <thead>
+    <tr>
+      <th>Param</th><th>Type</th><th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>model</td><td><a href="#Model">Model</a></td><td><p>the model on which properties are to be set</p>
+</td>
+    </tr><tr>
+    <td>properties</td><td>Object</td><td><p>a hash of Symbol key names and initial values to be set on the model</p>
+</td>
+    </tr>  </tbody>
+</table>
+
+**Example**  
+```js
+Model.definePrivate(model, { private_key: 1 });
+model[Symbol.for('private_key')]
+//=> 1
+```
 <a id="RemoteStorage"></a>
 
 ## RemoteStorage

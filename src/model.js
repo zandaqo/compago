@@ -244,6 +244,40 @@ class Model extends Listener() {
     return this;
   }
 
+  /**
+   * Given a hash of property names and their initial values,
+   * sets them up on the given model as non-enumerable and non-configurable properties
+   * defined by Symbols in the global storage, where Symbol keys correspond to givn property names.
+   *
+   * @param {Model} model the model on which properties are to be set
+   * @param {Object} properties a hash of Symbol key names and initial values to be set on the model
+   * @returns {void}
+   * @example
+   * Model.definePrivate(model, { private_key: 1 });
+   * model[Symbol.for('private_key')]
+   * //=> 1
+   */
+  static definePrivate(model, properties) {
+    const keys = Object.keys(properties);
+    for (let i = 0; i < keys.length; i += 1) {
+      Object.defineProperty(model, Symbol.for(keys[i]), {
+        value: properties[keys[i]],
+        writable: true,
+        enumerable: false,
+        configurable: false,
+      });
+    }
+  }
+
+  /**
+   * Emits appropriate `change` events when a given property is changed.
+   *
+   * @param {Model} model
+   * @param {string} path
+   * @param {string} property
+   * @param {*} previous
+   * @returns {void}
+   */
   static _emitChanges(model, path, property, previous) {
     model.emit(`change${path}:${property}`, { path, previous });
     if (path.includes(':')) {
