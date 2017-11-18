@@ -73,6 +73,17 @@ describe('Controller', () => {
       expect(v.view.mock.calls.length).toBe(1);
       expect(v.view.mock.calls[0]).toEqual([v]);
     });
+
+    it('debounces if `renderDebounce` is set', (done) => {
+      const nv = new Controller({ renderDebounce: 10 });
+      nv.view = jest.fn();
+      nv.render();
+      nv.render();
+      setTimeout(() => {
+        expect(nv.view.mock.calls.length).toBe(1);
+        done();
+      }, 50);
+    });
   });
 
   describe('delegate', () => {
@@ -350,7 +361,6 @@ describe('Controller', () => {
   });
 
   describe('_handleBond', () => {
-    let model;
     let input;
     let event;
 

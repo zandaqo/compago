@@ -26,17 +26,21 @@ class Controller extends Listener() {
    * @param {string} [options.renderEvents] the model events that cause the controller to re-render
    * @param {Array} [options.renderAttributes] the attributes of the controller's element
    *                                          that cause it to re-render
+   * @param {number} [options.renderDebounce] time in milliseconds to delay the rendering
    * @param {Object} [options.regions] a hash of regions of the controller
    */
   constructor(options = _opt) {
     const { el, tagName, attributes, handlers, model,
-      view, renderEvents, renderAttributes, regions } = options;
+      view, renderEvents, renderAttributes, renderDebounce, regions } = options;
     super();
     this.tagName = tagName || 'div';
     this.attributes = attributes;
     this.el = this._prepareElement(el);
     this.handlers = handlers ? this._prepareHandlers(handlers) : undefined;
     this._handle = this._handle.bind(this);
+    if (renderDebounce !== undefined) {
+      this.render = this.constructor._handleDebounce(this.render, renderDebounce);
+    }
     this._setEventHandlers();
     this._regionSelectors = regions;
     this._regionControllers = undefined;
