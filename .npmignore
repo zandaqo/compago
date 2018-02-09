@@ -1,5 +1,4 @@
 .idea
-_book
 coverage
 docs
 node_modules
@@ -8,5 +7,4 @@ tests
 .npmignore
 .codeclimate.yml
 .eslintrc.yml
-book.json
 jsdoc.json

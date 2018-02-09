@@ -1,4 +1,3 @@
 {
-  "files": "src/*.js",
-  "plugin": "dmd-plugin-gitbook"
+  "files": "src/*.js"
 }

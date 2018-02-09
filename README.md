@@ -36,5 +36,6 @@ Import modules as needed:
 import { Model, Controller } from 'compago';
 ```
 
-## Example
- * [compago-todo](https://github.com/zandaqo/compago-todo) An example of a Todo app that uses JSX and Incremental DOM for Views.
+## See Also
+ * [API Documentation](https://github.com/zandaqo/compago/docs/API.md)
+ * [compago-todo](https://github.com/zandaqo/compago-todo) An example of a Todo app that uses lit-html for Views.

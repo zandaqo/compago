@@ -1,6 +1,57 @@
+## Classes
 
+<dl>
+<dt><a href="#Controller">Controller</a></dt>
+<dd><p>The Controller in MVC.
+It manages its Model and View while handling user interactions. Controller handles user input
+through DOM events and updates its Model accordingly. It listens to updates on its Model
+to re-render its View.</p>
+</dd>
+<dt><a href="#ModelArray">ModelArray</a> ⇐ <code>Array</code></dt>
+<dd><p>Manages an ordered set of models providing methods to create, sort, and dispose of the models.</p>
+</dd>
+<dt><a href="#Model">Model</a></dt>
+<dd><p>The Model in MVC.
+It manages data and business logic. Models handle synchronization with a persistence layer
+through storage controllers and notify subscribers through events when their data is changed.</p>
+</dd>
+<dt><a href="#RemoteStorage">RemoteStorage</a></dt>
+<dd><p>Facilitates interaction with a REST server through the Fetch API.</p>
+</dd>
+<dt><a href="#Router">Router</a></dt>
+<dd><p>Handles client-side routing and navigation utilizing the History API.</p>
+</dd>
+</dl>
 
-<a id="Controller"></a>
+## Mixins
+
+<dl>
+<dt><a href="#Listener">Listener</a> ⇒ <code>class</code></dt>
+<dd><p>Provides methods for event handling.</p>
+</dd>
+</dl>
+
+## Functions
+
+<dl>
+<dt><a href="#undefinedon">undefinedon(obj, name, callback)</a> ⇒ <code>this</code></dt>
+<dd><p>Adds an event listener for the specified event(s).</p>
+<p>The <code>callback</code> will be called with <code>this</code> being the listener
+whenever <code>obj</code> emits the <code>name</code> event.</p>
+</dd>
+<dt><a href="#undefinedoff">undefinedoff([obj], [name], [callback])</a> ⇒ <code>this</code></dt>
+<dd><p>Removes event listeners set up by the host object on other objects.</p>
+</dd>
+<dt><a href="#undefinedemit">undefinedemit(name, [data], [emitter])</a> ⇒ <code>this</code></dt>
+<dd><p>Emits <code>name</code> and <code>all</code> events invoking all the callbacks subscribed to the events.</p>
+</dd>
+<dt><a href="#undefinedfree">undefinedfree()</a> ⇒ <code>this</code></dt>
+<dd><p>Removes all callbacks bound by other objects to the host object.</p>
+<p>It is used to easily dispose of the object.</p>
+</dd>
+</dl>
+
+<a name="Controller"></a>
 
 ## Controller
 The Controller in MVC.
@@ -9,98 +60,60 @@ through DOM events and updates its Model accordingly. It listens to updates on i
 to re-render its View.
 
 **Kind**: global class  
-**Mixes**: [Listener](#Listener)  
+**Mixes**: [<code>Listener</code>](#Listener)  
 
 * [Controller](#Controller)
     * [new Controller([options])](#new_Controller_new)
-    * [.render()](#Controller__render) ⇒ HTMLElement
-    * [.delegate([name], [callback], [selector])](#Controller__delegate) ⇒ this
-    * [.undelegate([name], [callback], [selector])](#Controller__undelegate) ⇒ this
-    * [.show(region, content, [options])](#Controller__show) ⇒ this
-    * [.renderRegion(regionElement, [content])](#Controller__renderRegion) ⇒ this
-    * [.dispose([options])](#Controller__dispose) ⇒ this
+    * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
+    * [.delegate([name], [callback], [selector])](#Controller+delegate) ⇒ <code>this</code>
+    * [.undelegate([name], [callback], [selector])](#Controller+undelegate) ⇒ <code>this</code>
+    * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
+    * [.renderRegion(regionElement, [content])](#Controller+renderRegion) ⇒ <code>this</code>
+    * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
 
-<a id="new_Controller_new"></a>
+<a name="new_Controller_new"></a>
 
 ### new Controller([options])
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td>
-    </tr><tr>
-    <td>[options.el]</td><td>HTMLElement | string</td><td><p>the DOM element for the controller</p>
-</td>
-    </tr><tr>
-    <td>[options.tagName]</td><td>string</td><td><p>a tag if the controller should create its own DOM element</p>
-</td>
-    </tr><tr>
-    <td>[options.attributes]</td><td>Object</td><td><p>attributes to apply to the controller&#39;s DOM element</p>
-</td>
-    </tr><tr>
-    <td>[options.handlers]</td><td>Object</td><td><p>the DOM event handlers for the controller</p>
-</td>
-    </tr><tr>
-    <td>[options.model]</td><td>Object</td><td><p>the data model used by the controller</p>
-</td>
-    </tr><tr>
-    <td>[options.view]</td><td>Object</td><td><p>the view or template function used in rendering the controller</p>
-</td>
-    </tr><tr>
-    <td>[options.renderEvents]</td><td>string</td><td><p>the model events that cause the controller to re-render</p>
-</td>
-    </tr><tr>
-    <td>[options.renderAttributes]</td><td>Array</td><td><p>the attributes of the controller&#39;s element
-                                         that cause it to re-render</p>
-</td>
-    </tr><tr>
-    <td>[options.regions]</td><td>Object</td><td><p>a hash of regions of the controller</p>
-</td>
-    </tr>  </tbody>
-</table>
 
-<a id="Controller__render"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> |  |
+| [options.el] | <code>HTMLElement</code> \| <code>string</code> | the DOM element for the controller |
+| [options.tagName] | <code>string</code> | a tag if the controller should create its own DOM element |
+| [options.attributes] | <code>Object</code> | attributes to apply to the controller's DOM element |
+| [options.handlers] | <code>Object</code> | the DOM event handlers for the controller |
+| [options.model] | <code>Object</code> | the data model used by the controller |
+| [options.view] | <code>Object</code> | the view or template function used in rendering the controller |
+| [options.renderEvents] | <code>string</code> | the model events that cause the controller to re-render |
+| [options.renderAttributes] | <code>Array</code> | the attributes of the controller's element                                          that cause it to re-render |
+| [options.renderDebounce] | <code>number</code> | time in milliseconds to delay the rendering |
+| [options.regions] | <code>Object</code> | a hash of regions of the controller |
 
-### controller.render() ⇒ HTMLElement
+<a name="Controller+render"></a>
+
+### controller.render() ⇒ <code>HTMLElement</code>
 Renders the controller.
 
 By default, invokes `this.view` supplying the controller
 and returns the controller's DOM element.
 
-**Kind**: instance method of [Controller](#Controller)  
-**Returns**: HTMLElement - the DOM element of the controller  
-<a id="Controller__delegate"></a>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+**Returns**: <code>HTMLElement</code> - the DOM element of the controller  
+<a name="Controller+delegate"></a>
 
-### controller.delegate([name], [callback], [selector]) ⇒ this
+### controller.delegate([name], [callback], [selector]) ⇒ <code>this</code>
 Attaches a handler to an event.
 
 If no event or callback is provided, attaches all handlers
    in `this.handlers` to the appropriate events.
 
-**Kind**: instance method of [Controller](#Controller)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[name]</td><td>string</td><td><p>the event name</p>
-</td>
-    </tr><tr>
-    <td>[callback]</td><td>function | string</td><td><p>the handler function. Can be either a function
-                                     or a name of the controller&#39;s method</p>
-</td>
-    </tr><tr>
-    <td>[selector]</td><td>string</td><td><p>the CSS selector to handle events on a specific child element</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [name] | <code>string</code> | the event name |
+| [callback] | <code>function</code> \| <code>string</code> | the handler function. Can be either a function                                      or a name of the controller's method |
+| [selector] | <code>string</code> | the CSS selector to handle events on a specific child element |
 
 **Example**  
 ```js
@@ -115,30 +128,18 @@ controller.delegate('click', controller.onButtonClick, '#button');
 // attaches `controller.onButtonClick` as a handler for the `click`
 // event on the `#button` child element
 ```
-<a id="Controller__undelegate"></a>
+<a name="Controller+undelegate"></a>
 
-### controller.undelegate([name], [callback], [selector]) ⇒ this
+### controller.undelegate([name], [callback], [selector]) ⇒ <code>this</code>
 Detaches event handlers.
 
-**Kind**: instance method of [Controller](#Controller)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[name]</td><td>string</td><td><p>the event name</p>
-</td>
-    </tr><tr>
-    <td>[callback]</td><td>function</td><td><p>the handler function</p>
-</td>
-    </tr><tr>
-    <td>[selector]</td><td>string</td><td><p>the CSS selector</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [name] | <code>string</code> | the event name |
+| [callback] | <code>function</code> | the handler function |
+| [selector] | <code>string</code> | the CSS selector |
 
 **Example**  
 ```js
@@ -152,38 +153,21 @@ controller.undelegate('click', controller.onButtonClick, '#button');
 // removes `controller.onButtonClick` as a handler
 // for the `click` events on `#button` child element
 ```
-<a id="Controller__show"></a>
+<a name="Controller+show"></a>
 
-### controller.show(region, content, [options]) ⇒ this
+### controller.show(region, content, [options]) ⇒ <code>this</code>
 Renders a controller or any DOM element inside a region replacing the existing content.
 
-**Kind**: instance method of [Controller](#Controller)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>region</td><td>string</td><td></td><td><p>the name of the region</p>
-</td>
-    </tr><tr>
-    <td>content</td><td><a href="#Controller">Controller</a> | HTMLElement</td><td></td><td><p>a DOM element or a controller to render</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any event</p>
-</td>
-    </tr><tr>
-    <td>[options.keep]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing the previous controller</p>
-</td>
-    </tr><tr>
-    <td>[options.keepModel]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing the previous controller&#39;s model</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| region | <code>string</code> |  | the name of the region |
+| content | [<code>Controller</code>](#Controller) \| <code>HTMLElement</code> |  | a DOM element or a controller to render |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any event |
+| [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the previous controller |
+| [options.keepModel] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the previous controller's model |
 
 **Example**  
 ```js
@@ -203,151 +187,91 @@ controller.show('sidebar', otherController, { keep: true });
 controller.show('sidebar', otherController, { keepModel: true });
 // replaces the previous controller without disposing it's model
 ```
-<a id="Controller__renderRegion"></a>
+<a name="Controller+renderRegion"></a>
 
-### controller.renderRegion(regionElement, [content]) ⇒ this
+### controller.renderRegion(regionElement, [content]) ⇒ <code>this</code>
 Renders content inside a region.
 
-**Kind**: instance method of [Controller](#Controller)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>regionElement</td><td>HTMLElement</td><td><p>the DOM element serving as a container for a region</p>
-</td>
-    </tr><tr>
-    <td>[content]</td><td>HTMLElement</td><td><p>DOM elements to render inside the region</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
 
-<a id="Controller__dispose"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| regionElement | <code>HTMLElement</code> | the DOM element serving as a container for a region |
+| [content] | <code>HTMLElement</code> | DOM elements to render inside the region |
 
-### controller.dispose([options]) ⇒ this
+<a name="Controller+dispose"></a>
+
+### controller.dispose([options]) ⇒ <code>this</code>
 Prepares the controller to be disposed.
 
 Removes the controller's element from the DOM, detaches handlers,
 disposes the controller's model unless `save` option is provided,
 and removes all event listeners.
 
-**Kind**: instance method of [Controller](#Controller)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing <code>dispose</code> event</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing the model of the controller</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
 
-<a id="ModelArray"></a>
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model of the controller |
 
-## ModelArray ⇐ Array
+<a name="ModelArray"></a>
+
+## ModelArray ⇐ <code>Array</code>
 Manages an ordered set of models providing methods to create, sort, and dispose of the models.
 
 **Kind**: global class  
-**Extends**: Array  
-**Mixes**: [Listener](#Listener)  
+**Extends**: <code>Array</code>  
+**Mixes**: [<code>Listener</code>](#Listener)  
 
-* [ModelArray](#ModelArray) ⇐ Array
+* [ModelArray](#ModelArray) ⇐ <code>Array</code>
     * [new ModelArray([models], [options])](#new_ModelArray_new)
-    * [.set(models, options)](#ModelArray__set) ⇒ this
-    * [.unset(models, [options])](#ModelArray__unset) ⇒ this
-    * [.push(models, [options])](#ModelArray__push) ⇒ this
-    * [.pop([options])](#ModelArray__pop) ⇒ [Model](#Model)
-    * [.unshift(models, [options])](#ModelArray__unshift) ⇒ this
-    * [.shift([options])](#ModelArray__shift) ⇒ [Model](#Model)
-    * [.sort([options])](#ModelArray__sort) ⇒ this
-    * [.reverse([options])](#ModelArray__reverse) ⇒ this
-    * [.splice(start, [deleteCount], [items], [options])](#ModelArray__splice) ⇒ Array
-    * [.get(id)](#ModelArray__get) ⇒ [Model](#Model) \| undefined
-    * [.where(attributes, [first])](#ModelArray__where) ⇒ [Array.&lt;Model&gt;](#Model)
-    * [.read([options])](#ModelArray__read) ⇒ Promise
-    * [.toJSON()](#ModelArray__toJSON) ⇒ Array
-    * [.sync(method, options)](#ModelArray__sync) ⇒ Promise
-    * [.dispose([options])](#ModelArray__dispose) ⇒ this
+    * [.set(models, options)](#ModelArray+set) ⇒ <code>this</code>
+    * [.unset(models, [options])](#ModelArray+unset) ⇒ <code>this</code>
+    * [.push(models, [options])](#ModelArray+push) ⇒ <code>this</code>
+    * [.pop([options])](#ModelArray+pop) ⇒ [<code>Model</code>](#Model)
+    * [.unshift(models, [options])](#ModelArray+unshift) ⇒ <code>this</code>
+    * [.shift([options])](#ModelArray+shift) ⇒ [<code>Model</code>](#Model)
+    * [.sort([options])](#ModelArray+sort) ⇒ <code>this</code>
+    * [.reverse([options])](#ModelArray+reverse) ⇒ <code>this</code>
+    * [.splice(start, [deleteCount], [items], [options])](#ModelArray+splice) ⇒ <code>Array</code>
+    * [.get(id)](#ModelArray+get) ⇒ [<code>Model</code>](#Model) \| <code>undefined</code>
+    * [.where(attributes, [first])](#ModelArray+where) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
+    * [.read([options])](#ModelArray+read) ⇒ <code>Promise</code>
+    * [.toJSON()](#ModelArray+toJSON) ⇒ <code>Array</code>
+    * [.sync(method, options)](#ModelArray+sync) ⇒ <code>Promise</code>
+    * [.dispose([options])](#ModelArray+dispose) ⇒ <code>this</code>
 
-<a id="new_ModelArray_new"></a>
+<a name="new_ModelArray_new"></a>
 
 ### new ModelArray([models], [options])
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[models]</td><td><a href="#Model">Array.&lt;Model&gt;</a></td><td><p>models to add to the array</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td>
-    </tr><tr>
-    <td>[options.storage]</td><td>Object</td><td><p>the storage controller for the array</p>
-</td>
-    </tr><tr>
-    <td>[options.model]</td><td>Object</td><td><p>the class of models in the array</p>
-</td>
-    </tr><tr>
-    <td>[options.comparator]</td><td>function | string</td><td><p>a function or an attribute name
-                                                  that will be used to sort the array</p>
-</td>
-    </tr>  </tbody>
-</table>
 
-<a id="ModelArray__set"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| [models] | [<code>Array.&lt;Model&gt;</code>](#Model) | models to add to the array |
+| [options] | <code>Object</code> |  |
+| [options.storage] | <code>Object</code> | the storage controller for the array |
+| [options.model] | <code>Object</code> | the class of models in the array |
+| [options.comparator] | <code>function</code> \| <code>string</code> | a function or an attribute name                                                   that will be used to sort the array |
 
-### modelArray.set(models, options) ⇒ this
+<a name="ModelArray+set"></a>
+
+### modelArray.set(models, options) ⇒ <code>this</code>
 The general method to modify the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>models</td><td>Array | Object</td><td></td><td><p>a model, a list of models or objects to be added
-                               to the array or updated if already present</p>
-</td>
-    </tr><tr>
-    <td>options</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.at]</td><td>number</td><td></td><td><p>the position at which the model(s) should be placed</p>
-</td>
-    </tr><tr>
-    <td>[options.keep]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid removing the models not present
-                                         in the supplied list</p>
-</td>
-    </tr><tr>
-    <td>[options.skip]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid updating existing models</p>
-</td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.unsorted]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid sorting the array</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| models | <code>Array</code> \| <code>Object</code> |  | a model, a list of models or objects to be added                                to the array or updated if already present |
+| options | <code>Object</code> |  |  |
+| [options.at] | <code>number</code> |  | the position at which the model(s) should be placed |
+| [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid removing the models not present                                          in the supplied list |
+| [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing models |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.unsorted] | <code>boolean</code> | <code>false</code> | whether to avoid sorting the array |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
 
 **Example**  
 ```js
@@ -369,32 +293,19 @@ modelArray.set([model2, model3], { save: true });
 modelArray.set([model1, model4], { keep: true, unsorted: true });
 // avoids sorting the resulting list of models
 ```
-<a id="ModelArray__unset"></a>
+<a name="ModelArray+unset"></a>
 
-### modelArray.unset(models, [options]) ⇒ this
+### modelArray.unset(models, [options]) ⇒ <code>this</code>
 Removes a model or a list of models from the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>models</td><td><a href="#Model">Model</a> | <a href="#Model">Array.&lt;Model&gt;</a></td><td></td><td><p>the model(s) to remove from the array</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| models | [<code>Model</code>](#Model) \| [<code>Array.&lt;Model&gt;</code>](#Model) |  | the model(s) to remove from the array |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
 
 **Example**  
 ```js
@@ -405,62 +316,38 @@ modelArray.unset(model1);
 modelArray.unset(mode2, { save: true });
 // removes `model2` from the array but does not dispose it
 ```
-<a id="ModelArray__push"></a>
+<a name="ModelArray+push"></a>
 
-### modelArray.push(models, [options]) ⇒ this
+### modelArray.push(models, [options]) ⇒ <code>this</code>
 Adds a model(s) to the end of the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>models</td><td>Object | Array</td><td></td><td><p>the model(s) or objects to be added to the array.</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.unsorted]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid sorting the array</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| models | <code>Object</code> \| <code>Array</code> |  | the model(s) or objects to be added to the array. |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.unsorted] | <code>boolean</code> | <code>false</code> | whether to avoid sorting the array |
 
 **Example**  
 ```js
 modelArray.push(model);
 // adds model to the end of the array
 ```
-<a id="ModelArray__pop"></a>
+<a name="ModelArray+pop"></a>
 
-### modelArray.pop([options]) ⇒ [Model](#Model)
+### modelArray.pop([options]) ⇒ [<code>Model</code>](#Model)
 Removes a model from the end of the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-**Returns**: [Model](#Model) - the removed model  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+**Returns**: [<code>Model</code>](#Model) - the removed model  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
 
 **Example**  
 ```js
@@ -470,62 +357,38 @@ modelArray.pop();
 modelArray.pop({ save: true });
 // removes and returns the last model of the array without disposing it
 ```
-<a id="ModelArray__unshift"></a>
+<a name="ModelArray+unshift"></a>
 
-### modelArray.unshift(models, [options]) ⇒ this
+### modelArray.unshift(models, [options]) ⇒ <code>this</code>
 Adds a model(s) to the beginning of the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>models</td><td>Object | Array</td><td></td><td><p>the model(s) or objects to be added to the array.</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.unsorted]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid sorting the array</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| models | <code>Object</code> \| <code>Array</code> |  | the model(s) or objects to be added to the array. |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.unsorted] | <code>boolean</code> | <code>false</code> | whether to avoid sorting the array |
 
 **Example**  
 ```js
 modelArray.unshift(model);
 // adds model to the beginning of the array
 ```
-<a id="ModelArray__shift"></a>
+<a name="ModelArray+shift"></a>
 
-### modelArray.shift([options]) ⇒ [Model](#Model)
+### modelArray.shift([options]) ⇒ [<code>Model</code>](#Model)
 Removes a model from the beginning of the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-**Returns**: [Model](#Model) - the removed model  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+**Returns**: [<code>Model</code>](#Model) - the removed model  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
 
 **Example**  
 ```js
@@ -535,34 +398,19 @@ modelArray.shift();
 modelArray.shift({ save: true });
 // removes and returns the fist model of the array without disposing it
 ```
-<a id="ModelArray__sort"></a>
+<a name="ModelArray+sort"></a>
 
-### modelArray.sort([options]) ⇒ this
+### modelArray.sort([options]) ⇒ <code>this</code>
 Sorts the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.comparator]</td><td>function | string</td><td></td><td><p>a comparator function or an attribute name
-                                                for sorting</p>
-</td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>sort</code> event</p>
-</td>
-    </tr><tr>
-    <td>[options.descending]</td><td>boolean</td><td><code>false</code></td><td><p>whether to sort in descending order if the comparator is
-                                       an attribute name</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.comparator] | <code>function</code> \| <code>string</code> |  | a comparator function or an attribute name                                                 for sorting |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `sort` event |
+| [options.descending] | <code>boolean</code> | <code>false</code> | whether to sort in descending order if the comparator is                                        an attribute name |
 
 **Example**  
 ```js
@@ -579,67 +427,39 @@ modelArray.sort({ comparator: '_id', descending: true });
 modelArray.sort({ comparator: (a,b) => a > b });
 // sorts according to the provided comparator function
 ```
-<a id="ModelArray__reverse"></a>
+<a name="ModelArray+reverse"></a>
 
-### modelArray.reverse([options]) ⇒ this
+### modelArray.reverse([options]) ⇒ <code>this</code>
 Reverses the order of the models in the array.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>sort</code> event</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `sort` event |
 
 **Example**  
 ```js
 modelArray.reverse();
 // reverses the order of models in the array emitting the `sort` event
 ```
-<a id="ModelArray__splice"></a>
+<a name="ModelArray+splice"></a>
 
-### modelArray.splice(start, [deleteCount], [items], [options]) ⇒ Array
+### modelArray.splice(start, [deleteCount], [items], [options]) ⇒ <code>Array</code>
 Changes the array in place by removing and/or replacing its models
 the same way as Array#splice.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>start</td><td>number</td><td></td><td><p>index at which to start changing the array</p>
-</td>
-    </tr><tr>
-    <td>[deleteCount]</td><td>number</td><td></td><td><p>the number of old array elements to remove,
-                               defaults to the length of the array</p>
-</td>
-    </tr><tr>
-    <td>[items]</td><td><a href="#Model">Model</a> | Object | Array</td><td></td><td><p>the models to add to the array,
-                                       beginning at the start index</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| start | <code>number</code> |  | index at which to start changing the array |
+| [deleteCount] | <code>number</code> |  | the number of old array elements to remove,                                defaults to the length of the array |
+| [items] | [<code>Model</code>](#Model) \| <code>Object</code> \| <code>Array</code> |  | the models to add to the array,                                        beginning at the start index |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
 
 **Example**  
 ```js
@@ -648,53 +468,35 @@ const result = modelArray.splice(0, 1);
 // result is `[model1]`
 // modelArray is `[model2, model3]`
 ```
-<a id="ModelArray__get"></a>
+<a name="ModelArray+get"></a>
 
-### modelArray.get(id) ⇒ [Model](#Model) \| undefined
+### modelArray.get(id) ⇒ [<code>Model</code>](#Model) \| <code>undefined</code>
 Gets a model from the array by its id.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-**Returns**: [Model](#Model) \| undefined - a model or `undefined` if no model is found  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>id</td><td>string</td><td><p>the model&#39;s id</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+**Returns**: [<code>Model</code>](#Model) \| <code>undefined</code> - a model or `undefined` if no model is found  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| id | <code>string</code> | the model's id |
 
 **Example**  
 ```js
 modelArray.get('M123');
 // returns a model with id `M123` if it's present in the array
 ```
-<a id="ModelArray__where"></a>
+<a name="ModelArray+where"></a>
 
-### modelArray.where(attributes, [first]) ⇒ [Array.&lt;Model&gt;](#Model)
+### modelArray.where(attributes, [first]) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
 Returns models with matching attributes.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-**Returns**: [Array.&lt;Model&gt;](#Model) - an array of matching models  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>attributes</td><td>Object</td><td></td><td><p>a hash of attributes to match models against</p>
-</td>
-    </tr><tr>
-    <td>[first]</td><td>boolean</td><td><code>false</code></td><td><p>whether to return the first matching model</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+**Returns**: [<code>Array.&lt;Model&gt;</code>](#Model) - an array of matching models  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| attributes | <code>Object</code> |  | a hash of attributes to match models against |
+| [first] | <code>boolean</code> | <code>false</code> | whether to return the first matching model |
 
 **Example**  
 ```js
@@ -705,32 +507,19 @@ modelArray.where({ day: 'monday', author: 'Joe'});
 modelArray.where({ day: 'monday' }, true);
 // returns the first matching model
 ```
-<a id="ModelArray__read"></a>
+<a name="ModelArray+read"></a>
 
-### modelArray.read([options]) ⇒ Promise
+### modelArray.read([options]) ⇒ <code>Promise</code>
 Updates the array with its stored version.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.success]</td><td>function</td><td></td><td><p>the success callback</p>
-</td>
-    </tr><tr>
-    <td>[options.error]</td><td>function</td><td></td><td><p>the error callback</p>
-</td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing events</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.success] | <code>function</code> |  | the success callback |
+| [options.error] | <code>function</code> |  | the error callback |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing events |
 
 **Example**  
 ```js
@@ -740,58 +529,38 @@ modelArray.read()
 // updates the array with the stored version and logs the response if successful,
 // otherwise logs the error
 ```
-<a id="ModelArray__toJSON"></a>
+<a name="ModelArray+toJSON"></a>
 
-### modelArray.toJSON() ⇒ Array
+### modelArray.toJSON() ⇒ <code>Array</code>
 Creates a copy of the array's models for JSON stringification.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-**Returns**: Array - an array of stringified models  
-<a id="ModelArray__sync"></a>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+**Returns**: <code>Array</code> - an array of stringified models  
+<a name="ModelArray+sync"></a>
 
-### modelArray.sync(method, options) ⇒ Promise
+### modelArray.sync(method, options) ⇒ <code>Promise</code>
 The general method to synchronize the array.
 Proxies to the `sync` method of the storage if it's specified.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>method</td><td>string</td><td><p>the internal method name.</p>
-</td>
-    </tr><tr>
-    <td>options</td><td>Object</td><td></td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
-<a id="ModelArray__dispose"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| method | <code>string</code> | the internal method name. |
+| options | <code>Object</code> |  |
 
-### modelArray.dispose([options]) ⇒ this
+<a name="ModelArray+dispose"></a>
+
+### modelArray.dispose([options]) ⇒ <code>this</code>
 Prepares the array to be disposed.
 
-**Kind**: instance method of [ModelArray](#ModelArray)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing <code>dispose</code> event</p>
-</td>
-    </tr><tr>
-    <td>[options.save]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing removed models</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
+| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
 
 **Example**  
 ```js
@@ -801,7 +570,7 @@ modelArray.dispose();
 modelArray.dispose({ save: true });
 // disposes the array without disposing its models
 ```
-<a id="Model"></a>
+<a name="Model"></a>
 
 ## Model
 The Model in MVC.
@@ -809,74 +578,53 @@ It manages data and business logic. Models handle synchronization with a persist
 through storage controllers and notify subscribers through events when their data is changed.
 
 **Kind**: global class  
-**Mixes**: [Listener](#Listener)  
+**Mixes**: [<code>Listener</code>](#Listener)  
 
 * [Model](#Model)
     * [new Model([attributes], [options])](#new_Model_new)
     * _instance_
-        * [.id](#Model__id) : \*
-        * [.set([attributes])](#Model__set) ⇒ this
-        * [.assign(attributes)](#Model__assign) ⇒ this
-        * [.merge(source, [target])](#Model__merge) ⇒ Object
-        * [.toJSON()](#Model__toJSON) ⇒ Object
-        * [.read([options])](#Model__read) ⇒ Promise
-        * [.write([options])](#Model__write) ⇒ Promise
-        * [.erase([options])](#Model__erase) ⇒ Promise
-        * [.sync(method, options)](#Model__sync) ⇒ Promise
-        * [.dispose([options])](#Model__dispose) ⇒ this
+        * [.id](#Model+id) : <code>\*</code>
+        * [.set([attributes])](#Model+set) ⇒ <code>this</code>
+        * [.assign(attributes)](#Model+assign) ⇒ <code>this</code>
+        * [.merge(source, [target])](#Model+merge) ⇒ <code>Object</code>
+        * [.toJSON()](#Model+toJSON) ⇒ <code>Object</code>
+        * [.read([options])](#Model+read) ⇒ <code>Promise</code>
+        * [.write([options])](#Model+write) ⇒ <code>Promise</code>
+        * [.erase([options])](#Model+erase) ⇒ <code>Promise</code>
+        * [.sync(method, options)](#Model+sync) ⇒ <code>Promise</code>
+        * [.dispose([options])](#Model+dispose) ⇒ <code>this</code>
     * _static_
-        * [.idAttribute](#Model_idAttribute) : string
-        * [.proxies](#Model_proxies) : WeakMap
-        * [.definePrivate(model, properties)](#Model_definePrivate) ⇒ void
+        * [.idAttribute](#Model.idAttribute) : <code>string</code>
+        * [.proxies](#Model.proxies) : <code>WeakMap</code>
+        * [.definePrivate(model, properties)](#Model.definePrivate) ⇒ <code>void</code>
 
-<a id="new_Model_new"></a>
+<a name="new_Model_new"></a>
 
 ### new Model([attributes], [options])
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[attributes]</td><td>Object</td><td><p>the attributes to be set on a newly created model</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td>
-    </tr><tr>
-    <td>[options.collection]</td><td>Object</td><td><p>the collection to which the model should belong</p>
-</td>
-    </tr><tr>
-    <td>[options.storage]</td><td>Object</td><td><p>the storage engine for the model</p>
-</td>
-    </tr>  </tbody>
-</table>
 
-<a id="Model__id"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| [attributes] | <code>Object</code> | the attributes to be set on a newly created model |
+| [options] | <code>Object</code> |  |
+| [options.collection] | <code>Object</code> | the collection to which the model should belong |
+| [options.storage] | <code>Object</code> | the storage engine for the model |
 
-### model.id : \*
+<a name="Model+id"></a>
+
+### model.id : <code>\*</code>
 The model's permanent `id`.
 
-**Kind**: instance property of [Model](#Model)  
-<a id="Model__set"></a>
+**Kind**: instance property of [<code>Model</code>](#Model)  
+<a name="Model+set"></a>
 
-### model.set([attributes]) ⇒ this
+### model.set([attributes]) ⇒ <code>this</code>
 Resets all attributes on the model with given attributes.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[attributes]</td><td>Object</td><td><p>the attributes to be set on the model</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [attributes] | <code>Object</code> | the attributes to be set on the model |
 
 **Example**  
 ```js
@@ -887,83 +635,50 @@ model.set({ foo: bar });
 model
 //=>{ foo: bar }
 ```
-<a id="Model__assign"></a>
+<a name="Model+assign"></a>
 
-### model.assign(attributes) ⇒ this
+### model.assign(attributes) ⇒ <code>this</code>
 Assigns given attributes to the model.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>attributes</td><td>Object</td><td><p>the attributes to be assigned to the model</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
 
-<a id="Model__merge"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| attributes | <code>Object</code> | the attributes to be assigned to the model |
 
-### model.merge(source, [target]) ⇒ Object
+<a name="Model+merge"></a>
+
+### model.merge(source, [target]) ⇒ <code>Object</code>
 Merges two objects, if no target object proveded merges given source object to the model's
 attributes.
 
-**Kind**: instance method of [Model](#Model)  
-**Returns**: Object - the target object  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>source</td><td>Object</td><td></td><td><p>the source object to be merged with the target object.</p>
-</td>
-    </tr><tr>
-    <td>[target]</td><td>Object</td><td><code>this</code></td><td><p>the target object to be merged, uses model&#39;s attributes by
-                                   default</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+**Returns**: <code>Object</code> - the target object  
 
-<a id="Model__toJSON"></a>
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| source | <code>Object</code> |  | the source object to be merged with the target object. |
+| [target] | <code>Object</code> | <code>this</code> | the target object to be merged, uses model's attributes by                                    default |
 
-### model.toJSON() ⇒ Object
+<a name="Model+toJSON"></a>
+
+### model.toJSON() ⇒ <code>Object</code>
 Returns a copy of the model's attributes for JSON stringification.
 
-**Kind**: instance method of [Model](#Model)  
-<a id="Model__read"></a>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+<a name="Model+read"></a>
 
-### model.read([options]) ⇒ Promise
+### model.read([options]) ⇒ <code>Promise</code>
 Resets the model's state from the storage.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting events</p>
-</td>
-    </tr><tr>
-    <td>[options.skip]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid updating existing attributes
-                               with the received ones</p>
-</td>
-    </tr><tr>
-    <td>[options.method]</td><td>string</td><td><code>&quot;assign&quot;</code></td><td><p>the name of the method to update existing attributes</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting events |
+| [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing attributes                                with the received ones |
+| [options.method] | <code>string</code> | <code>&quot;assign&quot;</code> | the name of the method to update existing attributes |
 
 **Example**  
 ```js
@@ -977,34 +692,20 @@ model.read({ skip: true });
 model.read({ method: 'merge' });
 // merges received attributes with the existing ones instead of assigning them
 ```
-<a id="Model__write"></a>
+<a name="Model+write"></a>
 
-### model.write([options]) ⇒ Promise
+### model.write([options]) ⇒ <code>Promise</code>
 Saves the model into the storage. If the storage responds with an object, updates the model
 with the response object.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting events</p>
-</td>
-    </tr><tr>
-    <td>[options.skip]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid updating existing attributes
-                                with the received ones</p>
-</td>
-    </tr><tr>
-    <td>[options.method]</td><td>string</td><td><code>&quot;assign&quot;</code></td><td><p>the name of the method to update existing attributes</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting events |
+| [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing attributes                                 with the received ones |
+| [options.method] | <code>string</code> | <code>&quot;assign&quot;</code> | the name of the method to update existing attributes |
 
 **Example**  
 ```js
@@ -1018,29 +719,18 @@ model.write({ skip: true });
 model.write({ method: 'merge' });
 // merges received attributes with the existing ones instead of assigning them
 ```
-<a id="Model__erase"></a>
+<a name="Model+erase"></a>
 
-### model.erase([options]) ⇒ Promise
+### model.erase([options]) ⇒ <code>Promise</code>
 Removes the model from the storage.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting events</p>
-</td>
-    </tr><tr>
-    <td>[options.keep]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid disposing the model after erasing</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting events |
+| [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model after erasing |
 
 **Example**  
 ```js
@@ -1048,91 +738,62 @@ model.erase().then((response) => console.log(response)).catch((error) => console
 // removes the stored version of the model and logs the response if successful,
 // otherwise logs the error
 ```
-<a id="Model__sync"></a>
+<a name="Model+sync"></a>
 
-### model.sync(method, options) ⇒ Promise
+### model.sync(method, options) ⇒ <code>Promise</code>
 The general method to synchronize the model.
 Proxies to the `sync` method of the storage if it is specified.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>method</td><td>string</td><td><p>the internal method name</p>
-</td>
-    </tr><tr>
-    <td>options</td><td>Object</td><td><p>the options to be sent to the <code>sync</code> method of the storage</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
 
-<a id="Model__dispose"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| method | <code>string</code> | the internal method name |
+| options | <code>Object</code> | the options to be sent to the `sync` method of the storage |
 
-### model.dispose([options]) ⇒ this
+<a name="Model+dispose"></a>
+
+### model.dispose([options]) ⇒ <code>this</code>
 Prepares the model to be disposed by removing all listeners
 set up by the model or on the model.
 
-**Kind**: instance method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing the <code>dispose</code> event</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Model</code>](#Model)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `dispose` event |
 
 **Example**  
 ```js
 model.dispose();
 // prepares the model for disposal
 ```
-<a id="Model_idAttribute"></a>
+<a name="Model.idAttribute"></a>
 
-### Model.idAttribute : string
+### Model.idAttribute : <code>string</code>
 The id property name for the models of the class.
 
-**Kind**: static property of [Model](#Model)  
-<a id="Model_proxies"></a>
+**Kind**: static property of [<code>Model</code>](#Model)  
+<a name="Model.proxies"></a>
 
-### Model.proxies : WeakMap
+### Model.proxies : <code>WeakMap</code>
 The WeakMap holding references to metadata associated with proxies in Model.
 
-**Kind**: static property of [Model](#Model)  
-<a id="Model_definePrivate"></a>
+**Kind**: static property of [<code>Model</code>](#Model)  
+<a name="Model.definePrivate"></a>
 
-### Model.definePrivate(model, properties) ⇒ void
+### Model.definePrivate(model, properties) ⇒ <code>void</code>
 Given a hash of property names and their initial values,
 sets them up on the given model as non-enumerable and non-configurable properties
 defined by Symbols in the global storage, where Symbol keys correspond to givn property names.
 
-**Kind**: static method of [Model](#Model)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>model</td><td><a href="#Model">Model</a></td><td><p>the model on which properties are to be set</p>
-</td>
-    </tr><tr>
-    <td>properties</td><td>Object</td><td><p>a hash of Symbol key names and initial values to be set on the model</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: static method of [<code>Model</code>](#Model)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | [<code>Model</code>](#Model) | the model on which properties are to be set |
+| properties | <code>Object</code> | a hash of Symbol key names and initial values to be set on the model |
 
 **Example**  
 ```js
@@ -1140,168 +801,106 @@ Model.definePrivate(model, { private_key: 1 });
 model[Symbol.for('private_key')]
 //=> 1
 ```
-<a id="RemoteStorage"></a>
+<a name="RemoteStorage"></a>
 
 ## RemoteStorage
 Facilitates interaction with a REST server through the Fetch API.
 
 **Kind**: global class  
-**Mixes**: [Listener](#Listener)  
+**Mixes**: [<code>Listener</code>](#Listener)  
 
 * [RemoteStorage](#RemoteStorage)
     * [new RemoteStorage([options])](#new_RemoteStorage_new)
     * _instance_
-        * [.sync(method, model, options)](#RemoteStorage__sync) ⇒ Promise
-        * [.dispose([options])](#RemoteStorage__dispose) ⇒ this
+        * [.sync(method, model, options)](#RemoteStorage+sync) ⇒ <code>Promise</code>
+        * [.dispose([options])](#RemoteStorage+dispose) ⇒ <code>this</code>
     * _static_
-        * [.methods](#RemoteStorage_methods)
-        * [.isStored(model)](#RemoteStorage_isStored) ⇒ boolean
+        * [.methods](#RemoteStorage.methods)
+        * [.isStored(model)](#RemoteStorage.isStored) ⇒ <code>boolean</code>
 
-<a id="new_RemoteStorage_new"></a>
+<a name="new_RemoteStorage_new"></a>
 
 ### new RemoteStorage([options])
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td>
-    </tr><tr>
-    <td>[options.url]</td><td>string</td><td><p>the base URL for requests, by default uses the window&#39;s origin</p>
-</td>
-    </tr><tr>
-    <td>[options.init]</td><td>Object</td><td><p>an options object for custom settings
-                               to use as the <code>init</code> parameter in calls to the global fetch()</p>
-</td>
-    </tr>  </tbody>
-</table>
 
-<a id="RemoteStorage__sync"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> |  |
+| [options.url] | <code>string</code> | the base URL for requests, by default uses the window's origin |
+| [options.init] | <code>Object</code> | an options object for custom settings                                to use as the `init` parameter in calls to the global fetch() |
 
-### remoteStorage.sync(method, model, options) ⇒ Promise
+<a name="RemoteStorage+sync"></a>
+
+### remoteStorage.sync(method, model, options) ⇒ <code>Promise</code>
 The general method for synchronization.
 
-**Kind**: instance method of [RemoteStorage](#RemoteStorage)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>method</td><td>string</td><td></td><td><p>a method name to execute.
-                  Internal method names are mapped to HTTP methods in <code>RemoteStorage.methods</code>.</p>
-</td>
-    </tr><tr>
-    <td>model</td><td><a href="#Model">Model</a> | Collection | <a href="#ModelArray">ModelArray</a></td><td></td><td><p>a model or a collection to be synchronized</p>
-</td>
-    </tr><tr>
-    <td>options</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing any events</p>
-</td>
-    </tr><tr>
-    <td>[options.patch]</td><td>Boolean</td><td></td><td><p>whether to send only changed attributes (if present)
-                                 using the <code>PATCH</code> method</p>
-</td>
-    </tr><tr>
-    <td>[options.url]</td><td>string</td><td></td><td><p>a specific url for the request,
-                              in case it&#39;s different from the default url of the storage</p>
-</td>
-    </tr><tr>
-    <td>[options.init]</td><td>Object</td><td></td><td><p>an options object for custom settings
-                               to use as the <code>init</code> parameter in calls to the global fetch()</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>RemoteStorage</code>](#RemoteStorage)  
 
-<a id="RemoteStorage__dispose"></a>
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| method | <code>string</code> |  | a method name to execute.                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`. |
+| model | [<code>Model</code>](#Model) \| <code>Collection</code> \| [<code>ModelArray</code>](#ModelArray) |  | a model or a collection to be synchronized |
+| options | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
+| [options.patch] | <code>Boolean</code> |  | whether to send only changed attributes (if present)                                  using the `PATCH` method |
+| [options.url] | <code>string</code> |  | a specific url for the request,                               in case it's different from the default url of the storage |
+| [options.init] | <code>Object</code> |  | an options object for custom settings                                to use as the `init` parameter in calls to the global fetch() |
 
-### remoteStorage.dispose([options]) ⇒ this
+<a name="RemoteStorage+dispose"></a>
+
+### remoteStorage.dispose([options]) ⇒ <code>this</code>
 Prepares the storage controller to be disposed.
 
-**Kind**: instance method of [RemoteStorage](#RemoteStorage)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid emitting the <code>dispose</code> event.</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>RemoteStorage</code>](#RemoteStorage)  
 
-<a id="RemoteStorage_methods"></a>
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting the `dispose` event. |
+
+<a name="RemoteStorage.methods"></a>
 
 ### RemoteStorage.methods
 The map translating internal method names to their respective HTTP methods.
 
-**Kind**: static property of [RemoteStorage](#RemoteStorage)  
-<a id="RemoteStorage_isStored"></a>
+**Kind**: static property of [<code>RemoteStorage</code>](#RemoteStorage)  
+<a name="RemoteStorage.isStored"></a>
 
-### RemoteStorage.isStored(model) ⇒ boolean
+### RemoteStorage.isStored(model) ⇒ <code>boolean</code>
 Checks whether the model has been already persisted on the server.
 
-**Kind**: static method of [RemoteStorage](#RemoteStorage)  
-**Returns**: boolean - True if the model is already stored on the server  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>model</td><td><a href="#Model">Model</a></td><td><p>the model to be checked</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: static method of [<code>RemoteStorage</code>](#RemoteStorage)  
+**Returns**: <code>boolean</code> - True if the model is already stored on the server  
 
-<a id="Router"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| model | [<code>Model</code>](#Model) | the model to be checked |
+
+<a name="Router"></a>
 
 ## Router
 Handles client-side routing and navigation utilizing the History API.
 
 **Kind**: global class  
-**Mixes**: [Listener](#Listener)  
+**Mixes**: [<code>Listener</code>](#Listener)  
 
 * [Router](#Router)
     * [new Router([options])](#new_Router_new)
-    * [.addRoute(name, route)](#Router__addRoute) ⇒ this
-    * [.removeRoute(name)](#Router__removeRoute) ⇒ this
-    * [.start([options])](#Router__start) ⇒ this
-    * [.stop()](#Router__stop) ⇒ this
-    * [.navigate(fragment, [options])](#Router__navigate) ⇒ boolean
-    * [.dispose([options])](#Router__dispose) ⇒ this
+    * [.addRoute(name, route)](#Router+addRoute) ⇒ <code>this</code>
+    * [.removeRoute(name)](#Router+removeRoute) ⇒ <code>this</code>
+    * [.start([options])](#Router+start) ⇒ <code>this</code>
+    * [.stop()](#Router+stop) ⇒ <code>this</code>
+    * [.navigate(fragment, [options])](#Router+navigate) ⇒ <code>boolean</code>
+    * [.dispose([options])](#Router+dispose) ⇒ <code>this</code>
 
-<a id="new_Router_new"></a>
+<a name="new_Router_new"></a>
 
 ### new Router([options])
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td>
-    </tr><tr>
-    <td>[options.routes]</td><td>Object</td><td><p>a hash of routes</p>
-</td>
-    </tr><tr>
-    <td>[options.root]</td><td>string</td><td></td>
-    </tr>  </tbody>
-</table>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> |  |
+| [options.routes] | <code>Object</code> | a hash of routes |
+| [options.root] | <code>string</code> |  |
 
 **Example**  
 ```js
@@ -1312,27 +911,17 @@ new Router({ routes: {
                      },
           });
 ```
-<a id="Router__addRoute"></a>
+<a name="Router+addRoute"></a>
 
-### router.addRoute(name, route) ⇒ this
+### router.addRoute(name, route) ⇒ <code>this</code>
 Adds a route to the collection of routes.
 
-**Kind**: instance method of [Router](#Router)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>name</td><td>string</td><td><p>the route name</p>
-</td>
-    </tr><tr>
-    <td>route</td><td>string</td><td><p>the path string</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Router</code>](#Router)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | the route name |
+| route | <code>string</code> | the path string |
 
 **Example**  
 ```js
@@ -1344,54 +933,37 @@ router.addRoute('profile', '/users/:name');
 // if user visits `/users/JohnDoe` router will fire `route:profile`
 // with `event.params.name` set to `JohnDoe`
 ```
-<a id="Router__removeRoute"></a>
+<a name="Router+removeRoute"></a>
 
-### router.removeRoute(name) ⇒ this
+### router.removeRoute(name) ⇒ <code>this</code>
 Removes a route from the collection of routes.
 
-**Kind**: instance method of [Router](#Router)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>name</td><td>string</td><td><p>the route name to be removed</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Router</code>](#Router)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | the route name to be removed |
 
 **Example**  
 ```js
 router.removeRoute('home');
 // if present, route named 'home' will be removed from the routes list
 ```
-<a id="Router__start"></a>
+<a name="Router+start"></a>
 
-### router.start([options]) ⇒ this
+### router.start([options]) ⇒ <code>this</code>
 Starts the router enabling it to handle URL changes.
 
-**Kind**: instance method of [Router](#Router)  
+**Kind**: instance method of [<code>Router</code>](#Router)  
 **Throws**:
 
-- Error if the support for History API could not be found
+- <code>Error</code> if the support for History API could not be found
 
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid attempting to load the current URL fragment</p>
-</td>
-    </tr>  </tbody>
-</table>
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid attempting to load the current URL fragment |
 
 **Example**  
 ```js
@@ -1402,39 +974,25 @@ router.start();
 router.start({ silent: true });
 //starts the router without checking the current URL
 ```
-<a id="Router__stop"></a>
+<a name="Router+stop"></a>
 
-### router.stop() ⇒ this
+### router.stop() ⇒ <code>this</code>
 Stops the router preventing it from handling URL changes.
 
-**Kind**: instance method of [Router](#Router)  
-<a id="Router__navigate"></a>
+**Kind**: instance method of [<code>Router</code>](#Router)  
+<a name="Router+navigate"></a>
 
-### router.navigate(fragment, [options]) ⇒ boolean
+### router.navigate(fragment, [options]) ⇒ <code>boolean</code>
 Saves a fragment into the browser history.
 
-**Kind**: instance method of [Router](#Router)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>fragment</td><td>string</td><td></td><td><p>a properly URL-encoded fragment to place into the history</p>
-</td>
-    </tr><tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.replace]</td><td>boolean</td><td><code>false</code></td><td><p>whether to change the current item in the history
-                                   instead of adding a new one</p>
-</td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid checking the fragment for routes</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Router</code>](#Router)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| fragment | <code>string</code> |  | a properly URL-encoded fragment to place into the history |
+| [options] | <code>Object</code> |  |  |
+| [options.replace] | <code>boolean</code> | <code>false</code> | whether to change the current item in the history                                    instead of adding a new one |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid checking the fragment for routes |
 
 **Example**  
 ```js
@@ -1447,79 +1005,50 @@ router.navigate('/users', { replace: true });
 routes.navigate('/users', { silent: true });
 // does not check the new URL for routes
 ```
-<a id="Router__dispose"></a>
+<a name="Router+dispose"></a>
 
-### router.dispose([options]) ⇒ this
+### router.dispose([options]) ⇒ <code>this</code>
 Prepares the router to be disposed.
 
-**Kind**: instance method of [Router](#Router)  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Default</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[options]</td><td>Object</td><td></td><td></td>
-    </tr><tr>
-    <td>[options.silent]</td><td>boolean</td><td><code>false</code></td><td><p>whether to avoid firing <code>dispose</code> event</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Kind**: instance method of [<code>Router</code>](#Router)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
 
 **Example**  
 ```js
 router.dispose();
 // stops the router, removes the routes and event listeners
 ```
-<a id="Listener"></a>
+<a name="Listener"></a>
 
-## Listener ⇒ class
+## Listener ⇒ <code>class</code>
 Provides methods for event handling.
 
 **Kind**: global mixin  
-**Returns**: class - a new Listener class extending the base class  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>Base</td><td>class</td><td><p>the base class to extend with Listener</p>
-</td>
-    </tr>  </tbody>
-</table>
+**Returns**: <code>class</code> - a new Listener class extending the base class  
 
-<a id="undefinedon"></a>
+| Param | Type | Description |
+| --- | --- | --- |
+| Base | <code>class</code> | the base class to extend with Listener |
 
-## undefinedon(obj, name, callback) ⇒ this
+<a name="undefinedon"></a>
+
+## undefinedon(obj, name, callback) ⇒ <code>this</code>
 Adds an event listener for the specified event(s).
 
 The `callback` will be called with `this` being the listener
 whenever `obj` emits the `name` event.
 
 **Kind**: global function  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>obj</td><td>Object</td><td><p>the object to listen to</p>
-</td>
-    </tr><tr>
-    <td>name</td><td>string</td><td><p>the event name or names separated by whitespace</p>
-</td>
-    </tr><tr>
-    <td>callback</td><td>function</td><td><p>the function to be called when the event is emitted</p>
-</td>
-    </tr>  </tbody>
-</table>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | the object to listen to |
+| name | <code>string</code> | the event name or names separated by whitespace |
+| callback | <code>function</code> | the function to be called when the event is emitted |
 
 **Example**  
 ```js
@@ -1530,30 +1059,18 @@ Controller.on(Model, 'change', Controller.render);
 Collection.on(Model, 'add remove', Collection.count);
 // `Collection.count` will be invoked every time the Model emits an `add` or a `remove` event.
 ```
-<a id="undefinedoff"></a>
+<a name="undefinedoff"></a>
 
-## undefinedoff([obj], [name], [callback]) ⇒ this
+## undefinedoff([obj], [name], [callback]) ⇒ <code>this</code>
 Removes event listeners set up by the host object on other objects.
 
 **Kind**: global function  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>[obj]</td><td>Object</td><td><p>the object to stop listening to</p>
-</td>
-    </tr><tr>
-    <td>[name]</td><td>string</td><td><p>the event name or names</p>
-</td>
-    </tr><tr>
-    <td>[callback]</td><td>function</td><td><p>the callback function to be removed</p>
-</td>
-    </tr>  </tbody>
-</table>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [obj] | <code>Object</code> | the object to stop listening to |
+| [name] | <code>string</code> | the event name or names |
+| [callback] | <code>function</code> | the callback function to be removed |
 
 **Example**  
 ```js
@@ -1569,30 +1086,18 @@ Controller.off(Model, 'change');
 Controller.off(Model, 'change', this.render);
 // `this.render` won't be invoked when the Model emits a `change` event.
 ```
-<a id="undefinedemit"></a>
+<a name="undefinedemit"></a>
 
-## undefinedemit(name, [data], [emitter]) ⇒ this
+## undefinedemit(name, [data], [emitter]) ⇒ <code>this</code>
 Emits `name` and `all` events invoking all the callbacks subscribed to the events.
 
 **Kind**: global function  
-<table>
-  <thead>
-    <tr>
-      <th>Param</th><th>Type</th><th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-<tr>
-    <td>name</td><td>string</td><td><p>the event name</p>
-</td>
-    </tr><tr>
-    <td>[data]</td><td>Object</td><td><p>the hash of additional parameters that are sent to event listeners</p>
-</td>
-    </tr><tr>
-    <td>[emitter]</td><td>Object</td><td><p>the emitter of the event</p>
-</td>
-    </tr>  </tbody>
-</table>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | the event name |
+| [data] | <code>Object</code> | the hash of additional parameters that are sent to event listeners |
+| [emitter] | <code>Object</code> | the emitter of the event |
 
 **Example**  
 ```js
@@ -1608,9 +1113,9 @@ Collection.emit('change', {}, Model);
 // the third argument can be used to change event emitter,
 // listeners will be invoked with a parameter `{event: 'change', emitter: Model}`
 ```
-<a id="undefinedfree"></a>
+<a name="undefinedfree"></a>
 
-## undefinedfree() ⇒ this
+## undefinedfree() ⇒ <code>this</code>
 Removes all callbacks bound by other objects to the host object.
 
 It is used to easily dispose of the object.
