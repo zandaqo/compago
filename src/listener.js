@@ -6,7 +6,8 @@ const _reEventSplitter = /\s+/;
  *
  * @param {class} Base the base class to extend with Listener
  * @returns {class} a new Listener class extending the base class
- * @mixin
+ *
+ * @class
  */
 const Listener = (Base = Object) => class extends Base {
   constructor(...args) {
@@ -33,6 +34,7 @@ const Listener = (Base = Object) => class extends Base {
    * The `callback` will be called with `this` being the listener
    * whenever `obj` emits the `name` event.
    *
+   * @memberOf Listener
    * @param {Object} obj the object to listen to
    * @param {string} name the event name or names separated by whitespace
    * @param {Function} callback the function to be called when the event is emitted
@@ -64,6 +66,7 @@ const Listener = (Base = Object) => class extends Base {
   /**
    * Removes event listeners set up by the host object on other objects.
    *
+   * @memberOf Listener
    * @param {Object} [obj] the object to stop listening to
    * @param {string} [name] the event name or names
    * @param {Function} [callback] the callback function to be removed
@@ -125,6 +128,7 @@ const Listener = (Base = Object) => class extends Base {
   /**
    * Emits `name` and `all` events invoking all the callbacks subscribed to the events.
    *
+   * @memberOf Listener
    * @param {string} name the event name
    * @param {Object} [data] the hash of additional parameters that are sent to event listeners
    * @param {Object} [emitter] the emitter of the event
@@ -164,6 +168,7 @@ const Listener = (Base = Object) => class extends Base {
    *
    * It is used to easily dispose of the object.
    *
+   * @memberOf Listener
    * @returns {this}
    * @example
    *

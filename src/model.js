@@ -9,7 +9,7 @@ const _opt = Object.seal(Object.create(null));
  * It manages data and business logic. Models handle synchronization with a persistence layer
  * through storage controllers and notify subscribers through events when their data is changed.
  *
- * @mixes Listener
+ * @extends Listener
  */
 class Model extends Listener() {
   /**

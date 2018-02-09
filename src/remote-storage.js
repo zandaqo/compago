@@ -6,7 +6,7 @@ const _opt = Object.seal(Object.create(null));
 /**
  * Facilitates interaction with a REST server through the Fetch API.
  *
- * @mixes Listener
+ * @extends Listener
  */
 class RemoteStorage extends Listener() {
   /**

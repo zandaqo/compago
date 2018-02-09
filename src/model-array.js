@@ -7,7 +7,6 @@ const _opt = Object.seal(Object.create(null));
 /**
  * Manages an ordered set of models providing methods to create, sort, and dispose of the models.
  *
- * @mixes Listener
  * @extends Array
  */
 class ModelArray extends Listener(Array) {

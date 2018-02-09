@@ -13,7 +13,7 @@ const _reTrailingSlash = /\/+$/g;
 /**
  * Handles client-side routing and navigation utilizing the History API.
  *
- * @mixes Listener
+ * @extends Listener
  */
 class Router extends Listener() {
   /**
