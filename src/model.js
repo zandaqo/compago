@@ -9,7 +9,7 @@ const _opt = Object.seal(Object.create(null));
  * It manages data and business logic. Models handle synchronization with a persistence layer
  * through storage controllers and notify subscribers through events when their data is changed.
  *
- * @extends Listener
+ * @extends EventTarget
  */
 class Model extends Listener() {
   /**
@@ -141,11 +141,11 @@ class Model extends Listener() {
           const method = options.method in this ? options.method : 'assign';
           this[method](response);
         }
-        if (!options.silent) this.emit('sync', { response, options });
+        if (!options.silent) this.dispatchEvent(new CustomEvent('sync', { detail: { emitter: this, response, options } }));
         return response;
       })
       .catch((error) => {
-        this.emit('error', { error, options });
+        this.dispatchEvent(new CustomEvent('error', { detail: { emitter: this, error, options } }));
         throw error;
       });
   }
@@ -178,11 +178,11 @@ class Model extends Listener() {
           const method = options.method in this ? options.method : 'assign';
           this[method](response);
         }
-        if (!options.silent) this.emit('sync', { response, options });
+        if (!options.silent) this.dispatchEvent(new CustomEvent('sync', { detail: { emitter: this, response, options } }));
         return response;
       })
       .catch((error) => {
-        this.emit('error', { error, options });
+        this.dispatchEvent(new CustomEvent('error', { detail: { emitter: this, error, options } }));
         throw error;
       });
   }
@@ -202,12 +202,12 @@ class Model extends Listener() {
   erase(options = _opt) {
     return this.sync('erase', options)
       .then((response) => {
-        if (!options.silent) this.emit('sync', { response, options });
+        if (!options.silent) this.dispatchEvent(new CustomEvent('sync', { detail: { emitter: this, response, options } }));
         if (!options.keep) this.dispose();
         return response;
       })
       .catch((error) => {
-        this.emit('error', { error, options });
+        this.dispatchEvent(new CustomEvent('error', { detail: { emitter: this, error, options } }));
         throw error;
       });
   }
@@ -239,8 +239,7 @@ class Model extends Listener() {
    * // prepares the model for disposal
    */
   dispose({ silent } = _opt) {
-    if (!silent) this.emit('dispose');
-    this.off().free();
+    if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     return this;
   }
 
@@ -279,16 +278,19 @@ class Model extends Listener() {
    * @returns {void}
    */
   static _emitChanges(model, path, property, previous) {
-    model.emit(`change${path}:${property}`, { path, previous });
+    model.dispatchEvent(new CustomEvent(`change${path}:${property}`, { detail: { emitter: model, path, previous } }));
     if (path.includes(':')) {
       const fragments = path.split(':');
       let pathLength = path.length;
       for (let i = fragments.length - 1; i >= 0; i -= 1) {
-        model.emit(`change${path.slice(0, pathLength)}`, { path, previous });
+        model.dispatchEvent(new CustomEvent(
+          `change${path.slice(0, pathLength)}`,
+          { detail: { emitter: model, path, previous } },
+        ));
         pathLength -= fragments[i].length + 1;
       }
     } else {
-      model.emit('change', { path, previous });
+      model.dispatchEvent(new CustomEvent('change', { detail: { emitter: model, path, previous } }));
     }
   }
 

@@ -1,42 +1,40 @@
 ## Classes
 
 <dl>
-<dt><a href="#Controller">Controller</a> ⇐ <code><a href="#Listener">Listener</a></code></dt>
+<dt><a href="#Controller">Controller</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
 to re-render its View.</p>
 </dd>
-<dt><a href="#Listener">Listener</a></dt>
-<dd></dd>
 <dt><a href="#ModelArray">ModelArray</a> ⇐ <code>Array</code></dt>
 <dd><p>Manages an ordered set of models providing methods to create, sort, and dispose of the models.</p>
 </dd>
-<dt><a href="#Model">Model</a> ⇐ <code><a href="#Listener">Listener</a></code></dt>
+<dt><a href="#Model">Model</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>The Model in MVC.
 It manages data and business logic. Models handle synchronization with a persistence layer
 through storage controllers and notify subscribers through events when their data is changed.</p>
 </dd>
-<dt><a href="#RemoteStorage">RemoteStorage</a> ⇐ <code><a href="#Listener">Listener</a></code></dt>
+<dt><a href="#RemoteStorage">RemoteStorage</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>Facilitates interaction with a REST server through the Fetch API.</p>
 </dd>
-<dt><a href="#Router">Router</a> ⇐ <code><a href="#Listener">Listener</a></code></dt>
+<dt><a href="#Router">Router</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>Handles client-side routing and navigation utilizing the History API.</p>
 </dd>
 </dl>
 
 <a name="Controller"></a>
 
-## Controller ⇐ [<code>Listener</code>](#Listener)
+## Controller ⇐ <code>EventTarget</code>
 The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
 to re-render its View.
 
 **Kind**: global class  
-**Extends**: [<code>Listener</code>](#Listener)  
+**Extends**: <code>EventTarget</code>  
 
-* [Controller](#Controller) ⇐ [<code>Listener</code>](#Listener)
+* [Controller](#Controller) ⇐ <code>EventTarget</code>
     * [new Controller([options])](#new_Controller_new)
     * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
     * [.delegate([name], [callback], [selector])](#Controller+delegate) ⇒ <code>this</code>
@@ -58,7 +56,7 @@ to re-render its View.
 | [options.handlers] | <code>Object</code> | the DOM event handlers for the controller |
 | [options.model] | <code>Object</code> | the data model used by the controller |
 | [options.view] | <code>Object</code> | the view or template function used in rendering the controller |
-| [options.renderEvents] | <code>string</code> | the model events that cause the controller to re-render |
+| [options.renderEvents] | <code>Array</code> | the model events that cause the controller to re-render |
 | [options.renderAttributes] | <code>Array</code> | the attributes of the controller's element                                          that cause it to re-render |
 | [options.renderDebounce] | <code>number</code> | time in milliseconds to delay the rendering |
 | [options.regions] | <code>Object</code> | a hash of regions of the controller |
@@ -190,131 +188,13 @@ and removes all event listeners.
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
 | [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model of the controller |
 
-<a name="Listener"></a>
-
-## Listener
-**Kind**: global class  
-
-* [Listener](#Listener)
-    * [new Listener(Base)](#new_Listener_new)
-    * [.on(obj, name, callback)](#Listener.on) ⇒ <code>this</code>
-    * [.off([obj], [name], [callback])](#Listener.off) ⇒ <code>this</code>
-    * [.emit(name, [data], [emitter])](#Listener.emit) ⇒ <code>this</code>
-    * [.free()](#Listener.free) ⇒ <code>this</code>
-
-<a name="new_Listener_new"></a>
-
-### new Listener(Base)
-Provides methods for event handling.
-
-**Returns**: <code>class</code> - a new Listener class extending the base class  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| Base | <code>class</code> | the base class to extend with Listener |
-
-<a name="Listener.on"></a>
-
-### Listener.on(obj, name, callback) ⇒ <code>this</code>
-Adds an event listener for the specified event(s).
-
-The `callback` will be called with `this` being the listener
-whenever `obj` emits the `name` event.
-
-**Kind**: static method of [<code>Listener</code>](#Listener)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| obj | <code>Object</code> | the object to listen to |
-| name | <code>string</code> | the event name or names separated by whitespace |
-| callback | <code>function</code> | the function to be called when the event is emitted |
-
-**Example**  
-```js
-Controller.on(Model, 'change', Controller.render);
-// `Controller.render` will be invoked with `this` set to the Controller
-// when Model emits a `change` event.
-
-Collection.on(Model, 'add remove', Collection.count);
-// `Collection.count` will be invoked every time the Model emits an `add` or a `remove` event.
-```
-<a name="Listener.off"></a>
-
-### Listener.off([obj], [name], [callback]) ⇒ <code>this</code>
-Removes event listeners set up by the host object on other objects.
-
-**Kind**: static method of [<code>Listener</code>](#Listener)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| [obj] | <code>Object</code> | the object to stop listening to |
-| [name] | <code>string</code> | the event name or names |
-| [callback] | <code>function</code> | the callback function to be removed |
-
-**Example**  
-```js
-Controller.off();
-// the Controller no longer listens to any event on any object.
-
-Controller.off(Model);
-// the Controller no longer listens to any event on the Model.
-
-Controller.off(Model, 'change');
-// no callback will be invoked when the Model emits a `change` event.
-
-Controller.off(Model, 'change', this.render);
-// `this.render` won't be invoked when the Model emits a `change` event.
-```
-<a name="Listener.emit"></a>
-
-### Listener.emit(name, [data], [emitter]) ⇒ <code>this</code>
-Emits `name` and `all` events invoking all the callbacks subscribed to the events.
-
-**Kind**: static method of [<code>Listener</code>](#Listener)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | the event name |
-| [data] | <code>Object</code> | the hash of additional parameters that are sent to event listeners |
-| [emitter] | <code>Object</code> | the emitter of the event |
-
-**Example**  
-```js
-Controller.on(Model, 'change', Controller.render);
-Model.emit('change');
-// `Controller.render` is invoked with a parameter: `{event: 'change', emitter: Model}`
-
-Model.emit('change', {previous: 'Zaphod'});
-// `Controller.render` is invoked with a parameter
-   `{event: 'change', emitter: Model, previous: 'Zaphod'}`
-
-Collection.emit('change', {}, Model);
-// the third argument can be used to change event emitter,
-// listeners will be invoked with a parameter `{event: 'change', emitter: Model}`
-```
-<a name="Listener.free"></a>
-
-### Listener.free() ⇒ <code>this</code>
-Removes all callbacks bound by other objects to the host object.
-
-It is used to easily dispose of the object.
-
-**Kind**: static method of [<code>Listener</code>](#Listener)  
-**Example**  
-```js
-Controller.on(Model, 'change', this.render);
-Collection.on(Model, 'all', this.update);
-Model.free();
-// both event listeners are now removed
-// equivalent to `Collection.off(Model), Controller.off(Model)`
-```
 <a name="ModelArray"></a>
 
 ## ModelArray ⇐ <code>Array</code>
 Manages an ordered set of models providing methods to create, sort, and dispose of the models.
 
 **Kind**: global class  
-**Extends**: <code>Array</code>  
+**Extends**: <code>Array</code>, <code>EventTarget</code>  
 
 * [ModelArray](#ModelArray) ⇐ <code>Array</code>
     * [new ModelArray([models], [options])](#new_ModelArray_new)
@@ -663,15 +543,15 @@ modelArray.dispose({ save: true });
 ```
 <a name="Model"></a>
 
-## Model ⇐ [<code>Listener</code>](#Listener)
+## Model ⇐ <code>EventTarget</code>
 The Model in MVC.
 It manages data and business logic. Models handle synchronization with a persistence layer
 through storage controllers and notify subscribers through events when their data is changed.
 
 **Kind**: global class  
-**Extends**: [<code>Listener</code>](#Listener)  
+**Extends**: <code>EventTarget</code>  
 
-* [Model](#Model) ⇐ [<code>Listener</code>](#Listener)
+* [Model](#Model) ⇐ <code>EventTarget</code>
     * [new Model([attributes], [options])](#new_Model_new)
     * _instance_
         * [.id](#Model+id) : <code>\*</code>
@@ -894,13 +774,13 @@ model[Symbol.for('private_key')]
 ```
 <a name="RemoteStorage"></a>
 
-## RemoteStorage ⇐ [<code>Listener</code>](#Listener)
+## RemoteStorage ⇐ <code>EventTarget</code>
 Facilitates interaction with a REST server through the Fetch API.
 
 **Kind**: global class  
-**Extends**: [<code>Listener</code>](#Listener)  
+**Extends**: <code>EventTarget</code>  
 
-* [RemoteStorage](#RemoteStorage) ⇐ [<code>Listener</code>](#Listener)
+* [RemoteStorage](#RemoteStorage) ⇐ <code>EventTarget</code>
     * [new RemoteStorage([options])](#new_RemoteStorage_new)
     * _instance_
         * [.sync(method, model, options)](#RemoteStorage+sync) ⇒ <code>Promise</code>
@@ -968,13 +848,13 @@ Checks whether the model has been already persisted on the server.
 
 <a name="Router"></a>
 
-## Router ⇐ [<code>Listener</code>](#Listener)
+## Router ⇐ <code>EventTarget</code>
 Handles client-side routing and navigation utilizing the History API.
 
 **Kind**: global class  
-**Extends**: [<code>Listener</code>](#Listener)  
+**Extends**: <code>EventTarget</code>  
 
-* [Router](#Router) ⇐ [<code>Listener</code>](#Listener)
+* [Router](#Router) ⇐ <code>EventTarget</code>
     * [new Router([options])](#new_Router_new)
     * [.addRoute(name, route)](#Router+addRoute) ⇒ <code>this</code>
     * [.removeRoute(name)](#Router+removeRoute) ⇒ <code>this</code>

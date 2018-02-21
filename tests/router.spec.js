@@ -4,6 +4,8 @@ describe('Router', () => {
   let r;
   beforeEach(() => {
     r = new Router();
+    // hack for jsdom to support EventTarget
+    Object.defineProperty(r, '_document', { value: window.document, enumerable: false });
   });
 
   describe('constructor', () => {
@@ -187,13 +189,11 @@ describe('Router', () => {
     });
 
     it('fires `dispose` event unless `silent:true`', () => {
-      r.on(r, 'dispose', r.someMethod);
+      r.addEventListener('dispose', r.someMethod);
       r.dispose();
       expect(r.someMethod).toHaveBeenCalled();
-      expect(r[Symbol.for('c_events')]).toBe(undefined);
-      expect(r[Symbol.for('c_listeners')].size).toEqual(0);
       const otherMethod = jest.fn();
-      r.on(r, 'dispose', otherMethod);
+      r.addEventListener('dispose', otherMethod);
       r.dispose({ silent: true });
       expect(otherMethod).not.toHaveBeenCalled();
     });
@@ -201,10 +201,7 @@ describe('Router', () => {
 
   describe('_getFragment', () => {
     it('gets an URL fragment from the current location', () => {
-      r.location = {};
-      r.location.pathname = '/files';
-      r.location.search = '';
-      r.location.hash = '';
+      r.location = { pathname: '/files', search: '', hash: '' };
       r.root = '/root';
       expect(r._getFragment()).toBe('/files');
       r.location.pathname = '/root/files';
@@ -217,10 +214,7 @@ describe('Router', () => {
 
   describe('_onPopstateEvent', () => {
     it('checks whether the URL fragment has been changed.', () => {
-      r.location = {};
-      r.location.pathname = '/files';
-      r.location.search = '';
-      r.location.hash = '';
+      r.location = { pathname: '/files', search: '', hash: '' };
       r.root = '/root/';
       r.fragment = '/folders';
       r._checkUrl = jest.fn();
@@ -236,32 +230,29 @@ describe('Router', () => {
   describe('_checkUrl', () => {
     it('emits `route` events if a matching route is found', () => {
       const eventNames = [];
-      r.fileCallback = (event) => {
-        eventNames.push(event.event);
-      };
-      const fileCallbackSpy = jest.spyOn(r, 'fileCallback');
-
+      r.fileCallback = jest.fn((event) => {
+        eventNames.push(event.type);
+      });
       r.addRoute('file', '/files/:name');
-      r.on(r, 'route:file', r.fileCallback);
-      r.on(r, 'route', r.fileCallback);
+      r.addEventListener('route:file', r.fileCallback);
+      r.addEventListener('route', r.fileCallback);
       r._checkUrl('/files/index.txt?q=abc#anchor');
       expect(r.fileCallback.mock.calls.length).toBe(2);
-
-      expect(fileCallbackSpy.mock.calls[0][0].emitter).toBe(r);
-      expect(fileCallbackSpy.mock.calls[0][0].route).toEqual('file');
-      expect(fileCallbackSpy.mock.calls[0][0].params).toEqual({ name: 'index.txt' });
-      expect(fileCallbackSpy.mock.calls[0][0].query).toBe('q=abc');
-      expect(fileCallbackSpy.mock.calls[0][0].hash).toEqual('anchor');
-
+      expect(r.fileCallback.mock.calls[0][0].detail).toEqual({
+        emitter: r,
+        route: 'file',
+        params: { name: 'index.txt' },
+        query: 'q=abc',
+        hash: 'anchor',
+      });
       expect(eventNames).toEqual(['route:file', 'route']);
-      fileCallbackSpy.mockRestore();
     });
 
     it('does not emit if no matching route is found', () => {
       r.addRoute('file', '/files/:name');
-      const emitSpy = jest.spyOn(r, 'emit');
+      const emitSpy = jest.spyOn(r, 'dispatchEvent');
       r._checkUrl('/docs/random');
-      expect(r.emit).not.toHaveBeenCalled();
+      expect(r.dispatchEvent).not.toHaveBeenCalled();
       emitSpy.mockRestore();
     });
   });

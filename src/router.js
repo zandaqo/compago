@@ -13,7 +13,7 @@ const _reTrailingSlash = /\/+$/g;
 /**
  * Handles client-side routing and navigation utilizing the History API.
  *
- * @extends Listener
+ * @extends EventTarget
  */
 class Router extends Listener() {
   /**
@@ -165,10 +165,9 @@ class Router extends Listener() {
    * // stops the router, removes the routes and event listeners
    */
   dispose({ silent } = _opt) {
-    if (!silent) this.emit('dispose');
+    if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     this.stop();
     this.routes = [];
-    this.off().free();
     return this;
   }
 
@@ -213,9 +212,9 @@ class Router extends Listener() {
       if (route.test(path)) {
         const params = this.constructor._extractParameters(route, path);
         const name = route.route;
-        const data = { route: name, params, query: queryString, hash };
-        this.emit(`route:${name}`, data);
-        this.emit('route', data);
+        const detail = { emitter: this, route: name, params, query: queryString, hash };
+        this.dispatchEvent(new CustomEvent(`route:${name}`, { detail }));
+        this.dispatchEvent(new CustomEvent('route', { detail }));
         return true;
       }
     }

@@ -10,8 +10,11 @@ describe('ModelArray', () => {
   beforeEach(() => {
     c = new ModelArray([], { model: Model });
     m1 = new Model();
+    Object.defineProperty(m1, '_document', { value: window.document, enumerable: false });
     m2 = new Model();
+    Object.defineProperty(m2, '_document', { value: window.document, enumerable: false });
     m3 = new Model();
+    Object.defineProperty(m3, '_document', { value: window.document, enumerable: false });
   });
 
   describe('constructor', () => {
@@ -54,7 +57,7 @@ describe('ModelArray', () => {
     it('does not change the array or fire events if existing models are re-setted', () => {
       c.someMethod = jest.fn();
       c.set([m1]);
-      c.on(c, 'add', c.someMethod);
+      c.addEventListener('add', c.someMethod);
       c.set([m1]);
       expect(c.length).toBe(1);
       expect(c[0]).toBe(m1);
@@ -72,14 +75,15 @@ describe('ModelArray', () => {
 
     it('puts models at a specified index', () => {
       const m4 = new Model();
+      Object.defineProperty(m4, '_document', { value: window.document, enumerable: false });
       c.someMethod = jest.fn();
-      c.on(m2, 'add', c.someMethod);
-      c.on(m4, 'add', c.someMethod);
+      m2.addEventListener('add', c.someMethod);
+      m4.addEventListener('add', c.someMethod);
       c.set([m1, m3]);
       c.set([m2, m4], { keep: true, at: 1 });
       expect(Array.from(c)).toEqual([m1, m2, m4, m3]);
-      expect(c.someMethod.mock.calls[0][0].at).toBe(1);
-      expect(c.someMethod.mock.calls[1][0].at).toBe(2);
+      expect(c.someMethod.mock.calls[0][0].detail.at).toBe(1);
+      expect(c.someMethod.mock.calls[1][0].detail.at).toBe(2);
     });
 
     it('adds bare objects converting them to models', () => {
@@ -103,7 +107,7 @@ describe('ModelArray', () => {
       c.set(b, { keep: true });
       expect(c[0].toJSON()).toEqual(b);
       expect(c[1].toJSON()).toEqual(a);
-      c.on(c, 'sort', c.someMethod);
+      c.addEventListener('sort', c.someMethod);
       c.set({ _id: 2, name: 'Zoidberg' }, { keep: true });
       expect(c[0].toJSON()).toEqual(a);
       expect(c[1].toJSON()).toEqual({ _id: 2, name: 'Zoidberg' });
@@ -121,11 +125,11 @@ describe('ModelArray', () => {
 
     it('forces models to fire `add` events', () => {
       c.someMethod = jest.fn();
-      c.on(c, 'add', c.someMethod);
+      c.addEventListener('add', c.someMethod);
       c.set(m1);
       expect(c.someMethod).toHaveBeenCalled();
-      expect(c.someMethod.mock.calls[0][0].event).toBe('add');
-      expect(c.someMethod.mock.calls[0][0].emitter).toBe(m1);
+      expect(c.someMethod.mock.calls[0][0].type).toBe('add');
+      expect(c.someMethod.mock.calls[0][0].detail.emitter).toBe(m1);
     });
 
     it('fires `sort` event if models have been sorted unless `silent:true`', () => {
@@ -134,7 +138,7 @@ describe('ModelArray', () => {
       m3.assign({ order: 1 });
       c.comparator = 'order';
       c.someMethod = jest.fn();
-      c.on(c, 'sort', c.someMethod);
+      c.addEventListener('sort', c.someMethod);
 
       c.push([m1, m2, m3], { silent: true });
       expect(c.someMethod).not.toHaveBeenCalled();
@@ -142,18 +146,18 @@ describe('ModelArray', () => {
 
       c.push([m1, m2, m3]);
       expect(c.someMethod).toHaveBeenCalled();
-      expect(c.someMethod.mock.calls[0][0].event).toBe('sort');
+      expect(c.someMethod.mock.calls[0][0].type).toBe('sort');
     });
 
     it('fires `update` event if the array is changed unless `silent:true`', () => {
       c.someMethod = jest.fn();
-      c.on(c, 'update', c.someMethod);
+      c.addEventListener('update', c.someMethod);
       c.set(m1, { silent: true });
       expect(c.someMethod).not.toHaveBeenCalled();
 
       c.set(m2);
       expect(c.someMethod).toHaveBeenCalled();
-      expect(c.someMethod.mock.calls[0][0].event).toBe('update');
+      expect(c.someMethod.mock.calls[0][0].type).toBe('update');
     });
   });
 
@@ -161,7 +165,7 @@ describe('ModelArray', () => {
     beforeEach(() => {
       c.push([m1, m2, m3]);
       c.someMethod = jest.fn();
-      c.on(c, 'update', c.someMethod);
+      c.addEventListener('update', c.someMethod);
     });
 
     it('removes models', () => {
@@ -175,10 +179,10 @@ describe('ModelArray', () => {
 
     it('forces removed models to fire `remove` event', () => {
       m1.someMethod = jest.fn();
-      m1.on(m1, 'remove', m1.someMethod);
+      m1.addEventListener('remove', m1.someMethod);
       c.unset(m1);
       expect(m1.someMethod).toHaveBeenCalled();
-      expect(m1.someMethod.mock.calls[0][0].event).toBe('remove');
+      expect(m1.someMethod.mock.calls[0][0].type).toBe('remove');
     });
 
     it('fires `update` event unless `silent:true`', () => {
@@ -188,8 +192,8 @@ describe('ModelArray', () => {
 
       c.push(m1);
       c.unset(m1);
-      expect(c.someMethod.mock.calls[0][0].event).toBe('update');
-      expect(c.someMethod.mock.calls[0][0].emitter).toBe(c);
+      expect(c.someMethod.mock.calls[0][0].type).toBe('update');
+      expect(c.someMethod.mock.calls[0][0].detail.emitter).toBe(c);
     });
 
     it('does not dispose removed models if `save:true`', () => {
@@ -263,12 +267,12 @@ describe('ModelArray', () => {
 
     it('fires `sort` event unless `silent:true`', () => {
       c.someMethod = jest.fn();
-      c.on(c, 'sort', c.someMethod);
+      c.addEventListener('sort', c.someMethod);
       c.push([m3, m2, m1]);
       expect(c[0]).toBe(m3);
       c.sort({ comparator: 'order' });
       expect(c[0]).toBe(m1);
-      expect(c.someMethod.mock.calls[0][0].event).toBe('sort');
+      expect(c.someMethod.mock.calls[0][0].type).toBe('sort');
     });
 
     it('sorts in descending order', () => {
@@ -280,7 +284,7 @@ describe('ModelArray', () => {
     it('does not sort if no valid comparator is provided', () => {
       const nc = new ModelArray();
       nc.someMethod = jest.fn();
-      nc.on(nc, 'sort', nc.someMethod);
+      nc.addEventListener('sort', nc.someMethod);
       nc.sort();
       expect(nc.someMethod).not.toHaveBeenCalled();
     });
@@ -289,11 +293,11 @@ describe('ModelArray', () => {
   describe('reverse', () => {
     it('reverses the order of the models', () => {
       c.someMethod = jest.fn();
-      c.on(c, 'sort', c.someMethod);
+      c.addEventListener('sort', c.someMethod);
       c.push([m1, m2, m3]);
       c.reverse();
       expect(c[0]).toBe(m3);
-      expect(c.someMethod.mock.calls[0][0].event).toBe('sort');
+      expect(c.someMethod.mock.calls[0][0].type).toBe('sort');
     });
   });
 
@@ -365,16 +369,16 @@ describe('ModelArray', () => {
     });
 
     it("updates the array's models from the storage firing `sync` event", () => {
-      c.on(c, 'sync', c.someMethod);
+      c.addEventListener('sync', c.someMethod);
       return c.read().then(() => {
-        expect(c.someMethod.mock.calls[0][0].event).toBe('sync');
-        expect(c.someMethod.mock.calls[0][0].emitter).toBe(c);
+        expect(c.someMethod.mock.calls[0][0].type).toBe('sync');
+        expect(c.someMethod.mock.calls[0][0].detail.emitter).toBe(c);
         expect(Array.from(c)).toEqual([m1, m2, m3]);
       });
     });
 
     it('does not fire `sync` event if `silent:true`', () => {
-      c.on(c, 'sync', c.someMethod);
+      c.addEventListener('sync', c.someMethod);
       return c.read({ silent: true }).then(() => {
         expect(c.someMethod).not.toHaveBeenCalled();
       });
@@ -383,9 +387,9 @@ describe('ModelArray', () => {
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
       c.sync = () => Promise.reject(error);
-      c.on(c, 'error', c.someMethod);
+      c.addEventListener('error', c.someMethod);
       return c.read().catch((err) => {
-        expect(c.someMethod.mock.calls[0][0].event).toBe('error');
+        expect(c.someMethod.mock.calls[0][0].type).toBe('error');
         expect(err).toBe(error);
       });
     });
@@ -423,30 +427,28 @@ describe('ModelArray', () => {
     beforeEach(() => {
       c.push([m1, m2, m3]);
       c.someMethod = jest.fn();
-      c.on(c, 'dispose', c.someMethod);
+      c.addEventListener('dispose', c.someMethod);
     });
 
     it('prepares the array to be disposed', () => {
       expect(c.length).toBe(3);
       c.dispose();
       expect(c.length).toBe(0);
-      expect(c[Symbol.for('c_listeners')].size).toEqual(0);
     });
 
     it('fires `dispose` event unless `silent:true`', () => {
       c.dispose({ silent: true });
       expect(c.someMethod).not.toHaveBeenCalled();
-      c.on(c, 'dispose', c.someMethod);
+      c.addEventListener('dispose', c.someMethod);
       c.dispose();
       expect(c.someMethod).toHaveBeenCalled();
     });
 
     it('disposes removed models if `dispose:true`', () => {
-      const a = new Model();
-      a.onDispose = jest.fn();
-      a.on(m1, 'dispose', a.onDispose);
+      const onDispose = jest.fn();
+      m1.addEventListener('dispose', onDispose);
       c.dispose({ dispose: true });
-      expect(a.onDispose).toHaveBeenCalled();
+      expect(onDispose).toHaveBeenCalled();
     });
   });
 
@@ -461,11 +463,11 @@ describe('ModelArray', () => {
   describe('_onModelEvent', () => {
     it('listens to events on the models of the array', () => {
       const options = {};
-      const emitSpy = jest.spyOn(c, 'emit');
+      const emitSpy = jest.spyOn(c, 'dispatchEvent');
       c.push(m1);
-      m1.emit('someEvent', options);
-      expect(c.emit).toHaveBeenCalledWith('someEvent', options, m1);
-      m1.emit('dispose', options);
+      m1.dispatchEvent(new CustomEvent('someEvent', { detail: { emitter: m1, options } }));
+      expect(emitSpy).toHaveBeenCalled();
+      m1.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: m1, options } }));
       expect(c.length).toBe(0);
       emitSpy.mockRestore();
     });
@@ -473,12 +475,12 @@ describe('ModelArray', () => {
     it('does not listen to the events emitted by a model being added to another array', () => {
       const nc = new ModelArray();
       c.push(m1);
-      const emitSpy = jest.spyOn(c, 'emit');
+      const emitSpy = jest.spyOn(c, 'dispatchEvent');
       nc.push(m1);
       expect(m1[Symbol.for('c_collection')]).toBe(c);
       expect(Array.from(c)).toEqual([m1]);
       expect(Array.from(nc)).toEqual([m1]);
-      expect(c.emit).not.toHaveBeenCalled();
+      expect(emitSpy).not.toHaveBeenCalled();
       emitSpy.mockRestore();
     });
   });
@@ -488,7 +490,6 @@ describe('ModelArray', () => {
       const m = new Model();
       c._addReference(m);
       expect(m[Symbol.for('c_collection')]).toBe(c);
-      expect(m[Symbol.for('c_events')].get('all')[0]).toEqual([c, c._onModelEvent]);
     });
   });
 
@@ -498,7 +499,6 @@ describe('ModelArray', () => {
       c._addReference(m);
       c._removeReference(m);
       expect(m[Symbol.for('c_collection')]).toBe(undefined);
-      expect(m[Symbol.for('c_events')].get('all')).toBe(undefined);
     });
   });
 });

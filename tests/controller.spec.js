@@ -26,6 +26,7 @@ describe('Controller', () => {
 
   beforeEach(() => {
     v = new Controller();
+    Object.defineProperty(v, '_document', { value: window.document, enumerable: false });
     el = document.createElement('div');
     el.setAttribute('id', 'region');
     v.el.appendChild(el);
@@ -38,7 +39,10 @@ describe('Controller', () => {
 
   describe('constructor', () => {
     it('creates a controller instance', () => {
-      const model = Object.assign({}, Listener);
+      class Model extends Listener() {}
+      const model = new Model();
+      Object.defineProperty(model, '_document', { value: window.document, enumerable: false });
+
       const nv = new Controller({
         tagName: 'ul',
         attributes: {
@@ -49,14 +53,13 @@ describe('Controller', () => {
           region: '#region',
         },
         model,
-        renderEvents: 'change',
+        renderEvents: ['change'],
         renderAttributes: ['data-id'],
       });
       expect(nv instanceof Controller).toBe(true);
       expect(nv.el.className).toBe('unordered-list');
       expect(nv.el.tagName).toBe('UL');
       expect(nv.model).toBe(model);
-      expect(nv.model[Symbol.for('c_events')].get('change')[0]).toEqual([nv, nv.render]);
       expect(nv._regionSelectors.region).toBe('#region');
       expect(nv._regionControllers).toBe(undefined);
       expect(nv._observer instanceof window.MutationObserver).toBe(true);
@@ -282,11 +285,8 @@ describe('Controller', () => {
 
   describe('dispose', () => {
     it('prepares the controller to be disposed', () => {
-      v.on(v, 'render', v.someMethod);
       v._observeAttributes(['data-id']);
       v.dispose();
-      expect(v[Symbol.for('c_events')]).toBeUndefined();
-      expect(v[Symbol.for('c_listeners')].size).toEqual(0);
       expect(v._observer).toBeUndefined();
     });
 
@@ -320,12 +320,12 @@ describe('Controller', () => {
     });
 
     it('fires `dispose` event unless `silent:true`', () => {
-      v.on(v, 'dispose', v.someMethod);
+      v.addEventListener('dispose', v.someMethod);
       v.dispose();
       expect(v.someMethod).toHaveBeenCalled();
 
       v.otherMethod = jest.fn();
-      v.on(v, 'dispose', v.otherMethod);
+      v.addEventListener('dispose', v.otherMethod);
       v.dispose({ silent: true });
       expect(v.otherMethod).not.toHaveBeenCalled();
     });
@@ -491,11 +491,13 @@ describe('Controller', () => {
   describe('_onRegionDispose', () => {
     it('removes references to a disposed controller from the parent controller', () => {
       const parentController = new Controller({ regions: { region: '#region' } });
+      Object.defineProperty(parentController, '_document', { value: window.document, enumerable: false });
       const regionEl = document.createElement('div');
       regionEl.setAttribute('id', 'region');
       parentController.el.appendChild(regionEl);
       jest.spyOn(parentController, '_onRegionDispose');
       const someController = new Controller();
+      Object.defineProperty(someController, '_document', { value: window.document, enumerable: false });
       parentController.show('region', someController);
       expect(parentController._regionControllers.region).toBe(someController);
       someController.dispose();
@@ -506,7 +508,7 @@ describe('Controller', () => {
 
     it('returns if no region is set up', () => {
       const controller = new Controller();
-      expect(controller._onRegionDispose()).toBeUndefined();
+      expect(controller._onRegionDispose(new CustomEvent('dispose', { detail: {} }))).toBeUndefined();
     });
   });
 

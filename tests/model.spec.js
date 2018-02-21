@@ -7,6 +7,8 @@ describe('Model', () => {
 
   beforeEach(() => {
     model = new Model({ answer: 42, question: '', person: { name: 'Zaphod', heads: 1 } });
+    // hack for jsdom to support EventTarget
+    Object.defineProperty(model, '_document', { value: window.document, enumerable: false });
     firstSpy = jest.fn();
     secondSpy = jest.fn();
   });
@@ -25,11 +27,11 @@ describe('Model', () => {
 
   describe('data', () => {
     it('emits `change` event when `data` is changed', () => {
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       model.answer = 1;
       expect(firstSpy.mock.calls.length).toBe(1);
-      expect(firstSpy.mock.calls[0][0]).toEqual({
-        event: 'change',
+      expect(firstSpy.mock.calls[0][0].type).toEqual('change');
+      expect(firstSpy.mock.calls[0][0].detail).toEqual({
         emitter: model,
         path: '',
         previous: 42,
@@ -37,13 +39,13 @@ describe('Model', () => {
     });
 
     it('reacts to changes on nested objects', () => {
-      model.on(model, 'change', firstSpy);
-      model.on(model, 'change:person', secondSpy);
+      model.addEventListener('change', firstSpy);
+      model.addEventListener('change:person', secondSpy);
       model.person.name = 'Ford';
       expect(firstSpy.mock.calls.length).toBe(1);
       expect(secondSpy.mock.calls.length).toBe(1);
-      expect(secondSpy.mock.calls[0][0]).toEqual({
-        event: 'change:person',
+      expect(secondSpy.mock.calls[0][0].type).toEqual('change:person');
+      expect(secondSpy.mock.calls[0][0].detail).toEqual({
         emitter: model,
         path: ':person',
         previous: 'Zaphod',
@@ -52,16 +54,16 @@ describe('Model', () => {
 
     it('reacts to changes on nested arrays', () => {
       const spy = jest.fn();
-      model.on(model, 'change', firstSpy);
-      model.on(model, 'change:second:third', secondSpy);
-      model.on(model, 'change:second:third:0', spy);
+      model.addEventListener('change', firstSpy);
+      model.addEventListener('change:second:third', secondSpy);
+      model.addEventListener('change:second:third:0', spy);
       model.second = { third: [] };
       model.second.third.push(1);
       expect(firstSpy.mock.calls.length).toBe(2);
       expect(secondSpy.mock.calls.length).toBe(1);
       expect(spy.mock.calls.length).toBe(1);
-      expect(spy.mock.calls[0][0]).toEqual({
-        event: 'change:second:third:0',
+      expect(spy.mock.calls[0][0].type).toEqual('change:second:third:0');
+      expect(spy.mock.calls[0][0].detail).toEqual({
         emitter: model,
         path: ':second:third',
         previous: undefined,
@@ -76,14 +78,14 @@ describe('Model', () => {
     });
 
     it('handles moving attributes within model', () => {
-      model.on(model, 'change', firstSpy);
-      model.on(model, 'change:first:name', secondSpy);
+      model.addEventListener('change', firstSpy);
+      model.addEventListener('change:first:name', secondSpy);
       model.first = model.person;
       model.person = undefined;
       model.first.name = 'Ford';
       expect(firstSpy.mock.calls.length).toBe(3);
-      expect(secondSpy.mock.calls[0][0]).toEqual({
-        event: 'change:first:name',
+      expect(secondSpy.mock.calls[0][0].type).toEqual('change:first:name');
+      expect(secondSpy.mock.calls[0][0].detail).toEqual({
         emitter: model,
         path: ':first',
         previous: 'Zaphod',
@@ -91,11 +93,11 @@ describe('Model', () => {
     });
 
     it('reacts to deleting properties', () => {
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       delete model.answer;
       expect(firstSpy.mock.calls.length).toBe(1);
-      expect(firstSpy.mock.calls[0][0]).toEqual({
-        event: 'change',
+      expect(firstSpy.mock.calls[0][0].type).toEqual('change');
+      expect(firstSpy.mock.calls[0][0].detail).toEqual({
         emitter: model,
         path: '',
         previous: 42,
@@ -103,13 +105,13 @@ describe('Model', () => {
     });
 
     it('does not react to deleting non-existing properties', () => {
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       delete model.nonexisting;
       expect(firstSpy.mock.calls.length).toBe(0);
     });
 
     it('does not react to deleting properties set up with symbols', () => {
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       delete model[Symbol.for('c_collection')];
       expect(firstSpy.mock.calls.length).toBe(0);
     });
@@ -118,7 +120,7 @@ describe('Model', () => {
   describe('set', () => {
     it('sets the model with given attributes', () => {
       const spy = jest.fn();
-      model.on(model, 'change', spy);
+      model.addEventListener('change', spy);
       const attributes = { name: 'Ford' };
       model.set(attributes);
       expect(model.toJSON()).toEqual(attributes);
@@ -132,7 +134,7 @@ describe('Model', () => {
         answer: 1,
         planet: 'Earth',
       };
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       model.assign(attributes);
       expect(model.toJSON()).toEqual({
         answer: 1,
@@ -150,7 +152,7 @@ describe('Model', () => {
         answer: 1,
         planet: 'Earth',
       };
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       model.merge(attributes);
       expect(model.toJSON()).toEqual({
         answer: 1,
@@ -162,7 +164,7 @@ describe('Model', () => {
     });
 
     it('merges nested properties', () => {
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       model.merge({ person: { name: 'Ford' } });
       expect(model.toJSON()).toEqual({
         answer: 42,
@@ -174,7 +176,7 @@ describe('Model', () => {
 
     it('merges nested arrays', () => {
       model.first = [1, 2, 3];
-      model.on(model, 'change', firstSpy);
+      model.addEventListener('change', firstSpy);
       const arr = [];
       arr[0] = 4;
       arr[3] = 5;
@@ -206,11 +208,11 @@ describe('Model', () => {
     });
 
     it("assigns response to the model's attributes and emits `sync` event", () => {
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.read().then((response) => {
         expect(response).toEqual({ answer: 40 });
-        expect(firstSpy.mock.calls[0][0].event).toBe('sync');
-        expect(firstSpy.mock.calls[0][0].emitter).toBe(model);
+        expect(firstSpy.mock.calls[0][0].type).toBe('sync');
+        expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
         expect(model.answer).toEqual(40);
       });
     });
@@ -246,7 +248,7 @@ describe('Model', () => {
     });
 
     it('does not fire `sync` event if `silent:true`', () => {
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.read({ silent: true }).then(() => {
         expect(firstSpy).not.toHaveBeenCalled();
       });
@@ -255,9 +257,9 @@ describe('Model', () => {
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
       model.sync = () => Promise.reject(error);
-      model.on(model, 'error', firstSpy);
+      model.addEventListener('error', firstSpy);
       return model.read().catch((err) => {
-        expect(firstSpy.mock.calls[0][0].event).toBe('error');
+        expect(firstSpy.mock.calls[0][0].type).toBe('error');
         expect(err).toBe(error);
       });
     });
@@ -271,10 +273,10 @@ describe('Model', () => {
 
     it('saves the model to the storage firing `sync` event', () => {
       model.sync = () => Promise.resolve('');
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.write().then(() => {
-        expect(firstSpy.mock.calls[0][0].event).toBe('sync');
-        expect(firstSpy.mock.calls[0][0].emitter).toBe(model);
+        expect(firstSpy.mock.calls[0][0].type).toBe('sync');
+        expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
       });
     });
 
@@ -306,7 +308,7 @@ describe('Model', () => {
     });
 
     it('does not fire `sync` event if `silent:true`', () => {
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.write({ silent: true }).then(() => {
         expect(firstSpy).not.toHaveBeenCalled();
       });
@@ -315,9 +317,9 @@ describe('Model', () => {
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
       model.sync = () => Promise.reject(error);
-      model.on(model, 'error', firstSpy);
+      model.addEventListener('error', firstSpy);
       return model.write().catch((err) => {
-        expect(firstSpy.mock.calls[0][0].event).toBe('error');
+        expect(firstSpy.mock.calls[0][0].type).toBe('error');
         expect(err).toBe(error);
       });
     });
@@ -327,10 +329,10 @@ describe('Model', () => {
     it('removes the model from the storage and disposes the model firing `sync` event', () => {
       model.sync = () => Promise.resolve('');
       model.dispose = jest.fn();
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.erase().then(() => {
-        expect(firstSpy.mock.calls[0][0].event).toBe('sync');
-        expect(firstSpy.mock.calls[0][0].emitter).toBe(model);
+        expect(firstSpy.mock.calls[0][0].type).toBe('sync');
+        expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
         expect(model.dispose).toHaveBeenCalled();
       });
     });
@@ -338,17 +340,17 @@ describe('Model', () => {
     it('avoids disposing the model if `keep:true`', () => {
       model.sync = () => Promise.resolve('');
       model.dispose = jest.fn();
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.erase({ keep: true }).then(() => {
-        expect(firstSpy.mock.calls[0][0].event).toBe('sync');
-        expect(firstSpy.mock.calls[0][0].emitter).toBe(model);
+        expect(firstSpy.mock.calls[0][0].type).toBe('sync');
+        expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
         expect(model.dispose).not.toHaveBeenCalled();
       });
     });
 
     it('does not fire `sync` event if `silent:true`', () => {
       model.sync = () => Promise.resolve('');
-      model.on(model, 'sync', firstSpy);
+      model.addEventListener('sync', firstSpy);
       return model.erase({ silent: true }).then(() => {
         expect(firstSpy).not.toHaveBeenCalled();
       });
@@ -357,9 +359,9 @@ describe('Model', () => {
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
       model.sync = () => Promise.reject(error);
-      model.on(model, 'error', firstSpy);
+      model.addEventListener('error', firstSpy);
       return model.erase().catch((err) => {
-        expect(firstSpy.mock.calls[0][0].event).toBe('error');
+        expect(firstSpy.mock.calls[0][0].type).toBe('error');
         expect(err).toBe(error);
       });
     });
@@ -390,21 +392,12 @@ describe('Model', () => {
   });
 
   describe('dispose', () => {
-    it('prepares the model to be disposed', () => {
-      model.on(model, 'dispose', firstSpy);
-      expect(model[Symbol.for('c_events')]).toBeDefined();
-      expect(model[Symbol.for('c_listeners')]).toBeDefined();
-      model.dispose();
-      expect(model[Symbol.for('c_events')]).toBe(undefined);
-      expect(model[Symbol.for('c_listeners')].size).toEqual(0);
-    });
-
     it('fires `dispose` event unless `silent:true`', () => {
-      model.on(model, 'dispose', firstSpy);
+      model.addEventListener('dispose', firstSpy);
       model.dispose();
       expect(firstSpy).toHaveBeenCalled();
       const otherMethod = jest.fn();
-      model.on(model, 'dispose', otherMethod);
+      model.addEventListener('dispose', otherMethod);
       model.dispose({ silent: true });
       expect(otherMethod).not.toHaveBeenCalled();
     });

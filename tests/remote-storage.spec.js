@@ -24,6 +24,8 @@ describe('RemoteStorage', () => {
 
   beforeEach(() => {
     storage = new RemoteStorage({ url: 'http://example.com/posts' });
+    // hack for jsdom to support EventTarget
+    Object.defineProperty(storage, '_document', { value: window.document, enumerable: false });
   });
 
   describe('constructor', () => {
@@ -158,8 +160,8 @@ describe('RemoteStorage', () => {
     it('fires `request` and `response` events unless `silent:true`', () => {
       storage.someMethod = jest.fn();
       storage.otherMethod = jest.fn();
-      storage.on(storage, 'request', storage.someMethod);
-      storage.on(storage, 'response', storage.otherMethod);
+      storage.addEventListener('request', storage.someMethod);
+      storage.addEventListener('response', storage.otherMethod);
       window.fetch = jest.fn().mockReturnValue(Promise.resolve(response));
       return storage.sync('read', model).then(() => {
         expect(storage.someMethod).toHaveBeenCalled();
@@ -170,8 +172,8 @@ describe('RemoteStorage', () => {
     it('does not fire any events if `silent:true`', () => {
       storage.someMethod = jest.fn();
       storage.otherMethod = jest.fn();
-      storage.on(storage, 'request', storage.someMethod);
-      storage.on(storage, 'response', storage.otherMethod);
+      storage.addEventListener('request', storage.someMethod);
+      storage.addEventListener('response', storage.otherMethod);
       window.fetch = jest.fn().mockReturnValue(Promise.resolve(response));
       return storage.sync('read', model, { silent: true }).then(() => {
         expect(storage.someMethod).not.toHaveBeenCalled();
@@ -181,23 +183,13 @@ describe('RemoteStorage', () => {
   });
 
   describe('dispose', () => {
-    it('prepares the storage to be disposed', () => {
-      storage.on(storage, 'dispose', () => {
-      });
-      expect(storage[Symbol.for('c_events')]).toBeDefined();
-      expect(storage[Symbol.for('c_listeners')]).toBeDefined();
-      storage.dispose();
-      expect(storage[Symbol.for('c_events')]).toBe(undefined);
-      expect(storage[Symbol.for('c_listeners')].size).toEqual(0);
-    });
-
     it('fires `dispose` event unless `silent:true`', () => {
       storage.someMethod = jest.fn();
-      storage.on(storage, 'dispose', storage.someMethod);
+      storage.addEventListener('dispose', storage.someMethod);
       storage.dispose();
       expect(storage.someMethod).toHaveBeenCalled();
       const otherMethod = jest.fn();
-      storage.on(storage, 'dispose', storage.otherMethod);
+      storage.addEventListener('dispose', storage.otherMethod);
       storage.dispose({ silent: true });
       expect(otherMethod).not.toHaveBeenCalled();
     });

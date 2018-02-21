@@ -12,7 +12,7 @@ const _opt = Object.seal(Object.create(null));
  * through DOM events and updates its Model accordingly. It listens to updates on its Model
  * to re-render its View.
  *
- * @extends Listener
+ * @extends EventTarget
  */
 class Controller extends Listener() {
   /**
@@ -23,7 +23,7 @@ class Controller extends Listener() {
    * @param {Object} [options.handlers] the DOM event handlers for the controller
    * @param {Object} [options.model] the data model used by the controller
    * @param {Object} [options.view] the view or template function used in rendering the controller
-   * @param {string} [options.renderEvents] the model events that cause the controller to re-render
+   * @param {Array} [options.renderEvents] the model events that cause the controller to re-render
    * @param {Array} [options.renderAttributes] the attributes of the controller's element
    *                                          that cause it to re-render
    * @param {number} [options.renderDebounce] time in milliseconds to delay the rendering
@@ -41,14 +41,17 @@ class Controller extends Listener() {
     if (renderDebounce !== undefined) {
       this.render = this.constructor._handleDebounce(this.render, renderDebounce);
     }
+    this.render = this.render.bind(this);
+    this._onRegionDispose = this._onRegionDispose.bind(this);
     this._setEventHandlers();
     this._regionSelectors = regions;
     this._regionControllers = undefined;
     this._observer = undefined;
+    this._renderEvents = renderEvents;
     this.model = model;
     this.view = view;
     if (renderEvents) {
-      this.on(this.model, renderEvents, this.render);
+      renderEvents.forEach(event => this.model.addEventListener(event, this.render));
     }
     if (renderAttributes) {
       this._observeAttributes(renderAttributes);
@@ -188,10 +191,15 @@ class Controller extends Listener() {
     const isController = content instanceof Controller;
     const isSame = isController && (content === previousController);
     if (isSame) return this;
-    if (!silent) this.emit('show', { region, content, keep, keepModel });
+    if (!silent) {
+      this.dispatchEvent(new CustomEvent(
+        'show',
+        { detail: { emitter: this, region, content, keep, keepModel } },
+      ));
+    }
 
     if (previousController) {
-      this.off(previousController, 'dispose', this._onRegionDispose);
+      previousController.removeEventListener('dispose', this._onRegionDispose);
       controllers[region] = undefined;
       if (!keep) {
         previousController.dispose({ save: keepModel });
@@ -200,7 +208,7 @@ class Controller extends Listener() {
 
     let elements = content;
     if (isController) {
-      this.on(content, 'dispose', this._onRegionDispose);
+      content.addEventListener('dispose', this._onRegionDispose);
       controllers[region] = content;
       elements = content.render();
     }
@@ -235,8 +243,11 @@ class Controller extends Listener() {
    * @returns {this}
    */
   dispose({ silent, save } = _opt) {
-    if (!silent) this.emit('dispose');
+    if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     if (!save && this.model && this.model.dispose) this.model.dispose();
+    if (this._renderEvents) {
+      this._renderEvents.forEach(event => this.model.removeEventListener(event, this.render));
+    }
     this.model = undefined;
     this.undelegate();
     this._disposeRegions();
@@ -246,7 +257,6 @@ class Controller extends Listener() {
     }
     const parent = this.el.parentNode;
     if (parent) parent.removeChild(this.el);
-    this.off().free();
     return this;
   }
 
@@ -378,7 +388,7 @@ class Controller extends Listener() {
    *
    * @returns {void}
    */
-  _onRegionDispose({ emitter: controller } = _opt) {
+  _onRegionDispose({ detail: { emitter: controller } } = _opt) {
     if (!this._regionControllers) return;
     const regions = Object.keys(this._regionControllers);
     for (let i = 0; i < regions.length; i += 1) {
@@ -404,7 +414,7 @@ class Controller extends Listener() {
       const name = regionNames[i];
       const region = regions[name];
       if (region instanceof Controller) {
-        this.off(region, 'dispose');
+        region.removeEventListener('dispose', this._onRegionDispose);
         region.dispose();
       }
     }

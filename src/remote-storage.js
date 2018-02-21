@@ -6,7 +6,7 @@ const _opt = Object.seal(Object.create(null));
 /**
  * Facilitates interaction with a REST server through the Fetch API.
  *
- * @extends Listener
+ * @extends EventTarget
  */
 class RemoteStorage extends Listener() {
   /**
@@ -66,11 +66,11 @@ class RemoteStorage extends Listener() {
       options.body = JSON.stringify(changes || model.toJSON());
     }
 
-    if (!silent) this.emit('request', { model, options });
+    if (!silent) this.dispatchEvent(new CustomEvent('request', { detail: { emitter: this, model, options } }));
 
     return fetch(url, options)
       .then((response) => {
-        if (!silent) this.emit('response', { model, options, response });
+        if (!silent) this.dispatchEvent(new CustomEvent('response', { detail: { emitter: this, model, options, response } }));
         if (response.ok || response.status === 304) {
           const contentType = response.headers.get('content-type');
           if (contentType && ~contentType.indexOf('application/json')) return response.json();
@@ -93,8 +93,7 @@ class RemoteStorage extends Listener() {
    * @returns {this}
    */
   dispose(options = {}) {
-    if (!options.silent) this.emit('dispose', options);
-    this.off().free();
+    if (!options.silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     return this;
   }
 }

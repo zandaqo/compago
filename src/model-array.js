@@ -8,6 +8,7 @@ const _opt = Object.seal(Object.create(null));
  * Manages an ordered set of models providing methods to create, sort, and dispose of the models.
  *
  * @extends Array
+ * @extends EventTarget
  */
 class ModelArray extends Listener(Array) {
   /**
@@ -26,6 +27,7 @@ class ModelArray extends Listener(Array) {
     this.comparator = comparator;
     this._byId = {};
     options.silent = true;
+    this._onModelEvent = this._onModelEvent.bind(this);
     if (models) this.set(models, options);
   }
 
@@ -94,12 +96,12 @@ class ModelArray extends Listener(Array) {
 
     let currentAt = at;
     for (let i = 0; i < toAdd.length; i += 1) {
-      toAdd[i].emit('add', { at: currentAt, sort, collection: this });
+      toAdd[i].dispatchEvent(new CustomEvent('add', { detail: { emitter: toAdd[i], at: currentAt, sort, collection: this } }));
       if (Number.isInteger(at)) currentAt += 1;
     }
 
-    if (sort) this.emit('sort');
-    if (toAdd.length || toRemove.length) this.emit('update');
+    if (sort) this.dispatchEvent(new CustomEvent('sort', { detail: { emitter: this } }));
+    if (toAdd.length || toRemove.length) this.dispatchEvent(new CustomEvent('update', { detail: { emitter: this } }));
     return this;
   }
 
@@ -129,12 +131,12 @@ class ModelArray extends Listener(Array) {
       super.splice(index, 1);
       hasChanged = true;
       if (!silent) {
-        model.emit('remove', { index, collection: this, save });
+        model.dispatchEvent(new CustomEvent('remove', { detail: { emitter: model, index, collection: this, save } }));
       }
       this._removeReference(model);
       if (!save) model.dispose();
     }
-    if (!silent && hasChanged) this.emit('update');
+    if (!silent && hasChanged) this.dispatchEvent(new CustomEvent('update', { detail: { emitter: this } }));
     return this;
   }
 
@@ -271,7 +273,7 @@ class ModelArray extends Listener(Array) {
     }
 
     super.sort(comparator);
-    if (!silent) this.emit('sort', { options });
+    if (!silent) this.dispatchEvent(new CustomEvent('sort', { detail: { emitter: this, options } }));
 
     return this;
   }
@@ -288,7 +290,7 @@ class ModelArray extends Listener(Array) {
    */
   reverse({ silent } = _opt) {
     super.reverse();
-    if (!silent) this.emit('sort');
+    if (!silent) this.dispatchEvent(new CustomEvent('sort', { detail: { emitter: this } }));
     return this;
   }
 
@@ -385,10 +387,10 @@ class ModelArray extends Listener(Array) {
     return this.sync('read', options)
       .then((response) => {
         this.set(response, options);
-        if (!options.silent) this.emit('sync', { options });
+        if (!options.silent) this.dispatchEvent(new CustomEvent('sync', { detail: { emitter: this, options } }));
       })
       .catch((error) => {
-        this.emit('error', { error, options });
+        this.dispatchEvent(new CustomEvent('error', { detail: { emitter: this, error, options } }));
         throw error;
       });
   }
@@ -430,9 +432,8 @@ class ModelArray extends Listener(Array) {
    * // disposes the array without disposing its models
    */
   dispose({ silent, save } = _opt) {
-    if (!silent) this.emit('dispose', { save });
+    if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this, save } }));
     this.unset(this, { silent: true, save });
-    this.off().free();
     return this;
   }
 
@@ -495,7 +496,7 @@ class ModelArray extends Listener(Array) {
    * @returns {void}
    */
   _onModelEvent(event) {
-    const { event: eventName, emitter: model, collection, previous } = event;
+    const { type: eventName, detail: { emitter: model, collection, previous } } = event;
     if ((eventName === 'add' || eventName === 'remove') && collection !== this) return;
     if (eventName === 'dispose') {
       this.unset(model, { save: true });
@@ -505,7 +506,7 @@ class ModelArray extends Listener(Array) {
       this._byId[previous] = undefined;
       if (model.id !== undefined) this._byId[model.id] = model;
     }
-    this.emit(eventName, event, model);
+    this.dispatchEvent(new CustomEvent(eventName, { detail: { emitter: model, event } }));
   }
 
   /**
@@ -517,7 +518,11 @@ class ModelArray extends Listener(Array) {
   _addReference(model) {
     if (!model[Symbol.for('c_collection')]) model[Symbol.for('c_collection')] = this;
     if (model.id) this._byId[model.id] = model;
-    this.on(model, 'all', this._onModelEvent);
+    model.addEventListener('add', this._onModelEvent);
+    model.addEventListener('remove', this._onModelEvent);
+    model.addEventListener('dispose', this._onModelEvent);
+    model.addEventListener('change', this._onModelEvent);
+    model.addEventListener(`change:${model.constructor.idAttribute}`, this._onModelEvent);
   }
 
   /**
@@ -529,7 +534,11 @@ class ModelArray extends Listener(Array) {
   _removeReference(model) {
     this._byId[model.id] = undefined;
     if (model[Symbol.for('c_collection')] === this) model[Symbol.for('c_collection')] = undefined;
-    this.off(model, 'all', this._onModelEvent);
+    model.removeEventListener('add', this._onModelEvent);
+    model.removeEventListener('remove', this._onModelEvent);
+    model.removeEventListener('dispose', this._onModelEvent);
+    model.removeEventListener('change', this._onModelEvent);
+    model.removeEventListener(`change:${model.constructor.idAttribute}`, this._onModelEvent);
   }
 }
 
