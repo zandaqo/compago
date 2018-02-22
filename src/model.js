@@ -4,6 +4,9 @@ import Listener from './listener';
 /** Used as a source of default options for methods to avoid creating new objects on every call. */
 const _opt = Object.seal(Object.create(null));
 
+/** List of methods derived from EventTarget. */
+const _eventMethods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
+
 /**
  * The Model in MVC.
  * It manages data and business logic. Models handle synchronization with a persistence layer
@@ -315,6 +318,7 @@ class Model extends Listener() {
       proxy = new Proxy(target, handler);
       if (target === model) {
         handler.model = proxy;
+        handler.get = this._getHandler;
         model = proxy;
       }
       Model.proxies.set(proxy, handler);
@@ -371,6 +375,22 @@ class Model extends Listener() {
     delete target[property];
     Model._emitChanges(model, path, property, previous);
     return true;
+  }
+
+  /**
+   * `get` operation trap for the main proxy of a model.
+   *
+   * @param {*} target
+   * @param {string} property
+   * @returns {*}
+   */
+  static _getHandler(target, property) {
+    if (_eventMethods.includes(property)) {
+      return function (...args) {
+        return Reflect.apply(target[property], target, args);
+      };
+    }
+    return target[property];
   }
 }
 
