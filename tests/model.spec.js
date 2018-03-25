@@ -1,5 +1,7 @@
 import Model from '../src/model.js';
 
+EventTarget.prototype._document = document;
+
 describe('Model', () => {
   let model;
   let firstSpy;
@@ -7,8 +9,6 @@ describe('Model', () => {
 
   beforeEach(() => {
     model = new Model({ answer: 42, question: '', person: { name: 'Zaphod', heads: 1 } });
-    // hack for jsdom to support EventTarget
-    Object.defineProperty(model, '_document', { value: window.document, enumerable: false });
     firstSpy = jest.fn();
     secondSpy = jest.fn();
   });

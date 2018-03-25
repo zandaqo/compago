@@ -1,5 +1,7 @@
 import RemoteStorage from '../src/remote-storage';
 
+EventTarget.prototype._document = document;
+
 class MockResponse {
   constructor(status, headers, body) {
     this.status = status;
@@ -24,8 +26,6 @@ describe('RemoteStorage', () => {
 
   beforeEach(() => {
     storage = new RemoteStorage({ url: 'http://example.com/posts' });
-    // hack for jsdom to support EventTarget
-    Object.defineProperty(storage, '_document', { value: window.document, enumerable: false });
   });
 
   describe('constructor', () => {

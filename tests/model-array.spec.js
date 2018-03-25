@@ -1,6 +1,8 @@
 import Model from '../src/model';
 import ModelArray from '../src/model-array';
 
+EventTarget.prototype._document = document;
+
 describe('ModelArray', () => {
   let c;
   let m1;
@@ -10,11 +12,8 @@ describe('ModelArray', () => {
   beforeEach(() => {
     c = new ModelArray([], { model: Model });
     m1 = new Model();
-    Object.defineProperty(m1, '_document', { value: window.document, enumerable: false });
     m2 = new Model();
-    Object.defineProperty(m2, '_document', { value: window.document, enumerable: false });
     m3 = new Model();
-    Object.defineProperty(m3, '_document', { value: window.document, enumerable: false });
   });
 
   describe('constructor', () => {
@@ -75,7 +74,6 @@ describe('ModelArray', () => {
 
     it('puts models at a specified index', () => {
       const m4 = new Model();
-      Object.defineProperty(m4, '_document', { value: window.document, enumerable: false });
       c.someMethod = jest.fn();
       m2.addEventListener('add', c.someMethod);
       m4.addEventListener('add', c.someMethod);

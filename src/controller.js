@@ -1,3 +1,4 @@
+import pathToRegExp from 'path-to-regexp';
 import Listener from './listener';
 
 /** Used to split event names and selectors in handler declaration. */
@@ -5,6 +6,12 @@ const _reSplitEvents = /(\w+)\s+?(.*)/;
 
 /** Used as a source of default options for methods to avoid creating new objects on every call. */
 const _opt = Object.seal(Object.create(null));
+
+/** Cached regex for stripping leading and trailing slashes. */
+const _reStartingSlash = /^\/+/g;
+
+/** Cached regex for removing trailing slashes. */
+const _reTrailingSlash = /\/+$/g;
 
 /**
  * The Controller in MVC.
@@ -28,10 +35,12 @@ class Controller extends Listener() {
    *                                          that cause it to re-render
    * @param {number} [options.renderDebounce] time in milliseconds to delay the rendering
    * @param {Object} [options.regions] a hash of regions of the controller
+   * @param (Object} [options.routes] a hash of routes
+   * @param {string} [options.root]
    */
   constructor(options = _opt) {
     const { el, tagName, attributes, handlers, model,
-      view, renderEvents, renderAttributes, renderDebounce, regions } = options;
+      view, renderEvents, renderAttributes, renderDebounce, regions, root, routes } = options;
     super();
     this.tagName = tagName || 'div';
     this.attributes = attributes;
@@ -55,6 +64,20 @@ class Controller extends Listener() {
     }
     if (renderAttributes) {
       this._observeAttributes(renderAttributes);
+    }
+
+    if (routes) {
+      this._root = root ? (`/${root}`).replace(_reStartingSlash, '/').replace(_reTrailingSlash, '') : '';
+      this._routes = Object.entries(routes).map((route) => {
+        const keys = [];
+        const parsed = pathToRegExp(route[1], keys);
+        parsed.route = route[0];
+        parsed.keys = keys;
+        return parsed;
+      });
+      this._fragment = '';
+      this._onPopstateEvent = this._onPopstateEvent.bind(this);
+      window.addEventListener('popstate', this._onPopstateEvent);
     }
   }
 
@@ -231,6 +254,35 @@ class Controller extends Listener() {
   }
 
   /**
+   * Saves a fragment into the browser history.
+   *
+   * @param {string} fragment a properly URL-encoded fragment to place into the history
+   * @param {Object} [options]
+   * @param {boolean} [options.replace] whether to change the current item in the history
+   *                                    instead of adding a new one
+   * @param {boolean} [options.silent]  whether to avoid checking the fragment for routes
+   * @returns {boolean}
+   * @example
+   * controller.navigate('/users');
+   * // sets the current URL to '/users', pushes it into history, and checks the new URL for routes
+   *
+   * controller.navigate('/users', { replace: true });
+   * // replaces the current URL with '/users' and checks it for routes
+   *
+   * controller.navigate('/users', { silent: true });
+   * // does not check the new URL for routes
+   */
+  navigate(fragment, { replace, silent } = _opt) {
+    const path = this._getFragment(fragment);
+    if (this._fragment === path) return false;
+    this._fragment = path;
+    const url = this._root + path;
+    window.history[replace ? 'replaceState' : 'pushState']({}, document.title, url);
+    if (!silent) this._checkUrl(path);
+    return true;
+  }
+
+  /**
    * Prepares the controller to be disposed.
    *
    * Removes the controller's element from the DOM, detaches handlers,
@@ -254,6 +306,9 @@ class Controller extends Listener() {
     if (this._observer) {
       this._observer.disconnect();
       this._observer = undefined;
+    }
+    if (this._routes) {
+      window.removeEventListener('popstate', this._onPopstateEvent);
     }
     const parent = this.el.parentNode;
     if (parent) parent.removeChild(this.el);
@@ -434,6 +489,55 @@ class Controller extends Listener() {
   }
 
   /**
+   * Gets the current pathname.
+   *
+   * @param {string} [fragment]
+   * @returns {string}
+   */
+  _getFragment(fragment) {
+    if (fragment !== undefined) return fragment.trim();
+    const root = this._root;
+    const location = window.location;
+    let newFragment = decodeURIComponent(location.pathname + location.search + location.hash);
+    if (root && newFragment.startsWith(root)) newFragment = newFragment.slice(root.length);
+    return newFragment;
+  }
+
+  /**
+   * Checks whether the URL fragment's been changed.
+   *
+   * @returns {void}
+   */
+  _onPopstateEvent() {
+    const current = this._getFragment();
+    if (current !== this._fragment) this._checkUrl();
+  }
+
+  /**
+   * Checks the fragment against routes and emits `route` events if an appropriate route is found.
+   *
+   * @param {string} [fragment]
+   * @returns {boolean}
+   */
+  _checkUrl(fragment) {
+    this._fragment = this._getFragment(fragment);
+    const [pathString, hash] = this._fragment.split('#', 2);
+    const [path, queryString] = pathString.split('?', 2);
+    for (let i = 0; i < this._routes.length; i += 1) {
+      const route = this._routes[i];
+      if (route.test(path)) {
+        const params = this.constructor._extractParameters(route, path);
+        const name = route.route;
+        const detail = { emitter: this, route: name, params, query: queryString, hash };
+        this.dispatchEvent(new CustomEvent('route', { detail }));
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  /**
    *
    * @param {Function} callback
    * @param {number} wait
@@ -450,6 +554,31 @@ class Controller extends Listener() {
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
     };
+  }
+
+  /**
+   * Gets an array of extracted parameters from a URL fragment.
+   *
+   * @param {RegExp} route
+   * @param {string} path
+   * @returns {Object}
+   */
+  static _extractParameters(route, path) {
+    const matches = route.exec(path);
+    const params = {};
+    if (matches.length < 2) return params;
+    const keys = route.keys;
+    let n = 0;
+    for (let i = 1; i < matches.length; i += 1) {
+      const key = keys[i - 1];
+      const prop = key ? key.name : n += 1;
+      const val = (typeof matches[i] !== 'string') ? matches[i] : decodeURIComponent(matches[i]);
+
+      if (val !== undefined || !Reflect.has(params, prop)) {
+        params[prop] = val;
+      }
+    }
+    return params;
   }
 }
 

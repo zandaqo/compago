@@ -1,7 +1,7 @@
 import Listener from '../src/listener';
 import Controller from '../src/controller';
 
-window.Element.prototype.closest = function (selector) {
+Element.prototype.closest = function (selector) {
   let el = this;
   while (el) {
     if (el.matches(selector)) {
@@ -20,13 +20,16 @@ window.MutationObserver = class {
   }
 };
 
+EventTarget.prototype._document = document;
+
+class Model extends Listener() {}
+
 describe('Controller', () => {
   let v;
   let el;
 
   beforeEach(() => {
     v = new Controller();
-    Object.defineProperty(v, '_document', { value: window.document, enumerable: false });
     el = document.createElement('div');
     el.setAttribute('id', 'region');
     v.el.appendChild(el);
@@ -39,31 +42,105 @@ describe('Controller', () => {
 
   describe('constructor', () => {
     it('creates a controller instance', () => {
-      class Model extends Listener() {}
-      const model = new Model();
-      Object.defineProperty(model, '_document', { value: window.document, enumerable: false });
+      const controller = new Controller();
+      expect(controller instanceof Controller).toBe(true);
+    });
 
-      const nv = new Controller({
+    it('sets controller element', () => {
+      const elem = document.createElement('p');
+      const controller = new Controller({
+        el: elem,
+      });
+      expect(controller.el).toBe(elem);
+    });
+
+    it('creates a controller element with specified tag and attributes', () => {
+      const controller = new Controller({
         tagName: 'ul',
         attributes: {
           class: 'unordered-list',
         },
-        handlers: {},
+      });
+      expect(controller.el.className).toBe('unordered-list');
+      expect(controller.el.tagName).toBe('UL');
+    });
+
+    it('sets up event handlers', () => {
+      const controller = new Controller({
+        handlers: {
+          click: 'render',
+          'click #submit': 'navigate',
+          focus: 'nonExistantMethod',
+        },
+      });
+      expect(controller.handlers.get('click').length).toBe(2);
+      expect(controller.handlers.get('focus')).toBe(undefined);
+    });
+
+    it('creates a controller with a model', () => {
+      const model = new Model();
+      const controller = new Controller({
+        model,
+      });
+      expect(controller.model).toBe(model);
+    });
+
+    it('creates a contoller with a view', () => {
+      const view = jest.fn();
+      const controller = new Controller({
+        view,
+      });
+      expect(controller.view).toBe(view);
+    });
+
+    it('creates a controller that re-renders in response to specified events on its model', () => {
+      const model = new Model();
+      const renderEvents = ['change'];
+      const controller = new Controller({
+        model,
+        renderEvents,
+      });
+      expect(controller._renderEvents).toBe(renderEvents);
+    });
+
+    it('creates a controller that watches specified attributes on the element for changes', () => {
+      const controller = new Controller({
+        renderAttributes: ['data-id'],
+      });
+      expect(controller._observer instanceof window.MutationObserver).toBe(true);
+      expect(controller._observer.observe).toHaveBeenCalled();
+    });
+
+    it('creates a controller that with regions', () => {
+      const controller = new Controller({
         regions: {
           region: '#region',
         },
-        model,
-        renderEvents: ['change'],
-        renderAttributes: ['data-id'],
       });
-      expect(nv instanceof Controller).toBe(true);
-      expect(nv.el.className).toBe('unordered-list');
-      expect(nv.el.tagName).toBe('UL');
-      expect(nv.model).toBe(model);
-      expect(nv._regionSelectors.region).toBe('#region');
-      expect(nv._regionControllers).toBe(undefined);
-      expect(nv._observer instanceof window.MutationObserver).toBe(true);
-      expect(nv._observer.observe).toHaveBeenCalled();
+      expect(controller._regionSelectors.region).toBe('#region');
+      expect(controller._regionControllers).toBe(undefined);
+    });
+
+    it('creates a controller with router capabilities', () => {
+      const root = '/subdomain';
+      const controller = new Controller({
+        root,
+        routes: {
+          user: '/user/:username',
+          category: '/category/:categoryname',
+        },
+      });
+      expect(controller._root).toBe(root);
+      expect(controller._routes.length).toBe(2);
+    });
+
+    it('reacts to `popstate` events in a controller with a router', () => {
+      const controller = new Controller({
+        routes: {},
+      });
+      controller._checkUrl = jest.fn();
+      window.dispatchEvent(new Event('popstate'));
+      expect(controller._checkUrl).toHaveBeenCalled();
     });
   });
 
@@ -283,6 +360,77 @@ describe('Controller', () => {
     });
   });
 
+  describe('navigate', () => {
+    let controller;
+
+    beforeEach(() => {
+      controller = new Controller({
+        routes: {
+          home: '/',
+          about: '/about',
+          user: '/user/:name',
+        },
+      });
+      jest.spyOn(window.history, 'replaceState').mockImplementation(() => true);
+      jest.spyOn(window.history, 'pushState').mockImplementation(() => true);
+    });
+
+    afterEach(() => {
+      window.history.replaceState.mockRestore();
+      window.history.pushState.mockRestore();
+    });
+
+    it('saves a url into browser history', () => {
+      controller.navigate('/path');
+      expect(window.history.pushState).toHaveBeenCalled();
+    });
+
+    it('replaces the current url if `replace:true`', () => {
+      controller.navigate('/path', { replace: true });
+      expect(window.history.replaceState).toHaveBeenCalled();
+    });
+
+    it('checks the current url if no new url provided', () => {
+      expect(controller._fragment).toBe('');
+      controller.navigate();
+      expect(controller._fragment).toEqual('blank');
+    });
+
+    it('checks the new url against routes unless `silent:true`', () => {
+      controller._checkUrl = jest.fn();
+      controller.navigate('/path', { silent: true });
+      expect(controller._checkUrl).not.toHaveBeenCalled();
+      controller.navigate('/');
+      expect(controller._checkUrl).toHaveBeenCalled();
+    });
+
+    it('does not update history if the url is unchanged', () => {
+      controller.navigate('/path');
+      controller.navigate('/path');
+      expect(window.history.pushState).toHaveBeenCalledTimes(1);
+    });
+
+    it('emits `route` event if the url matches a route', () => {
+      const callback = jest.fn();
+      controller.addEventListener('route', callback);
+      controller.navigate('/about');
+      expect(callback).toHaveBeenCalled();
+    });
+
+    it('sends route parameters with the `route` event', () => {
+      const callback = jest.fn();
+      controller.addEventListener('route', callback);
+      controller.navigate('/user/arthur');
+      expect(callback).toHaveBeenCalled();
+      expect(callback.mock.calls[0][0].detail).toMatchObject({
+        route: 'user',
+        params: {
+          name: 'arthur',
+        },
+      });
+    });
+  });
+
   describe('dispose', () => {
     it('prepares the controller to be disposed', () => {
       v._observeAttributes(['data-id']);
@@ -317,6 +465,23 @@ describe('Controller', () => {
       v.dispose();
       expect(model.dispose).toHaveBeenCalled();
       expect(v.model).toBe(undefined);
+    });
+
+    it('removes event listeners from the model', () => {
+      const model = new Model();
+      jest.spyOn(model, 'removeEventListener');
+      const controller = new Controller({ model, renderEvents: ['a'] });
+      controller.dispose();
+      expect(model.removeEventListener).toHaveBeenCalledWith('a', controller.render);
+      model.removeEventListener.mockRestore();
+    });
+
+    it('removes event listener for `popstate` event', () => {
+      jest.spyOn(window, 'removeEventListener');
+      const controller = new Controller({ routes: {} });
+      controller.dispose();
+      expect(window.removeEventListener).toHaveBeenCalledWith('popstate', controller._onPopstateEvent);
+      window.removeEventListener.mockRestore();
     });
 
     it('fires `dispose` event unless `silent:true`', () => {
@@ -491,13 +656,11 @@ describe('Controller', () => {
   describe('_onRegionDispose', () => {
     it('removes references to a disposed controller from the parent controller', () => {
       const parentController = new Controller({ regions: { region: '#region' } });
-      Object.defineProperty(parentController, '_document', { value: window.document, enumerable: false });
       const regionEl = document.createElement('div');
       regionEl.setAttribute('id', 'region');
       parentController.el.appendChild(regionEl);
       jest.spyOn(parentController, '_onRegionDispose');
       const someController = new Controller();
-      Object.defineProperty(someController, '_document', { value: window.document, enumerable: false });
       parentController.show('region', someController);
       expect(parentController._regionControllers.region).toBe(someController);
       someController.dispose();
