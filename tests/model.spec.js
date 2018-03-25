@@ -203,8 +203,11 @@ describe('Model', () => {
 
   describe('read', () => {
     beforeEach(() => {
-      model.sync = () => Promise.resolve({ answer: 40 });
-      Object.defineProperty(model, 'sync', { enumerable: false });
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve({ answer: 40 }),
+        enumerable: false,
+        configurable: true,
+      });
     });
 
     it("assigns response to the model's attributes and emits `sync` event", () => {
@@ -234,7 +237,11 @@ describe('Model', () => {
     }));
 
     it('merges the model with response if `method:merge`', () => {
-      model.sync = () => Promise.resolve({ person: { name: 'Ford' } });
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve({ person: { name: 'Ford' } }),
+        enumerable: false,
+        configurable: true,
+      });
       return model.read({ method: 'merge' }).then(() => {
         expect(model.toJSON()).toEqual({
           answer: 42,
@@ -267,12 +274,19 @@ describe('Model', () => {
 
   describe('write', () => {
     beforeEach(() => {
-      model.sync = () => Promise.resolve({ answer: 40 });
-      Object.defineProperty(model, 'sync', { enumerable: false });
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve({ answer: 40 }),
+        enumerable: false,
+        configurable: true,
+      });
     });
 
     it('saves the model to the storage firing `sync` event', () => {
-      model.sync = () => Promise.resolve('');
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve(''),
+        enumerable: false,
+        configurable: true,
+      });
       model.addEventListener('sync', firstSpy);
       return model.write().then(() => {
         expect(firstSpy.mock.calls[0][0].type).toBe('sync');
@@ -294,7 +308,11 @@ describe('Model', () => {
     }));
 
     it('merges the model with response if `method:merge`', () => {
-      model.sync = () => Promise.resolve({ person: { name: 'Ford' } });
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve({ person: { name: 'Ford' } }),
+        enumerable: false,
+        configurable: true,
+      });
       return model.write({ method: 'merge' }).then(() => {
         expect(model.toJSON()).toEqual({
           answer: 42,
@@ -316,7 +334,11 @@ describe('Model', () => {
 
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
-      model.sync = () => Promise.reject(error);
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.reject(error),
+        enumerable: false,
+        configurable: true,
+      });
       model.addEventListener('error', firstSpy);
       return model.write().catch((err) => {
         expect(firstSpy.mock.calls[0][0].type).toBe('error');
@@ -327,7 +349,11 @@ describe('Model', () => {
 
   describe('erase', () => {
     it('removes the model from the storage and disposes the model firing `sync` event', () => {
-      model.sync = () => Promise.resolve('');
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve(''),
+        enumerable: false,
+        configurable: true,
+      });
       model.dispose = jest.fn();
       model.addEventListener('sync', firstSpy);
       return model.erase().then(() => {
@@ -338,7 +364,11 @@ describe('Model', () => {
     });
 
     it('avoids disposing the model if `keep:true`', () => {
-      model.sync = () => Promise.resolve('');
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve(''),
+        enumerable: false,
+        configurable: true,
+      });
       model.dispose = jest.fn();
       model.addEventListener('sync', firstSpy);
       return model.erase({ keep: true }).then(() => {
@@ -349,7 +379,11 @@ describe('Model', () => {
     });
 
     it('does not fire `sync` event if `silent:true`', () => {
-      model.sync = () => Promise.resolve('');
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.resolve(''),
+        enumerable: false,
+        configurable: true,
+      });
       model.addEventListener('sync', firstSpy);
       return model.erase({ silent: true }).then(() => {
         expect(firstSpy).not.toHaveBeenCalled();
@@ -358,7 +392,11 @@ describe('Model', () => {
 
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
-      model.sync = () => Promise.reject(error);
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.reject(error),
+        enumerable: false,
+        configurable: true,
+      });
       model.addEventListener('error', firstSpy);
       return model.erase().catch((err) => {
         expect(firstSpy.mock.calls[0][0].type).toBe('error');
