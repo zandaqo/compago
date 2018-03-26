@@ -496,13 +496,13 @@ class ModelArray extends Listener(Array) {
    * @returns {void}
    */
   _onModelEvent(event) {
-    const { type: eventName, detail: { emitter: model, collection, previous } } = event;
+    const { type: eventName, detail: { emitter: model, collection, previous, path } } = event;
     if ((eventName === 'add' || eventName === 'remove') && collection !== this) return;
     if (eventName === 'dispose') {
       this.unset(model, { save: true });
       return;
     }
-    if (eventName === `change:${model.constructor.idAttribute}`) {
+    if (eventName === 'change' && path.startsWith(`:${model.constructor.idAttribute}`)) {
       this._byId[previous] = undefined;
       if (model.id !== undefined) this._byId[model.id] = model;
     }
@@ -522,7 +522,6 @@ class ModelArray extends Listener(Array) {
     model.addEventListener('remove', this._onModelEvent);
     model.addEventListener('dispose', this._onModelEvent);
     model.addEventListener('change', this._onModelEvent);
-    model.addEventListener(`change:${model.constructor.idAttribute}`, this._onModelEvent);
   }
 
   /**
@@ -538,7 +537,6 @@ class ModelArray extends Listener(Array) {
     model.removeEventListener('remove', this._onModelEvent);
     model.removeEventListener('dispose', this._onModelEvent);
     model.removeEventListener('change', this._onModelEvent);
-    model.removeEventListener(`change:${model.constructor.idAttribute}`, this._onModelEvent);
   }
 }
 

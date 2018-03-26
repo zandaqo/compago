@@ -29,45 +29,41 @@ describe('Model', () => {
     it('emits `change` event when `data` is changed', () => {
       model.addEventListener('change', firstSpy);
       model.answer = 1;
-      expect(firstSpy.mock.calls.length).toBe(1);
-      expect(firstSpy.mock.calls[0][0].type).toEqual('change');
-      expect(firstSpy.mock.calls[0][0].detail).toEqual({
-        emitter: model,
-        path: '',
-        previous: 42,
-      });
+      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
+        type: 'change',
+        detail: {
+          emitter: model,
+          path: ':answer',
+          previous: 42,
+        },
+      })]]);
     });
 
     it('reacts to changes on nested objects', () => {
       model.addEventListener('change', firstSpy);
-      model.addEventListener('change:person', secondSpy);
       model.person.name = 'Ford';
-      expect(firstSpy.mock.calls.length).toBe(1);
-      expect(secondSpy.mock.calls.length).toBe(1);
-      expect(secondSpy.mock.calls[0][0].type).toEqual('change:person');
-      expect(secondSpy.mock.calls[0][0].detail).toEqual({
-        emitter: model,
-        path: ':person',
-        previous: 'Zaphod',
-      });
+      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
+        type: 'change',
+        detail: {
+          emitter: model,
+          path: ':person:name',
+          previous: 'Zaphod',
+        },
+      })]]);
     });
 
     it('reacts to changes on nested arrays', () => {
-      const spy = jest.fn();
-      model.addEventListener('change', firstSpy);
-      model.addEventListener('change:second:third', secondSpy);
-      model.addEventListener('change:second:third:0', spy);
       model.second = { third: [] };
+      model.addEventListener('change', firstSpy);
       model.second.third.push(1);
-      expect(firstSpy.mock.calls.length).toBe(2);
-      expect(secondSpy.mock.calls.length).toBe(1);
-      expect(spy.mock.calls.length).toBe(1);
-      expect(spy.mock.calls[0][0].type).toEqual('change:second:third:0');
-      expect(spy.mock.calls[0][0].detail).toEqual({
-        emitter: model,
-        path: ':second:third',
-        previous: undefined,
-      });
+      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
+        type: 'change',
+        detail: {
+          emitter: model,
+          path: ':second:third:0',
+          previous: undefined,
+        },
+      })]]);
     });
 
     it('handles cyclic references', () => {
@@ -84,24 +80,27 @@ describe('Model', () => {
       model.person = undefined;
       model.first.name = 'Ford';
       expect(firstSpy.mock.calls.length).toBe(3);
-      expect(secondSpy.mock.calls[0][0].type).toEqual('change:first:name');
-      expect(secondSpy.mock.calls[0][0].detail).toEqual({
-        emitter: model,
-        path: ':first',
-        previous: 'Zaphod',
-      });
+      expect(firstSpy.mock.calls[2]).toEqual([expect.objectContaining({
+        type: 'change',
+        detail: {
+          emitter: model,
+          path: ':first:name',
+          previous: 'Zaphod',
+        },
+      })]);
     });
 
     it('reacts to deleting properties', () => {
       model.addEventListener('change', firstSpy);
       delete model.answer;
-      expect(firstSpy.mock.calls.length).toBe(1);
-      expect(firstSpy.mock.calls[0][0].type).toEqual('change');
-      expect(firstSpy.mock.calls[0][0].detail).toEqual({
-        emitter: model,
-        path: '',
-        previous: 42,
-      });
+      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
+        type: 'change',
+        detail: {
+          emitter: model,
+          path: ':answer',
+          previous: 42,
+        },
+      })]]);
     });
 
     it('does not react to deleting non-existing properties', () => {
@@ -214,9 +213,9 @@ describe('Model', () => {
       model.addEventListener('sync', firstSpy);
       return model.read().then((response) => {
         expect(response).toEqual({ answer: 40 });
+        expect(model.answer).toEqual(40);
         expect(firstSpy.mock.calls[0][0].type).toBe('sync');
         expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
-        expect(model.answer).toEqual(40);
       });
     });
 

@@ -281,20 +281,9 @@ class Model extends Listener() {
    * @returns {void}
    */
   static _emitChanges(model, path, property, previous) {
-    model.dispatchEvent(new CustomEvent(`change${path}:${property}`, { detail: { emitter: model, path, previous } }));
-    if (path.includes(':')) {
-      const fragments = path.split(':');
-      let pathLength = path.length;
-      for (let i = fragments.length - 1; i >= 0; i -= 1) {
-        model.dispatchEvent(new CustomEvent(
-          `change${path.slice(0, pathLength)}`,
-          { detail: { emitter: model, path, previous } },
-        ));
-        pathLength -= fragments[i].length + 1;
-      }
-    } else {
-      model.dispatchEvent(new CustomEvent('change', { detail: { emitter: model, path, previous } }));
-    }
+    model.dispatchEvent(new CustomEvent('change', {
+      detail: { emitter: model, path: `${path}:${property}`, previous },
+    }));
   }
 
   /**
