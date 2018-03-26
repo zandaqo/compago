@@ -18,9 +18,6 @@ through storage controllers and notify subscribers through events when their dat
 <dt><a href="#RemoteStorage">RemoteStorage</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>Facilitates interaction with a REST server through the Fetch API.</p>
 </dd>
-<dt><a href="#Router">Router</a> ⇐ <code>EventTarget</code></dt>
-<dd><p>Handles client-side routing and navigation utilizing the History API.</p>
-</dd>
 </dl>
 
 <a name="Controller"></a>
@@ -35,17 +32,18 @@ to re-render its View.
 **Extends**: <code>EventTarget</code>  
 
 * [Controller](#Controller) ⇐ <code>EventTarget</code>
-    * [new Controller([options])](#new_Controller_new)
+    * [new Controller([options], (Object})](#new_Controller_new)
     * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
     * [.delegate([name], [callback], [selector])](#Controller+delegate) ⇒ <code>this</code>
     * [.undelegate([name], [callback], [selector])](#Controller+undelegate) ⇒ <code>this</code>
     * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
     * [.renderRegion(regionElement, [content])](#Controller+renderRegion) ⇒ <code>this</code>
+    * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
     * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
 
 <a name="new_Controller_new"></a>
 
-### new Controller([options])
+### new Controller([options], (Object})
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -60,6 +58,8 @@ to re-render its View.
 | [options.renderAttributes] | <code>Array</code> | the attributes of the controller's element                                          that cause it to re-render |
 | [options.renderDebounce] | <code>number</code> | time in milliseconds to delay the rendering |
 | [options.regions] | <code>Object</code> | a hash of regions of the controller |
+| (Object} |  | [options.routes] a hash of routes |
+| [options.root] | <code>string</code> |  |
 
 <a name="Controller+render"></a>
 
@@ -171,6 +171,31 @@ Renders content inside a region.
 | regionElement | <code>HTMLElement</code> | the DOM element serving as a container for a region |
 | [content] | <code>HTMLElement</code> | DOM elements to render inside the region |
 
+<a name="Controller+navigate"></a>
+
+### controller.navigate(fragment, [options]) ⇒ <code>boolean</code>
+Saves a fragment into the browser history.
+
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| fragment | <code>string</code> |  | a properly URL-encoded fragment to place into the history |
+| [options] | <code>Object</code> |  |  |
+| [options.replace] | <code>boolean</code> | <code>false</code> | whether to change the current item in the history                                    instead of adding a new one |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid checking the fragment for routes |
+
+**Example**  
+```js
+controller.navigate('/users');
+// sets the current URL to '/users', pushes it into history, and checks the new URL for routes
+
+controller.navigate('/users', { replace: true });
+// replaces the current URL with '/users' and checks it for routes
+
+controller.navigate('/users', { silent: true });
+// does not check the new URL for routes
+```
 <a name="Controller+dispose"></a>
 
 ### controller.dispose([options]) ⇒ <code>this</code>
@@ -846,141 +871,3 @@ Checks whether the model has been already persisted on the server.
 | --- | --- | --- |
 | model | [<code>Model</code>](#Model) | the model to be checked |
 
-<a name="Router"></a>
-
-## Router ⇐ <code>EventTarget</code>
-Handles client-side routing and navigation utilizing the History API.
-
-**Kind**: global class  
-**Extends**: <code>EventTarget</code>  
-
-* [Router](#Router) ⇐ <code>EventTarget</code>
-    * [new Router([options])](#new_Router_new)
-    * [.addRoute(name, route)](#Router+addRoute) ⇒ <code>this</code>
-    * [.removeRoute(name)](#Router+removeRoute) ⇒ <code>this</code>
-    * [.start([options])](#Router+start) ⇒ <code>this</code>
-    * [.stop()](#Router+stop) ⇒ <code>this</code>
-    * [.navigate(fragment, [options])](#Router+navigate) ⇒ <code>boolean</code>
-    * [.dispose([options])](#Router+dispose) ⇒ <code>this</code>
-
-<a name="new_Router_new"></a>
-
-### new Router([options])
-
-| Param | Type | Description |
-| --- | --- | --- |
-| [options] | <code>Object</code> |  |
-| [options.routes] | <code>Object</code> | a hash of routes |
-| [options.root] | <code>string</code> |  |
-
-<a name="Router+addRoute"></a>
-
-### router.addRoute(name, route) ⇒ <code>this</code>
-Adds a route to the collection of routes.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | the route name |
-| route | <code>string</code> | the path string |
-
-**Example**  
-```js
-router.addRoute('home', '/');
-// adds a route named home with the path '/' to the routes list so that every time user
-// navigates to the root URL the router emit `route:home` event
-
-router.addRoute('profile', '/users/:name');
-// if user visits `/users/JohnDoe` router will fire `route:profile`
-// with `event.params.name` set to `JohnDoe`
-```
-<a name="Router+removeRoute"></a>
-
-### router.removeRoute(name) ⇒ <code>this</code>
-Removes a route from the collection of routes.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | the route name to be removed |
-
-**Example**  
-```js
-router.removeRoute('home');
-// if present, route named 'home' will be removed from the routes list
-```
-<a name="Router+start"></a>
-
-### router.start([options]) ⇒ <code>this</code>
-Starts the router enabling it to handle URL changes.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Throws**:
-
-- <code>Error</code> if the support for History API could not be found
-
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid attempting to load the current URL fragment |
-
-**Example**  
-```js
-router.start();
-// starts to listen to URL changes checking them against the routes list, upon start checks
-// the current URL for routes
-
-router.start({ silent: true });
-//starts the router without checking the current URL
-```
-<a name="Router+stop"></a>
-
-### router.stop() ⇒ <code>this</code>
-Stops the router preventing it from handling URL changes.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-<a name="Router+navigate"></a>
-
-### router.navigate(fragment, [options]) ⇒ <code>boolean</code>
-Saves a fragment into the browser history.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| fragment | <code>string</code> |  | a properly URL-encoded fragment to place into the history |
-| [options] | <code>Object</code> |  |  |
-| [options.replace] | <code>boolean</code> | <code>false</code> | whether to change the current item in the history                                    instead of adding a new one |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid checking the fragment for routes |
-
-**Example**  
-```js
-router.navigate('/users');
-// sets the current URL to '/users', pushes it into history, and checks the new URL for routes
-
-router.navigate('/users', { replace: true });
-// replaces the current URL with '/users' and checks it for routes
-
-routes.navigate('/users', { silent: true });
-// does not check the new URL for routes
-```
-<a name="Router+dispose"></a>
-
-### router.dispose([options]) ⇒ <code>this</code>
-Prepares the router to be disposed.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
-
-**Example**  
-```js
-router.dispose();
-// stops the router, removes the routes and event listeners
-```
