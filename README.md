@@ -18,17 +18,16 @@ to architecture as well as similarities in API.
  * Encourages strict implementation of MVC architecture and separation of concerns.
  * Strict control of the life-cycle of its objects through the use of class constructors and `dispose` methods as destructors.
  * And all other features expected from a modern MV* framework:
-   * an event system;
    * one-way data binding and data synchronization;
    * declarative handling of DOM events;
    * non-opinionated approach to the View layer that allows the use of any rendering or templating engine;
-   * simple router that uses Express-style path strings.
+   * simple routing that uses Express-style path strings.
 
 
 ## Installation
 Install it from npm repository:
 ```
-npm install compago --save
+npm i compago
 ```
 
 Import modules as needed:

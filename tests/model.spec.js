@@ -107,13 +107,13 @@ describe('Model', () => {
     it('does not react to deleting non-existing properties', () => {
       model.addEventListener('change', firstSpy);
       delete model.nonexisting;
-      expect(firstSpy.mock.calls.length).toBe(0);
+      expect(firstSpy).not.toHaveBeenCalled();
     });
 
     it('does not react to deleting properties set up with symbols', () => {
       model.addEventListener('change', firstSpy);
       delete model[Symbol.for('c_collection')];
-      expect(firstSpy.mock.calls.length).toBe(0);
+      expect(firstSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -263,7 +263,11 @@ describe('Model', () => {
 
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
-      model.sync = () => Promise.reject(error);
+      Object.defineProperty(model, 'sync', {
+        value: () => Promise.reject(error),
+        enumerable: false,
+        configurable: true,
+      });
       model.addEventListener('error', firstSpy);
       return model.read().catch((err) => {
         expect(firstSpy.mock.calls[0][0].type).toBe('error');

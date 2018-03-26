@@ -45,12 +45,12 @@ class Controller extends Listener() {
     this.tagName = tagName || 'div';
     this.attributes = attributes;
     this.el = this._prepareElement(el);
-    this.handlers = handlers ? this._prepareHandlers(handlers) : undefined;
-    this._handle = this._handle.bind(this);
     if (renderDebounce !== undefined) {
       this.render = this.constructor._handleDebounce(this.render, renderDebounce);
     }
     this.render = this.render.bind(this);
+    this._handle = this._handle.bind(this);
+    this.handlers = handlers ? this._prepareHandlers(handlers) : undefined;
     this._onRegionDispose = this._onRegionDispose.bind(this);
     this._setEventHandlers();
     this._regionSelectors = regions;
@@ -445,14 +445,9 @@ class Controller extends Listener() {
    */
   _onRegionDispose({ detail: { emitter: controller } } = _opt) {
     if (!this._regionControllers) return;
-    const regions = Object.keys(this._regionControllers);
-    for (let i = 0; i < regions.length; i += 1) {
-      const region = regions[i];
-      if (this._regionControllers[region] === controller) {
-        this._regionControllers[region] = undefined;
-        break;
-      }
-    }
+    const regionEntry = Object.entries(this._regionControllers)
+      .find(entry => entry[1] === controller);
+    if (regionEntry) this._regionControllers[regionEntry[0]] = undefined;
   }
 
   /**
@@ -464,15 +459,12 @@ class Controller extends Listener() {
     if (!this._regionControllers) return;
     const regions = this._regionControllers;
     this._regionControllers = undefined;
-    const regionNames = Object.keys(regions);
-    for (let i = 0; i < regionNames.length; i += 1) {
-      const name = regionNames[i];
-      const region = regions[name];
+    Object.values(regions).forEach((region) => {
       if (region instanceof Controller) {
         region.removeEventListener('dispose', this._onRegionDispose);
         region.dispose();
       }
-    }
+    }, this);
   }
 
   /**
@@ -530,7 +522,7 @@ class Controller extends Listener() {
         const name = route.route;
         const detail = { emitter: this, route: name, params, query: queryString, hash };
         this.dispatchEvent(new CustomEvent('route', { detail }));
-        return true;
+        return true; // todo should we allow matching multiple routes?
       }
     }
     return false;
