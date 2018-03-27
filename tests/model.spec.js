@@ -90,6 +90,21 @@ describe('Model', () => {
       })]);
     });
 
+    it('does not react to changing symbols', () => {
+      model.addEventListener('change', firstSpy);
+      model[Symbol.for('m_test')] = 1;
+      expect(firstSpy).not.toHaveBeenCalled();
+      expect(model[Symbol.for('m_test')]).toBe(1);
+    });
+
+    it('does not react to changing non-enumerable properties', () => {
+      model.addEventListener('change', firstSpy);
+      Object.defineProperty(model, 'abc', { value: 1, enumerable: false, writable: true });
+      model.abc = 2;
+      expect(firstSpy).not.toHaveBeenCalled();
+      expect(model.abc).toBe(2);
+    });
+
     it('reacts to deleting properties', () => {
       model.addEventListener('change', firstSpy);
       delete model.answer;
@@ -112,6 +127,12 @@ describe('Model', () => {
     it('does not react to deleting properties set up with symbols', () => {
       model.addEventListener('change', firstSpy);
       delete model[Symbol.for('c_collection')];
+      expect(firstSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not react to deleting non-enumerable properties', () => {
+      model.addEventListener('change', firstSpy);
+      delete model.id;
       expect(firstSpy).not.toHaveBeenCalled();
     });
   });

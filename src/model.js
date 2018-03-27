@@ -333,7 +333,9 @@ class Model extends Listener() {
    * @returns {boolean}
    */
   static _setHandler(target, property, value) {
-    if (typeof property === 'symbol') {
+    // do not track symbols or non-enumerable properties
+    if (typeof property === 'symbol' ||
+      (Reflect.has(target, property) && !target.propertyIsEnumerable(property))) {
       target[property] = value;
       return true;
     }
@@ -355,7 +357,7 @@ class Model extends Listener() {
    */
   static _deleteHandler(target, property) {
     if (!Reflect.has(target, property)) return true;
-    if (typeof property === 'symbol') {
+    if (typeof property === 'symbol' || !target.propertyIsEnumerable(property)) {
       delete target[property];
       return true;
     }
