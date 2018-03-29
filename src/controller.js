@@ -30,22 +30,16 @@ class Controller extends Listener() {
    * @param {Object} [options.handlers] the DOM event handlers for the controller
    * @param {Object} [options.model] the data model used by the controller
    * @param {Object} [options.view] the view or template function used in rendering the controller
-   * @param {number} [options.renderDebounce] time in milliseconds to delay the rendering
    * @param {Object} [options.regions] a hash of regions of the controller
    * @param (Object} [options.routes] a hash of routes
    * @param {string} [options.root]
    */
   constructor(options = _opt) {
-    const { el, tagName, attributes, handlers, model,
-      view, renderDebounce, regions, root, routes } = options;
+    const { el, tagName, attributes, handlers, model, view, regions, routes, root } = options;
     super();
     this.tagName = tagName || 'div';
     this.attributes = attributes;
     this.el = this._prepareElement(el);
-    if (renderDebounce !== undefined) {
-      this.render = this.constructor._handleDebounce(this.render, renderDebounce);
-    }
-    this.render = this.render.bind(this);
     this._handle = this._handle.bind(this);
     this.handlers = handlers ? this._prepareHandlers(handlers) : undefined;
     this._onRegionDispose = this._onRegionDispose.bind(this);
@@ -309,6 +303,26 @@ class Controller extends Listener() {
   }
 
   /**
+   * Ensures that a given function will only be invoked once in a given time interval.
+   *
+   * @param {Function} callback a function
+   * @param {number} wait a time interval in milliseconds
+   * @returns {Function}
+   */
+  static debounce(callback, wait) {
+    let timeout;
+    return function (...args) {
+      const context = this;
+      const later = function () {
+        timeout = undefined;
+        callback.apply(context, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  /**
    * Ensures that the controller has a valid DOM element.
    *
    * @param {string|HTMLElement} element
@@ -377,7 +391,7 @@ class Controller extends Listener() {
       }
       if (typeof callback === 'string') callback = this[callback];
       if (typeof callback !== 'function') return;
-      if (data && ('debounce' in data)) callback = Controller._handleDebounce(callback, data.debounce);
+      if (data && ('debounce' in data)) callback = Controller.debounce(callback, data.debounce);
       if (!handlersMap.has(name)) handlersMap.set(name, []);
       handlersMap.get(name).push((hasSelector || data) ? [callback, selector, data] : callback);
     });
@@ -550,26 +564,6 @@ class Controller extends Listener() {
       }
     }
     return false;
-  }
-
-
-  /**
-   *
-   * @param {Function} callback
-   * @param {number} wait
-   * @returns {Function}
-   */
-  static _handleDebounce(callback, wait) {
-    let timeout;
-    return function (...args) {
-      const context = this;
-      const later = function () {
-        timeout = undefined;
-        callback.apply(context, args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
   }
 
   /**

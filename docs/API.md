@@ -33,13 +33,17 @@ to re-render its View.
 
 * [Controller](#Controller) ⇐ <code>EventTarget</code>
     * [new Controller([options], (Object})](#new_Controller_new)
-    * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
-    * [.delegate([name], [callback], [selector])](#Controller+delegate) ⇒ <code>this</code>
-    * [.undelegate([name], [callback], [selector])](#Controller+undelegate) ⇒ <code>this</code>
-    * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
-    * [.renderRegion(regionElement, [content])](#Controller+renderRegion) ⇒ <code>this</code>
-    * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
-    * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
+    * _instance_
+        * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
+        * [.delegate([name], [callback], [selector])](#Controller+delegate) ⇒ <code>this</code>
+        * [.undelegate([name], [callback], [selector])](#Controller+undelegate) ⇒ <code>this</code>
+        * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
+        * [.renderRegion(regionElement, [content])](#Controller+renderRegion) ⇒ <code>this</code>
+        * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
+        * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
+    * _static_
+        * [.observedAttributes](#Controller.observedAttributes)
+        * [.debounce(callback, wait)](#Controller.debounce) ⇒ <code>function</code>
 
 <a name="new_Controller_new"></a>
 
@@ -54,9 +58,6 @@ to re-render its View.
 | [options.handlers] | <code>Object</code> | the DOM event handlers for the controller |
 | [options.model] | <code>Object</code> | the data model used by the controller |
 | [options.view] | <code>Object</code> | the view or template function used in rendering the controller |
-| [options.renderEvents] | <code>Array</code> | the model events that cause the controller to re-render |
-| [options.renderAttributes] | <code>Array</code> | the attributes of the controller's element                                          that cause it to re-render |
-| [options.renderDebounce] | <code>number</code> | time in milliseconds to delay the rendering |
 | [options.regions] | <code>Object</code> | a hash of regions of the controller |
 | (Object} |  | [options.routes] a hash of routes |
 | [options.root] | <code>string</code> |  |
@@ -212,6 +213,26 @@ and removes all event listeners.
 | [options] | <code>Object</code> |  |  |
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
 | [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model of the controller |
+
+<a name="Controller.observedAttributes"></a>
+
+### Controller.observedAttributes
+A getter that returns an array of attribute names that should be watched for changes.
+Names of the model attributes should start with `:`, to watch for all changes on the model
+use just `:`.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.debounce"></a>
+
+### Controller.debounce(callback, wait) ⇒ <code>function</code>
+Ensures that a given function will only be invoked once in a given time interval.
+
+**Kind**: static method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | <code>function</code> | a function |
+| wait | <code>number</code> | a time interval in milliseconds |
 
 <a name="ModelArray"></a>
 

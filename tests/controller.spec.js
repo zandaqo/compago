@@ -163,17 +163,6 @@ describe('Controller', () => {
       expect(result).toBe(v.el);
       expect(v.view.mock.calls).toEqual([[v]]);
     });
-
-    it('debounces if `renderDebounce` is set', (done) => {
-      const nv = new Controller({ renderDebounce: 10 });
-      nv.view = jest.fn();
-      nv.render();
-      nv.render();
-      setTimeout(() => {
-        expect(nv.view.mock.calls.length).toBe(1);
-        done();
-      }, 50);
-    });
   });
 
   describe('delegate', () => {
@@ -481,6 +470,19 @@ describe('Controller', () => {
     });
   });
 
+  describe('debounce', () => {
+    it('debounces a given function is set', (done) => {
+      const cb = jest.fn();
+      const debounced = Controller.debounce(cb, 20);
+      debounced();
+      debounced();
+      setTimeout(() => {
+        expect(cb.mock.calls.length).toBe(1);
+        done();
+      }, 50);
+    });
+  });
+
   describe('observedAttributes', () => {
     class ObservedController extends Controller {}
 
@@ -580,12 +582,12 @@ describe('Controller', () => {
     });
 
     it('debounces handlers if `debounce` is set', () => {
-      jest.spyOn(Controller, '_handleDebounce');
+      jest.spyOn(Controller, 'debounce');
       v.handlers = v._prepareHandlers({
         'input #name': { bond: 'name', debounce: 1000 },
       });
-      expect(Controller._handleDebounce).toHaveBeenCalled();
-      Controller._handleDebounce.mockRestore();
+      expect(Controller.debounce).toHaveBeenCalled();
+      Controller.debounce.mockRestore();
     });
   });
 });
