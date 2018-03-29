@@ -23,19 +23,9 @@ class Model extends Listener() {
    */
   constructor(attributes = {}, { collection, storage } = _opt) {
     super();
-    Object.defineProperties(this, {
-      [Symbol.for('c_collection')]: {
-        value: collection,
-        enumerable: false,
-        writable: true,
-        configurable: true,
-      },
-      [Symbol.for('c_storage')]: {
-        value: storage,
-        enumerable: false,
-        writable: true,
-        configurable: true,
-      },
+    Model.definePrivate(this, {
+      [Symbol.for('c_collection')]: collection,
+      [Symbol.for('c_storage')]: storage,
     });
     this.set(attributes);
     return this.constructor._getProxy(this, '', this, [this]);
@@ -55,10 +45,7 @@ class Model extends Listener() {
    * //=>{ foo: bar }
    */
   set(attributes = {}) {
-    const keys = Object.keys(this);
-    for (let i = 0; i < keys.length; i += 1) {
-      delete this[keys[i]];
-    }
+    Object.keys(this).forEach(key => delete this[key]);
     Object.assign(this, attributes);
     return this;
   }
@@ -85,17 +72,12 @@ class Model extends Listener() {
    * @returns {Object} the target object
    */
   merge(source, target = this) {
-    const keys = Object.keys(source);
-    for (let i = 0; i < keys.length; i += 1) {
-      const key = keys[i];
+    Object.keys(source).forEach((key) => {
       const current = source[key];
       const existing = target[key];
-      if (typeof existing === 'object' && typeof current === 'object') {
-        target[key] = this.merge(current, existing);
-      } else {
-        target[key] = current;
-      }
-    }
+      target[key] = (typeof existing === 'object' && typeof current === 'object') ?
+        this.merge(current, existing) : target[key] = current;
+    });
     return target;
   }
 
@@ -248,8 +230,7 @@ class Model extends Listener() {
 
   /**
    * Given a hash of property names and their initial values,
-   * sets them up on the given model as non-enumerable and non-configurable properties
-   * defined by Symbols in the global storage, where Symbol keys correspond to givn property names.
+   * sets them up as non-enumerable properties of the model.
    *
    * @param {Model} model the model on which properties are to be set
    * @param {Object} properties a hash of Symbol key names and initial values to be set on the model
@@ -260,15 +241,14 @@ class Model extends Listener() {
    * //=> 1
    */
   static definePrivate(model, properties) {
-    const keys = Object.keys(properties);
-    for (let i = 0; i < keys.length; i += 1) {
-      Object.defineProperty(model, Symbol.for(keys[i]), {
-        value: properties[keys[i]],
-        writable: true,
+    Reflect.ownKeys(properties).forEach((property) => {
+      Object.defineProperty(model, property, {
+        value: properties[property],
         enumerable: false,
-        configurable: false,
+        writable: true,
+        configurable: true,
       });
-    }
+    });
   }
 
   /**
@@ -313,14 +293,12 @@ class Model extends Listener() {
       Model.proxies.set(proxy, handler);
     }
 
-    const keys = Object.keys(target);
-    for (let i = 0; i < keys.length; i += 1) {
-      const key = keys[i];
+    Object.keys(target).forEach((key) => {
       if (typeof target[key] === 'object' && !processed.includes(target[key])) {
         processed.push(target[key]);
         target[key] = this._getProxy(target[key], `${path}:${key}`, model, processed);
       }
-    }
+    });
     return proxy;
   }
 

@@ -469,12 +469,12 @@ describe('Model', () => {
     it('sets up private non-enumerable, non-configurable properties defined by symbols', () => {
       Model.definePrivate(model, {
         model_private_a: 1,
-        model_private_b: 2,
+        [Symbol.for('model_private_b')]: 2,
       });
-      expect(Reflect.has(model, Symbol.for('model_private_a'))).toBe(true);
+      expect(Reflect.has(model, 'model_private_a')).toBe(true);
       expect(Reflect.has(model, Symbol.for('model_private_b'))).toBe(true);
-      expect(model[Symbol.for('model_private_a')]).toBe(1);
-      expect(Reflect.has(Object.assign({}, model), Symbol.for('model_private_a'))).toBe(false);
+      expect(model.model_private_a).toBe(1);
+      expect(Reflect.has(Object.assign({}, model), 'model_private_a')).toBe(false);
       expect(Reflect.has(Object.assign({}, model), Symbol.for('model_private_b'))).toBe(false);
     });
   });

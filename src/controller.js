@@ -464,7 +464,7 @@ class Controller extends Listener() {
         region.removeEventListener('dispose', this._onRegionDispose);
         region.dispose();
       }
-    }, this);
+    });
   }
 
   /**

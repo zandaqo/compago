@@ -781,8 +781,7 @@ The WeakMap holding references to metadata associated with proxies in Model.
 
 ### Model.definePrivate(model, properties) ⇒ <code>void</code>
 Given a hash of property names and their initial values,
-sets them up on the given model as non-enumerable and non-configurable properties
-defined by Symbols in the global storage, where Symbol keys correspond to givn property names.
+sets them up as non-enumerable properties of the model.
 
 **Kind**: static method of [<code>Model</code>](#Model)  
 
