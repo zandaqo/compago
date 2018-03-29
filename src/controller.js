@@ -30,9 +30,6 @@ class Controller extends Listener() {
    * @param {Object} [options.handlers] the DOM event handlers for the controller
    * @param {Object} [options.model] the data model used by the controller
    * @param {Object} [options.view] the view or template function used in rendering the controller
-   * @param {Array} [options.renderEvents] the model events that cause the controller to re-render
-   * @param {Array} [options.renderAttributes] the attributes of the controller's element
-   *                                          that cause it to re-render
    * @param {number} [options.renderDebounce] time in milliseconds to delay the rendering
    * @param {Object} [options.regions] a hash of regions of the controller
    * @param (Object} [options.routes] a hash of routes
@@ -40,7 +37,7 @@ class Controller extends Listener() {
    */
   constructor(options = _opt) {
     const { el, tagName, attributes, handlers, model,
-      view, renderEvents, renderAttributes, renderDebounce, regions, root, routes } = options;
+      view, renderDebounce, regions, root, routes } = options;
     super();
     this.tagName = tagName || 'div';
     this.attributes = attributes;
@@ -56,15 +53,10 @@ class Controller extends Listener() {
     this._regionSelectors = regions;
     this._regionControllers = undefined;
     this._observer = undefined;
-    this._renderEvents = renderEvents;
+    this._modelAttributes = undefined;
     this.model = model;
     this.view = view;
-    if (renderEvents) {
-      renderEvents.forEach(event => this.model.addEventListener(event, this.render));
-    }
-    if (renderAttributes) {
-      this._observeAttributes(renderAttributes);
-    }
+    this._observeAttributes();
 
     if (routes) {
       this._root = root ? (`/${root}`).replace(_reStartingSlash, '/').replace(_reTrailingSlash, '') : '';
@@ -119,7 +111,8 @@ class Controller extends Listener() {
    * // event on the `#button` child element
    */
   delegate(name, callback, selector) {
-    let event = this.handlers && this.handlers.get(name);
+    if (!this.handlers) this.handlers = new Map();
+    let event = this.handlers.get(name);
     let cb = callback;
     this.undelegate(name, cb, selector);
     if (!name || !cb) {
@@ -160,7 +153,7 @@ class Controller extends Listener() {
       this._setEventHandlers(true);
       return this;
     }
-    const handlers = this.handlers.get(name);
+    const handlers = this.handlers && this.handlers.get(name);
     if (!handlers) return this;
     if (!selector) {
       const index = handlers.indexOf(callback);
@@ -297,8 +290,8 @@ class Controller extends Listener() {
   dispose({ silent, save } = _opt) {
     if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     if (!save && this.model && this.model.dispose) this.model.dispose();
-    if (this._renderEvents) {
-      this._renderEvents.forEach(event => this.model.removeEventListener(event, this.render));
+    if (this._modelAttributes) {
+      this.model.removeEventListener('change', this._onModelChange);
     }
     this.model = undefined;
     this.undelegate();
@@ -468,16 +461,47 @@ class Controller extends Listener() {
   }
 
   /**
-   * Sets up a MutationObserver to watch for changes in attributes of the controller.
+   * Sets up a MutationObserver and event listener to watch for changes
+   * in attributes of the controller's element or model.
    *
-   * @param {Array.<String>} attributeFilter the list attributes to watch
    * @returns {void}
    */
-  _observeAttributes(attributeFilter) {
-    this._observer = new MutationObserver(() => {
-      this.render();
-    });
-    this._observer.observe(this.el, { attributes: true, attributeFilter });
+  _observeAttributes() {
+    const attributeFilter = this.constructor.observedAttributes;
+    const modelAttributes = attributeFilter.filter(attribute => attribute.includes(':'));
+    if (modelAttributes.length) {
+      this._modelAttributes = modelAttributes;
+      this._onModelChange = this._onModelChange.bind(this);
+      this.model.addEventListener('change', this._onModelChange);
+    }
+    if (modelAttributes.length < attributeFilter.length) {
+      this._observer = new MutationObserver(({ attributeName, oldValue }) => {
+        this._dispatchAttributesEvent(attributeName, oldValue);
+      });
+      this._observer.observe(this.el, { attributes: true, attributeFilter });
+    }
+  }
+
+  /**
+   *
+   * Handles `change` events of controller's model.
+   *
+   * @returns {void}
+   */
+  _onModelChange({ detail: { path, previous } }) {
+    if (!this._modelAttributes.some(name => path.startsWith(name))) return;
+    this._dispatchAttributesEvent(path, previous);
+  }
+
+  /**
+   * Dispatches `attributes` event.
+   *
+   * @param {string} attribute the attribute name
+   * @param {*} previous the previous value of the attribute
+   * @returns {void}
+   */
+  _dispatchAttributesEvent(attribute, previous) {
+    this.el.dispatchEvent(new CustomEvent('attributes', { detail: { emitter: this, attribute, previous } }));
   }
 
   /**
@@ -522,7 +546,7 @@ class Controller extends Listener() {
         const name = route.route;
         const detail = { emitter: this, route: name, params, query: queryString, hash };
         this.dispatchEvent(new CustomEvent('route', { detail }));
-        return true; // todo should we allow matching multiple routes?
+        return true;
       }
     }
     return false;
@@ -573,5 +597,12 @@ class Controller extends Listener() {
     return params;
   }
 }
+
+/**
+ * A getter that returns an array of attribute names that should be watched for changes.
+ * Names of the model attributes should start with `:`, to watch for all changes on the model
+ * use just `:`.
+ */
+Controller.observedAttributes = [];
 
 export default Controller;

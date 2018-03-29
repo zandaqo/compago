@@ -108,28 +108,6 @@ describe('Controller', () => {
       expect(controller.view).toBe(view);
     });
 
-    it('creates a controller that re-renders in response to specified events on its model', () => {
-      const model = new Model();
-      const renderEvents = ['change'];
-      const controller = new Controller({
-        model,
-        renderEvents,
-      });
-      expect(controller._renderEvents).toBe(renderEvents);
-    });
-
-    it('creates a controller that watches specified attributes on the element for changes', () => {
-      const controller = new Controller({
-        renderAttributes: ['data-id'],
-      });
-      expect(controller._observer instanceof window.MutationObserver).toBe(true);
-      expect(controller._observer.observe).toHaveBeenCalled();
-      jest.spyOn(controller, 'render');
-      controller._observer.callback();
-      expect(controller.render).toHaveBeenCalled();
-      controller.render.mockRestore();
-    });
-
     it('creates a controller with regions', () => {
       const controller = new Controller({
         regions: {
@@ -429,9 +407,11 @@ describe('Controller', () => {
 
   describe('dispose', () => {
     it('prepares the controller to be disposed', () => {
-      v._observeAttributes(['data-id']);
-      v.dispose();
-      expect(v._observer).toBeUndefined();
+      class ObservedController extends Controller {}
+      ObservedController.observedAttributes = ['data-id'];
+      const controller = new ObservedController();
+      controller.dispose();
+      expect(controller._observer).toBeUndefined();
     });
 
     it('removes the controller element from the DOM', () => {
@@ -472,10 +452,12 @@ describe('Controller', () => {
 
     it('removes event listeners from the model', () => {
       const model = new Model();
+      class ObservedController extends Controller {}
+      ObservedController.observedAttributes = [':a'];
       jest.spyOn(model, 'removeEventListener');
-      const controller = new Controller({ model, renderEvents: ['a'] });
+      const controller = new ObservedController({ model });
       controller.dispose();
-      expect(model.removeEventListener).toHaveBeenCalledWith('a', controller.render);
+      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller._onModelChange);
       model.removeEventListener.mockRestore();
     });
 
@@ -496,6 +478,56 @@ describe('Controller', () => {
       v.addEventListener('dispose', v.otherMethod);
       v.dispose({ silent: true });
       expect(v.otherMethod).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('observedAttributes', () => {
+    class ObservedController extends Controller {}
+
+    it('dispatches `attribute` event if observed attributes of a model change', (done) => {
+      const model = new Model();
+      ObservedController.observedAttributes = [':a'];
+      const controller = new ObservedController({
+        model,
+      });
+      jest.spyOn(controller, 'render').mockImplementation(({ detail: { emitter, attribute, previous } }) => {
+        expect(emitter).toBe(controller);
+        expect(attribute).toBe(':a');
+        expect(previous).toBeUndefined();
+        done();
+      });
+      controller.delegate('attributes', controller.render);
+      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
+      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':a', previous: undefined } }));
+    });
+
+    it('dispatches `attribute` event on any model change if `:` attribute is observed', (done) => {
+      const model = new Model();
+      ObservedController.observedAttributes = [':'];
+      const controller = new ObservedController({
+        model,
+      });
+      jest.spyOn(controller, 'render');
+      controller.delegate('attributes', controller.render);
+      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
+      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':a', previous: undefined } }));
+      setTimeout(() => {
+        expect(controller.render.mock.calls.length).toBe(2);
+        done();
+      }, 100);
+    });
+
+    it('dispatches `attribute` event if observed attributes of a controller element change', (done) => {
+      ObservedController.observedAttributes = ['data-id'];
+      const controller = new ObservedController();
+      jest.spyOn(controller, 'render').mockImplementation(({ detail: { emitter, attribute, previous } }) => {
+        expect(emitter).toBe(controller);
+        expect(attribute).toBe('data-id');
+        expect(previous).toBeUndefined();
+        done();
+      });
+      controller.delegate('attributes', controller.render);
+      controller._observer.callback({ attributeName: 'data-id', oldValue: undefined });
     });
   });
 
