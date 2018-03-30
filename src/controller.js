@@ -559,7 +559,7 @@ class Controller extends Listener() {
         const params = this.constructor._extractParameters(route, path);
         const name = route.route;
         const detail = { emitter: this, route: name, params, query: queryString, hash };
-        this.dispatchEvent(new CustomEvent('route', { detail }));
+        this.el.dispatchEvent(new CustomEvent('route', { detail }));
         return true;
       }
     }

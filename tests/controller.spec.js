@@ -375,14 +375,14 @@ describe('Controller', () => {
 
     it('emits `route` event if the url matches a route', () => {
       const callback = jest.fn();
-      controller.addEventListener('route', callback);
+      controller.delegate('route', callback);
       controller.navigate('/about');
       expect(callback).toHaveBeenCalled();
     });
 
     it('sends route parameters with the `route` event', () => {
       const callback = jest.fn();
-      controller.addEventListener('route', callback);
+      controller.delegate('route', callback);
       controller.navigate('/user/arthur');
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({

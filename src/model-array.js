@@ -506,7 +506,7 @@ class ModelArray extends Listener(Array) {
       this._byId[previous] = undefined;
       if (model.id !== undefined) this._byId[model.id] = model;
     }
-    this.dispatchEvent(new CustomEvent(eventName, { detail: { emitter: model, event } }));
+    this.dispatchEvent(new CustomEvent(eventName, { detail: event.detail }));
   }
 
   /**
