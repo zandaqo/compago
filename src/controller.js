@@ -24,24 +24,22 @@ const _reTrailingSlash = /\/+$/g;
 class Controller extends Listener() {
   /**
    * @param {Object} [options]
-   * @param {(HTMLElement|string)} [options.el] the DOM element for the controller
-   * @param {string} [options.tagName] a tag if the controller should create its own DOM element
+   * @param {string} [options.el] a CSS selector for the DOM element of the controller
+   * @param {string} [options.tagName=div] a tag if the controller should create its own DOM element
    * @param {Object} [options.attributes] attributes to apply to the controller's DOM element
    * @param {Object} [options.handlers] the DOM event handlers for the controller
    * @param {Object} [options.model] the data model used by the controller
    * @param {Object} [options.view] the view or template function used in rendering the controller
    * @param {Object} [options.regions] a hash of regions of the controller
-   * @param (Object} [options.routes] a hash of routes
+   * @param {Object} [options.routes] a hash of routes
    * @param {string} [options.root]
    */
   constructor(options = _opt) {
-    const { el, tagName, attributes, handlers, model, view, regions, routes, root } = options;
+    const { el, tagName = 'div', attributes, handlers, model, view, regions, routes, root } = options;
     super();
-    this.tagName = tagName || 'div';
-    this.attributes = attributes;
-    this.el = this._prepareElement(el);
+    this.el = this.constructor._prepareElement(el, tagName, attributes);
     this._handle = this._handle.bind(this);
-    this.handlers = handlers ? this._prepareHandlers(handlers) : undefined;
+    this._handlers = handlers ? this._prepareHandlers(handlers) : undefined;
     this._onRegionDispose = this._onRegionDispose.bind(this);
     this._setEventHandlers();
     this._regionSelectors = regions;
@@ -84,7 +82,7 @@ class Controller extends Listener() {
    * Attaches a handler to an event.
    *
    * If no event or callback is provided, attaches all handlers
-   *    in `this.handlers` to the appropriate events.
+   *    in `this._handlers` to the appropriate events.
    *
    * @param {string} [name] the event name
    * @param {(Function|string)} [callback] the handler function. Can be either a function
@@ -105,8 +103,8 @@ class Controller extends Listener() {
    * // event on the `#button` child element
    */
   delegate(name, callback, selector) {
-    if (!this.handlers) this.handlers = new Map();
-    let event = this.handlers.get(name);
+    if (!this._handlers) this._handlers = new Map();
+    let event = this._handlers.get(name);
     let cb = callback;
     this.undelegate(name, cb, selector);
     if (!name || !cb) {
@@ -116,7 +114,7 @@ class Controller extends Listener() {
     if (typeof cb === 'string') cb = this[cb];
     if (typeof cb !== 'function') return this;
     if (!event) {
-      event = this.handlers.set(name, []).get(name);
+      event = this._handlers.set(name, []).get(name);
       this.el.addEventListener(name, this._handle);
     }
     event.push(selector ? [cb, selector] : cb);
@@ -147,7 +145,7 @@ class Controller extends Listener() {
       this._setEventHandlers(true);
       return this;
     }
-    const handlers = this.handlers && this.handlers.get(name);
+    const handlers = this._handlers && this._handlers.get(name);
     if (!handlers) return this;
     if (!selector) {
       const index = handlers.indexOf(callback);
@@ -160,7 +158,7 @@ class Controller extends Listener() {
       });
     }
     if (!handlers.length) {
-      this.handlers.delete(name);
+      this._handlers.delete(name);
       this.el.removeEventListener(name, this._handle);
     }
     return this;
@@ -323,26 +321,6 @@ class Controller extends Listener() {
   }
 
   /**
-   * Ensures that the controller has a valid DOM element.
-   *
-   * @param {string|HTMLElement} element
-   * @returns {HTMLElement}
-   */
-  _prepareElement(element) {
-    const attributes = this.attributes;
-    let el = element;
-    if (typeof el === 'string') el = document.querySelector(el);
-    if (!el || (el.nodeType !== 1)) el = document.createElement(this.tagName);
-    if (!(attributes)) return el;
-    const names = Object.keys(attributes);
-    for (let i = names.length - 1; i >= 0; i -= 1) {
-      const key = names[i];
-      el.setAttribute(key, attributes[key]);
-    }
-    return el;
-  }
-
-  /**
    * Handles one-way binding between the controller's UI and its model.
    *
    * @param {Event} event
@@ -368,7 +346,7 @@ class Controller extends Listener() {
   }
 
   /**
-   * Pre-processes `this.handlers`.
+   * Pre-processes `this._handlers`.
    *
    * @param {Object} handlers
    * @returns {Map}
@@ -400,14 +378,14 @@ class Controller extends Listener() {
 
   /**
    * The actual event handler attached by the controller to every event it's listening to.
-   * Internally acts as a dispatcher calling appropriate handlers set up in `this.handlers`.
+   * Internally acts as a dispatcher calling appropriate handlers set up in `this._handlers`.
    *
    * @param {Event} event
    * @returns {void}
    */
   _handle(event) {
     const name = event.type.toLowerCase();
-    const handlers = this.handlers && this.handlers.get(name);
+    const handlers = this._handlers && this._handlers.get(name);
     if (!handlers) return;
     for (let i = 0, l = handlers.length; i < l; i += 1) {
       let data;
@@ -435,13 +413,11 @@ class Controller extends Listener() {
    */
   _setEventHandlers(undelegate) {
     const method = undelegate ? 'removeEventListener' : 'addEventListener';
-    const handlers = this.handlers;
+    const handlers = this._handlers;
     const handler = this._handle;
     const el = this.el;
     if (!handlers) return this;
-    handlers.forEach((eventHandlers, eventName) => {
-      el[method](eventName, handler);
-    });
+    handlers.forEach((eventHandlers, eventName) => el[method](eventName, handler));
     return this;
   }
 
@@ -589,6 +565,21 @@ class Controller extends Listener() {
       }
     }
     return params;
+  }
+
+  /**
+   * Ensures that the controller has a valid DOM element.
+   *
+   * @param {string|HTMLElement} element
+   * @param {string} tagName
+   * @param {Object} attributes
+   * @returns {HTMLElement}
+   */
+  static _prepareElement(element, tagName, attributes) {
+    const el = (element && document.querySelector(element)) || document.createElement(tagName);
+    if (!(attributes)) return el;
+    Object.keys(attributes).forEach(name => el.setAttribute(name, attributes[name]));
+    return el;
   }
 }
 

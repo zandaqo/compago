@@ -34,7 +34,7 @@ describe('Controller', () => {
     el.setAttribute('id', 'region');
     v.el.appendChild(el);
     v.someMethod = jest.fn();
-    v.handlers = v._prepareHandlers({
+    v._handlers = v._prepareHandlers({
       click: 'someMethod',
       'click #submit': v.someMethod,
     });
@@ -44,14 +44,6 @@ describe('Controller', () => {
     it('creates a controller instance', () => {
       const controller = new Controller();
       expect(controller instanceof Controller).toBe(true);
-    });
-
-    it('sets controller element', () => {
-      const elem = document.createElement('p');
-      const controller = new Controller({
-        el: elem,
-      });
-      expect(controller.el).toBe(elem);
     });
 
     it('sets controller element from selector', () => {
@@ -86,7 +78,7 @@ describe('Controller', () => {
       jest.spyOn(controller, 'render');
       jest.spyOn(controller, 'navigate');
       // re-init handlers to let jest spy on them
-      controller.handlers = controller._prepareHandlers(handlers);
+      controller._handlers = controller._prepareHandlers(handlers);
       controller.el.click();
       expect(controller.render).toHaveBeenCalled();
       expect(controller.navigate).not.toHaveBeenCalled();
@@ -174,7 +166,7 @@ describe('Controller', () => {
 
     it('attaches a handler for a DOM event', () => {
       v.delegate('mouseover', v.someMethod, '#submit');
-      expect(v.handlers.get('mouseover')[0]).toEqual([v.someMethod, '#submit']);
+      expect(v._handlers.get('mouseover')[0]).toEqual([v.someMethod, '#submit']);
       expect(v.el.addEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
     });
 
@@ -186,7 +178,7 @@ describe('Controller', () => {
 
     it('does not attach a handler if the callback is not a function', () => {
       v.delegate('mouseover', 'nonExistantCallback', '#submit');
-      expect(v.handlers.get('mouseover')).toBe(undefined);
+      expect(v._handlers.get('mouseover')).toBe(undefined);
       expect(v.el.addEventListener).not.toHaveBeenCalled();
     });
 
@@ -214,11 +206,11 @@ describe('Controller', () => {
     it('detaches a specific handler', () => {
       v.delegate('click', v.someMethod);
       v.undelegate('click', v.someMethod);
-      expect(v.handlers.get('click')).toEqual([[v.someMethod, '#submit', undefined]]);
+      expect(v._handlers.get('click')).toEqual([[v.someMethod, '#submit', undefined]]);
 
       v.delegate('mouseover', v.someMethod, '#submit');
       v.undelegate('mouseover', v.someMethod, '#submit');
-      expect(v.handlers.get('mouseover')).toBe(undefined);
+      expect(v._handlers.get('mouseover')).toBe(undefined);
       expect(v.el.removeEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
     });
   });
@@ -546,7 +538,7 @@ describe('Controller', () => {
     });
 
     it('handles one way binding between DOM elements and the model', () => {
-      v.handlers = v._prepareHandlers({
+      v._handlers = v._prepareHandlers({
         'input #name': { bond: 'name' },
       });
       v._handle(event);
@@ -555,7 +547,7 @@ describe('Controller', () => {
 
     it('binds to a nested attribute of the model if `nested:true`', () => {
       v.model = { name: {} };
-      v.handlers = v._prepareHandlers({
+      v._handlers = v._prepareHandlers({
         'input #name': { bond: 'name.first', nested: true },
       });
       v._handle(event);
@@ -563,7 +555,7 @@ describe('Controller', () => {
     });
 
     it('prevents default action if `prevent:true`', () => {
-      v.handlers = v._prepareHandlers({
+      v._handlers = v._prepareHandlers({
         'input #name': { bond: 'name', prevent: true },
       });
       v._handle(event);
@@ -573,7 +565,7 @@ describe('Controller', () => {
 
     it('parses value if parsing function is provided as `parse` option', () => {
       v.parser = parseInt;
-      v.handlers = v._prepareHandlers({
+      v._handlers = v._prepareHandlers({
         'input #name': { bond: 'id', parse: 'parser' },
       });
       input.value = '1';
@@ -583,7 +575,7 @@ describe('Controller', () => {
 
     it('debounces handlers if `debounce` is set', () => {
       jest.spyOn(Controller, 'debounce');
-      v.handlers = v._prepareHandlers({
+      v._handlers = v._prepareHandlers({
         'input #name': { bond: 'name', debounce: 1000 },
       });
       expect(Controller.debounce).toHaveBeenCalled();

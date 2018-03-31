@@ -36,7 +36,7 @@ class RemoteStorage extends Listener() {
    *
    * @param {string} method a method name to execute.
    *                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`.
-   * @param {(Model|Collection|ModelArray)} model a model or a collection to be synchronized
+   * @param {(Model|ModelArray)} model a model or a collection to be synchronized
    * @param {Object} options
    * @param {boolean} [options.silent] whether to avoid firing any events
    * @param {Boolean} [options.patch] whether to send only changed attributes (if present)
@@ -92,8 +92,8 @@ class RemoteStorage extends Listener() {
    * @param {boolean} [options.silent] whether to avoid emitting the `dispose` event.
    * @returns {this}
    */
-  dispose(options = {}) {
-    if (!options.silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
+  dispose({ silent } = _opt) {
+    if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     return this;
   }
 }
