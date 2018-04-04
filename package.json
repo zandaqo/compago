@@ -48,7 +48,8 @@
     ],
     "roots": [
       "<rootDir>/tests"
-    ]
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/tests/setup.js"
   },
   "dependencies": {
     "fast-deep-equal": "^1.1.0",

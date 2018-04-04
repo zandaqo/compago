@@ -1,7 +1,5 @@
 import RemoteStorage from '../src/remote-storage';
 
-EventTarget.prototype._document = document;
-
 class MockResponse {
   constructor(status, headers, body) {
     this.status = status;

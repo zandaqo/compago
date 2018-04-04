@@ -1,8 +1,6 @@
 import Model from '../src/model';
 import ModelArray from '../src/model-array';
 
-EventTarget.prototype._document = document;
-
 describe('ModelArray', () => {
   let c;
   let m1;

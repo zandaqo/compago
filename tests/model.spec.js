@@ -1,7 +1,5 @@
 import Model from '../src/model.js';
 
-EventTarget.prototype._document = document;
-
 describe('Model', () => {
   let model;
   let firstSpy;

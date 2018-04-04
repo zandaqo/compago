@@ -1,17 +1,6 @@
 import Listener from '../src/listener';
 import Controller from '../src/controller';
 
-Element.prototype.closest = function (selector) {
-  let el = this;
-  while (el) {
-    if (el.matches(selector)) {
-      return el;
-    }
-    el = el.parentElement;
-  }
-  return null;
-};
-
 window.MutationObserver = class {
   constructor(callback) {
     this.callback = callback;
@@ -19,8 +8,6 @@ window.MutationObserver = class {
     this.disconnect = jest.fn();
   }
 };
-
-EventTarget.prototype._document = document;
 
 class Model extends Listener() {}
 
