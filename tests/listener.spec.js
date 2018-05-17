@@ -71,6 +71,4 @@ describe('Listener', () => {
       expect(listener[Symbol.for('c_fragment')].dispatchEvent.mock.calls).toEqual([[event]]);
     });
   });
-
-
 });

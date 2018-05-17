@@ -52,16 +52,16 @@
     "setupTestFrameworkScriptFile": "<rootDir>/tests/setup.js"
   },
   "dependencies": {
-    "fast-deep-equal": "^1.1.0",
-    "path-to-regexp": "^2.2.0"
+    "fast-deep-equal": "^2.0.1",
+    "path-to-regexp": "^2.2.1"
   },
   "devDependencies": {
     "babel-jest": "^22.4.3",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "codecov.io": "^0.1.6",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-import": "^2.11.0",
     "jest": "^22.4.3",
     "jsdoc-plugin-false-booleans": "^1.0.0",
     "jsdoc-plugin-named-defaults": "^1.1.1",
