@@ -10,8 +10,6 @@ notifications:
   email: false
 node_js:
   - node
-before_install:
-  - npm i -g npm@^5.0.0
 before_script:
   - npm prune
 script:
