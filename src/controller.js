@@ -1,5 +1,4 @@
 import pathToRegExp from 'path-to-regexp';
-import Listener from './listener';
 
 /** Used to split event names and selectors in handler declaration. */
 const _reSplitEvents = /(\w+)\s+?(.*)/;
@@ -19,9 +18,8 @@ const _reTrailingSlash = /\/+$/g;
  * through DOM events and updates its Model accordingly. It listens to updates on its Model
  * to re-render its View.
  *
- * @extends EventTarget
  */
-class Controller extends Listener() {
+class Controller {
   /**
    * @param {Object} [options]
    * @param {string} [options.el] a CSS selector for the DOM element of the controller
@@ -36,7 +34,6 @@ class Controller extends Listener() {
    */
   constructor(options = _opt) {
     const { el, tagName = 'div', attributes, handlers, model, view, regions, routes, root } = options;
-    super();
     this.el = this.constructor._prepareElement(el, tagName, attributes);
     this._handle = this._handle.bind(this);
     this._handlers = handlers ? this._prepareHandlers(handlers) : undefined;
@@ -79,80 +76,83 @@ class Controller extends Listener() {
   }
 
   /**
-   * Attaches a handler to an event.
-   *
-   * If no event or callback is provided, attaches all handlers
-   *    in `this._handlers` to the appropriate events.
+   * Attaches an event handler to the controller's DOM element.
    *
    * @param {string} [name] the event name
    * @param {(Function|string)} [callback] the handler function. Can be either a function
    *                                      or a name of the controller's method
-   * @param {string} [selector] the CSS selector to handle events on a specific child element
-   * @returns {this}
+   * @param {Object} [options]
+   * @param {string} [options.handler] if true, the handler is managed by controller's event
+   *                                   handling system nd not directly attached to the DOM element.
+   * @param {string} [options.selector] the CSS selector to handle events on a specific child element
+   * @returns {undefined}
    *
    * @example
-   * controller.delegate();
-   * // attaches all event handlers specified in `controller.handlers` to their appropriate events
+   * controller.addEventListener('click', controller.onClick);
+   * // attaches `controller.onClick` as a handler for a `click`
+   * // event on the controller's DOM element directly
    *
-   * controller.delegate('click', controller.onClick);
-   * // attaches `controller.onClick` as handler for any `click`
-   * // event on the controller's DOM element and its children
+   * controller.addEventListener('click', controller.onClick, { handler: true });
+   * // registers `controller.onClick` as a handler for a `click`
+   * //in controller's event handling system
    *
-   * controller.delegate('click', controller.onButtonClick, '#button');
-   * // attaches `controller.onButtonClick` as a handler for the `click`
+   * controller.addEventListener('click', controller.onButtonClick,
+   *                             { handler: true, selector: '#button' });
+   * // registers `controller.onButtonClick` as a handler for a `click`
    * // event on the `#button` child element
    */
-  delegate(name, callback, selector) {
+  addEventListener(name, callback, options = _opt) {
+    const { handler, selector } = options;
+    if (!handler) {
+      this.el.addEventListener(name, callback, options);
+      return;
+    }
+    this.removeEventListener(name, callback, options);
     if (!this._handlers) this._handlers = new Map();
     let event = this._handlers.get(name);
     let cb = callback;
-    this.undelegate(name, cb, selector);
-    if (!name || !cb) {
-      this._setEventHandlers();
-      return this;
-    }
     if (typeof cb === 'string') cb = this[cb];
-    if (typeof cb !== 'function') return this;
+    if (typeof cb !== 'function') return;
     if (!event) {
       event = this._handlers.set(name, []).get(name);
       this.el.addEventListener(name, this._handle);
     }
     event.push(selector ? [cb, selector] : cb);
-    return this;
   }
 
   /**
-   * Detaches event handlers.
+   * Detaches an event handler from the controller's DOM element.
    *
    * @param {string} [name] the event name
    * @param {Function} [callback]  the handler function
-   * @param {string} [selector] the CSS selector
-   * @returns {this}
+   * @param {Object} [options]
+   * @param {string} [options.handler] whether the handler is in the controller's event handling system
+   * @param {string} [options.selector] the CSS selector
+   * @returns {undefined}
    *
    * @example
-   * controller.undelegate();
-   * // detaches all DOM event handlers of the controller
-   *
-   * controller.undelegate('click', controller.onClick);
+   * controller.removeEventListener('click', controller.onClick);
    * // removes `controller.onClick` as a handler for the `click` event
    *
-   * controller.undelegate('click', controller.onButtonClick, '#button');
+   * controller.removeEventListener('click', controller.onButtonClick,
+   *                                { handler: true, selector: '#button'});
    * // removes `controller.onButtonClick` as a handler
-   * // for the `click` events on `#button` child element
+   * // for the `click` events on `#button` child element from the controller's event handling system
    */
-  undelegate(name, callback, selector) {
-    if (!name || !callback) {
-      this._setEventHandlers(true);
-      return this;
+  removeEventListener(name, callback, options = _opt) {
+    const { handler, selector } = options;
+    if (!handler) {
+      this.el.removeEventListener(name, callback, options);
+      return;
     }
     const handlers = this._handlers && this._handlers.get(name);
-    if (!handlers) return this;
+    if (!handlers) return;
     if (!selector) {
       const index = handlers.indexOf(callback);
       if (~index) handlers.splice(index, 1);
     } else {
-      handlers.forEach((handler, i) => {
-        if (Array.isArray(handler) && (callback === handler[0]) && (selector === handler[1])) {
+      handlers.forEach((cb, i) => {
+        if (Array.isArray(cb) && (callback === cb[0]) && (selector === cb[1])) {
           handlers.splice(i, 1);
         }
       });
@@ -161,7 +161,16 @@ class Controller extends Listener() {
       this._handlers.delete(name);
       this.el.removeEventListener(name, this._handle);
     }
-    return this;
+  }
+
+  /**
+   * Dispatches an event.
+   *
+   * @param {Event} event the event object to be dispatched
+   * @returns {undefined}
+   */
+  dispatchEvent(event) {
+    this.el.dispatchEvent(event);
   }
 
   /**
@@ -286,7 +295,7 @@ class Controller extends Listener() {
       this.model.removeEventListener('change', this._onModelChange);
     }
     this.model = undefined;
-    this.undelegate();
+    this._setEventHandlers(true);
     this._disposeRegions();
     if (this._observer) {
       this._observer.disconnect();

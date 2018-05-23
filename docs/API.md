@@ -1,7 +1,7 @@
 ## Classes
 
 <dl>
-<dt><a href="#Controller">Controller</a> ⇐ <code>EventTarget</code></dt>
+<dt><a href="#Controller">Controller</a></dt>
 <dd><p>The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
@@ -22,21 +22,21 @@ through storage controllers and notify subscribers through events when their dat
 
 <a name="Controller"></a>
 
-## Controller ⇐ <code>EventTarget</code>
+## Controller
 The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
 to re-render its View.
 
 **Kind**: global class  
-**Extends**: <code>EventTarget</code>  
 
-* [Controller](#Controller) ⇐ <code>EventTarget</code>
-    * [new Controller([options], (Object})](#new_Controller_new)
+* [Controller](#Controller)
+    * [new Controller([options])](#new_Controller_new)
     * _instance_
         * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
-        * [.delegate([name], [callback], [selector])](#Controller+delegate) ⇒ <code>this</code>
-        * [.undelegate([name], [callback], [selector])](#Controller+undelegate) ⇒ <code>this</code>
+        * [.addEventListener([name], [callback], [options])](#Controller+addEventListener) ⇒ <code>undefined</code>
+        * [.removeEventListener([name], [callback], [options])](#Controller+removeEventListener) ⇒ <code>undefined</code>
+        * [.dispatchEvent(event)](#Controller+dispatchEvent) ⇒ <code>undefined</code>
         * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
         * [.renderRegion(regionElement, [content])](#Controller+renderRegion) ⇒ <code>this</code>
         * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
@@ -47,20 +47,20 @@ to re-render its View.
 
 <a name="new_Controller_new"></a>
 
-### new Controller([options], (Object})
+### new Controller([options])
 
-| Param | Type | Description |
-| --- | --- | --- |
-| [options] | <code>Object</code> |  |
-| [options.el] | <code>HTMLElement</code> \| <code>string</code> | the DOM element for the controller |
-| [options.tagName] | <code>string</code> | a tag if the controller should create its own DOM element |
-| [options.attributes] | <code>Object</code> | attributes to apply to the controller's DOM element |
-| [options.handlers] | <code>Object</code> | the DOM event handlers for the controller |
-| [options.model] | <code>Object</code> | the data model used by the controller |
-| [options.view] | <code>Object</code> | the view or template function used in rendering the controller |
-| [options.regions] | <code>Object</code> | a hash of regions of the controller |
-| (Object} |  | [options.routes] a hash of routes |
-| [options.root] | <code>string</code> |  |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  |  |
+| [options.el] | <code>string</code> |  | a CSS selector for the DOM element of the controller |
+| [options.tagName] | <code>string</code> | <code>&quot;div&quot;</code> | a tag if the controller should create its own DOM element |
+| [options.attributes] | <code>Object</code> |  | attributes to apply to the controller's DOM element |
+| [options.handlers] | <code>Object</code> |  | the DOM event handlers for the controller |
+| [options.model] | <code>Object</code> |  | the data model used by the controller |
+| [options.view] | <code>Object</code> |  | the view or template function used in rendering the controller |
+| [options.regions] | <code>Object</code> |  | a hash of regions of the controller |
+| [options.routes] | <code>Object</code> |  | a hash of routes |
+| [options.root] | <code>string</code> |  |  |
 
 <a name="Controller+render"></a>
 
@@ -72,13 +72,10 @@ and returns the controller's DOM element.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 **Returns**: <code>HTMLElement</code> - the DOM element of the controller  
-<a name="Controller+delegate"></a>
+<a name="Controller+addEventListener"></a>
 
-### controller.delegate([name], [callback], [selector]) ⇒ <code>this</code>
-Attaches a handler to an event.
-
-If no event or callback is provided, attaches all handlers
-   in `this.handlers` to the appropriate events.
+### controller.addEventListener([name], [callback], [options]) ⇒ <code>undefined</code>
+Attaches an event handler to the controller's DOM element.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
@@ -86,25 +83,29 @@ If no event or callback is provided, attaches all handlers
 | --- | --- | --- |
 | [name] | <code>string</code> | the event name |
 | [callback] | <code>function</code> \| <code>string</code> | the handler function. Can be either a function                                      or a name of the controller's method |
-| [selector] | <code>string</code> | the CSS selector to handle events on a specific child element |
+| [options] | <code>Object</code> |  |
+| [options.handler] | <code>string</code> | if true, the handler is managed by controller's event                                   handling system nd not directly attached to the DOM element. |
+| [options.selector] | <code>string</code> | the CSS selector to handle events on a specific child element |
 
 **Example**  
 ```js
-controller.delegate();
-// attaches all event handlers specified in `controller.handlers` to their appropriate events
+controller.addEventListener('click', controller.onClick);
+// attaches `controller.onClick` as a handler for a `click`
+// event on the controller's DOM element directly
 
-controller.delegate('click', controller.onClick);
-// attaches `controller.onClick` as handler for any `click`
-// event on the controller's DOM element and its children
+controller.addEventListener('click', controller.onClick, { handler: true });
+// registers `controller.onClick` as a handler for a `click`
+//in controller's event handling system
 
-controller.delegate('click', controller.onButtonClick, '#button');
-// attaches `controller.onButtonClick` as a handler for the `click`
+controller.addEventListener('click', controller.onButtonClick,
+                            { handler: true, selector: '#button' });
+// registers `controller.onButtonClick` as a handler for a `click`
 // event on the `#button` child element
 ```
-<a name="Controller+undelegate"></a>
+<a name="Controller+removeEventListener"></a>
 
-### controller.undelegate([name], [callback], [selector]) ⇒ <code>this</code>
-Detaches event handlers.
+### controller.removeEventListener([name], [callback], [options]) ⇒ <code>undefined</code>
+Detaches an event handler from the controller's DOM element.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
@@ -112,20 +113,31 @@ Detaches event handlers.
 | --- | --- | --- |
 | [name] | <code>string</code> | the event name |
 | [callback] | <code>function</code> | the handler function |
-| [selector] | <code>string</code> | the CSS selector |
+| [options] | <code>Object</code> |  |
+| [options.handler] | <code>string</code> | whether the handler is in the controller's event handling system |
+| [options.selector] | <code>string</code> | the CSS selector |
 
 **Example**  
 ```js
-controller.undelegate();
-// detaches all DOM event handlers of the controller
-
-controller.undelegate('click', controller.onClick);
+controller.removeEventListener('click', controller.onClick);
 // removes `controller.onClick` as a handler for the `click` event
 
-controller.undelegate('click', controller.onButtonClick, '#button');
+controller.removeEventListener('click', controller.onButtonClick,
+                               { handler: true, selector: '#button'});
 // removes `controller.onButtonClick` as a handler
-// for the `click` events on `#button` child element
+// for the `click` events on `#button` child element from the controller's event handling system
 ```
+<a name="Controller+dispatchEvent"></a>
+
+### controller.dispatchEvent(event) ⇒ <code>undefined</code>
+Dispatches an event.
+
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | <code>Event</code> | the event object to be dispatched |
+
 <a name="Controller+show"></a>
 
 ### controller.show(region, content, [options]) ⇒ <code>this</code>
@@ -854,7 +866,7 @@ The general method for synchronization.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | method | <code>string</code> |  | a method name to execute.                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`. |
-| model | [<code>Model</code>](#Model) \| <code>Collection</code> \| [<code>ModelArray</code>](#ModelArray) |  | a model or a collection to be synchronized |
+| model | [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray) |  | a model or a collection to be synchronized |
 | options | <code>Object</code> |  |  |
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
 | [options.patch] | <code>Boolean</code> |  | whether to send only changed attributes (if present)                                  using the `PATCH` method |

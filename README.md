@@ -15,7 +15,7 @@ to architecture.
  * No support for older browsers including Internet Explorer.
  * No large dependencies such as jQuery, underscore, etc.
  * As a result: small size (5kb) and simple API.
- * No custom event system; all components extend DOM's EventTarget and rely on DOM events for communication.
+ * No custom event system; all components extend [EventTarget](https://medium.com/@zandaqo/eventtarget-the-future-of-javascript-event-systems-205ae32f5e6b) thus relying on DOM events for communication.
  * Encourages strict implementation of MVC architecture and separation of concerns.
  * Strict control of the life-cycle of its objects through the use of class constructors and `dispose` methods as destructors.
  * And all other features expected from a modern MV* framework:

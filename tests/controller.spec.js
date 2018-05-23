@@ -144,61 +144,66 @@ describe('Controller', () => {
     });
   });
 
-  describe('delegate', () => {
+  describe('addEventListener', () => {
     beforeEach(() => {
-      v.undelegate();
+      v._setEventHandlers(true);
       v.el.addEventListener = jest.fn();
       v.el.removeEventListener = jest.fn();
     });
 
+    it('attaches a normal event handler if option `handler` is not present', () => {
+      v.addEventListener('mouseover', v.someMethod);
+      expect(v.el.addEventListener).toHaveBeenCalled();
+      expect(v._handlers.get('mouseover')).toBe(undefined);
+    });
+
     it('attaches a handler for a DOM event', () => {
-      v.delegate('mouseover', v.someMethod, '#submit');
+      v.addEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
       expect(v._handlers.get('mouseover')[0]).toEqual([v.someMethod, '#submit']);
       expect(v.el.addEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
     });
 
     it('does not attach a handler twice for the same event', () => {
-      v.delegate('mouseover', v.someMethod, '#submit');
-      v.delegate('mouseover', 'someMethod');
+      v.addEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
+      v.addEventListener('mouseover', 'someMethod', { handler: true });
       expect(v.el.addEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
     });
 
     it('does not attach a handler if the callback is not a function', () => {
-      v.delegate('mouseover', 'nonExistantCallback', '#submit');
+      v.addEventListener('mouseover', 'nonExistantCallback', { handler: true, selector: '#submit' });
       expect(v._handlers.get('mouseover')).toBe(undefined);
       expect(v.el.addEventListener).not.toHaveBeenCalled();
     });
-
-    it('attaches all handlers', () => {
-      v.delegate();
-      expect(v.el.addEventListener).toHaveBeenCalled();
-      expect(v.el.removeEventListener).toHaveBeenCalled();
-    });
   });
 
-  describe('undelegate', () => {
+  describe('removeEventListener', () => {
     beforeEach(() => {
-      v.undelegate();
+      v._setEventHandlers(true);
       v.el.addEventListener = jest.fn();
       v.el.removeEventListener = jest.fn();
     });
 
-    it('detaches all handlers', () => {
-      v.delegate();
-      v.undelegate();
-      expect(v.el.addEventListener).toHaveBeenCalled();
-      expect(v.el.removeEventListener.mock.calls.length).toBe(2);
+    it('detaches a normal event handler if option `handler` is not present', () => {
+      v.removeEventListener('click', v.someMethod);
+      expect(v.el.removeEventListener).toHaveBeenCalled();
     });
 
     it('detaches a specific handler', () => {
-      v.delegate('click', v.someMethod);
-      v.undelegate('click', v.someMethod);
+      v.removeEventListener('click', v.someMethod, { handler: true });
       expect(v._handlers.get('click')).toEqual([[v.someMethod, '#submit', undefined]]);
 
-      v.delegate('mouseover', v.someMethod, '#submit');
-      v.undelegate('mouseover', v.someMethod, '#submit');
+      v.addEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
+      v.removeEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
       expect(v._handlers.get('mouseover')).toBe(undefined);
       expect(v.el.removeEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
+    });
+  });
+
+  describe('dispatchEvent', () => {
+    it('dispatches a given event from the DOM element of the controller', () => {
+      v.el.dispatchEvent = jest.fn();
+      v.dispatchEvent(new Event('a'));
+      expect(v.el.dispatchEvent).toHaveBeenCalled();
     });
   });
 
@@ -354,14 +359,14 @@ describe('Controller', () => {
 
     it('emits `route` event if the url matches a route', () => {
       const callback = jest.fn();
-      controller.delegate('route', callback);
+      controller.addEventListener('route', callback, { handler: true });
       controller.navigate('/about');
       expect(callback).toHaveBeenCalled();
     });
 
     it('sends route parameters with the `route` event', () => {
       const callback = jest.fn();
-      controller.delegate('route', callback);
+      controller.addEventListener('route', callback, { handler: true });
       controller.navigate('/user/arthur');
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({
@@ -477,7 +482,7 @@ describe('Controller', () => {
         expect(previous).toBeUndefined();
         done();
       });
-      controller.delegate('attributes', controller.render);
+      controller.addEventListener('attributes', controller.render, { handler: true });
       model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
       model.dispatchEvent(new CustomEvent('change', { detail: { path: ':a', previous: undefined } }));
     });
@@ -489,7 +494,7 @@ describe('Controller', () => {
         model,
       });
       jest.spyOn(controller, 'render');
-      controller.delegate('attributes', controller.render);
+      controller.addEventListener('attributes', controller.render, { handler: true });
       model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
       model.dispatchEvent(new CustomEvent('change', { detail: { path: ':a', previous: undefined } }));
       setTimeout(() => {
@@ -507,7 +512,7 @@ describe('Controller', () => {
         expect(previous).toBeUndefined();
         done();
       });
-      controller.delegate('attributes', controller.render);
+      controller.addEventListener('attributes', controller.render, { handler: true });
       controller._observer.callback({ attributeName: 'data-id', oldValue: undefined });
     });
   });
