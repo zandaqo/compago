@@ -63,7 +63,7 @@ class Model extends Listener() {
   }
 
   /**
-   * Merges two objects, if no target object proveded merges given source object to the model's
+   * Merges two objects. If no target object provided, merges given source object to the model's
    * attributes.
    *
    * @param {Object} source the source object to be merged with the target object.

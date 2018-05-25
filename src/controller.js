@@ -57,6 +57,8 @@ class Controller {
         return parsed;
       });
       this._fragment = '';
+      this._location = window.location;
+      this._history = window.history;
       this._onPopstateEvent = this._onPopstateEvent.bind(this);
       window.addEventListener('popstate', this._onPopstateEvent);
     }
@@ -94,7 +96,7 @@ class Controller {
    *
    * controller.addEventListener('click', controller.onClick, { handler: true });
    * // registers `controller.onClick` as a handler for a `click`
-   * //in controller's event handling system
+   * // in controller's event handling system
    *
    * controller.addEventListener('click', controller.onButtonClick,
    *                             { handler: true, selector: '#button' });
@@ -230,7 +232,7 @@ class Controller {
       elements = content.render();
     }
     this._regionControllers = controllers;
-    this.renderRegion(regionElement, elements);
+    this._renderRegion(regionElement, elements);
     return this;
   }
 
@@ -241,7 +243,7 @@ class Controller {
    * @param {HTMLElement} [content] DOM elements to render inside the region
    * @returns {this}
    */
-  renderRegion(regionElement, content) {
+  _renderRegion(regionElement, content) {
     regionElement.innerHTML = '';
     if (content) regionElement.appendChild(content);
     return this;
@@ -271,7 +273,7 @@ class Controller {
     if (this._fragment === path) return false;
     this._fragment = path;
     const url = this._root + path;
-    window.history[replace ? 'replaceState' : 'pushState']({}, document.title, url);
+    this._history[replace ? 'replaceState' : 'pushState']({}, document.title, url);
     if (!silent) this._checkUrl(path);
     return true;
   }
@@ -396,7 +398,7 @@ class Controller {
     const name = event.type.toLowerCase();
     const handlers = this._handlers && this._handlers.get(name);
     if (!handlers) return;
-    for (let i = 0, l = handlers.length; i < l; i += 1) {
+    for (let i = 0; i < handlers.length; i += 1) {
       let data;
       let selector;
       let cb = handlers[i];
@@ -512,8 +514,7 @@ class Controller {
   _getFragment(fragment) {
     if (fragment !== undefined) return fragment.trim();
     const root = this._root;
-    const location = window.location;
-    let newFragment = decodeURIComponent(location.pathname + location.search + location.hash);
+    let newFragment = decodeURIComponent(this._location.pathname);
     if (root && newFragment.startsWith(root)) newFragment = newFragment.slice(root.length);
     return newFragment;
   }
@@ -536,14 +537,14 @@ class Controller {
    */
   _checkUrl(fragment) {
     this._fragment = this._getFragment(fragment);
-    const [pathString, hash] = this._fragment.split('#', 2);
-    const [path, queryString] = pathString.split('?', 2);
     for (let i = 0; i < this._routes.length; i += 1) {
       const route = this._routes[i];
-      if (route.test(path)) {
-        const params = this.constructor._extractParameters(route, path);
+      if (route.test(this._fragment)) {
+        const params = this.constructor._extractParameters(route, this._fragment);
         const name = route.route;
-        const detail = { emitter: this, route: name, params, query: queryString, hash };
+        const hash = decodeURIComponent(this._location.hash);
+        const query = decodeURIComponent(this._location.search);
+        const detail = { emitter: this, route: name, params, query, hash };
         this.el.dispatchEvent(new CustomEvent('route', { detail }));
         return true;
       }

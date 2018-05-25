@@ -38,7 +38,6 @@ to re-render its View.
         * [.removeEventListener([name], [callback], [options])](#Controller+removeEventListener) ⇒ <code>undefined</code>
         * [.dispatchEvent(event)](#Controller+dispatchEvent) ⇒ <code>undefined</code>
         * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
-        * [.renderRegion(regionElement, [content])](#Controller+renderRegion) ⇒ <code>this</code>
         * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
         * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
     * _static_
@@ -95,7 +94,7 @@ controller.addEventListener('click', controller.onClick);
 
 controller.addEventListener('click', controller.onClick, { handler: true });
 // registers `controller.onClick` as a handler for a `click`
-//in controller's event handling system
+// in controller's event handling system
 
 controller.addEventListener('click', controller.onButtonClick,
                             { handler: true, selector: '#button' });
@@ -172,18 +171,6 @@ controller.show('sidebar', otherController, { keep: true });
 controller.show('sidebar', otherController, { keepModel: true });
 // replaces the previous controller without disposing it's model
 ```
-<a name="Controller+renderRegion"></a>
-
-### controller.renderRegion(regionElement, [content]) ⇒ <code>this</code>
-Renders content inside a region.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| regionElement | <code>HTMLElement</code> | the DOM element serving as a container for a region |
-| [content] | <code>HTMLElement</code> | DOM elements to render inside the region |
-
 <a name="Controller+navigate"></a>
 
 ### controller.navigate(fragment, [options]) ⇒ <code>boolean</code>
@@ -678,7 +665,7 @@ Assigns given attributes to the model.
 <a name="Model+merge"></a>
 
 ### model.merge(source, [target]) ⇒ <code>Object</code>
-Merges two objects, if no target object proveded merges given source object to the model's
+Merges two objects. If no target object provided, merges given source object to the model's
 attributes.
 
 **Kind**: instance method of [<code>Model</code>](#Model)  

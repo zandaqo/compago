@@ -289,24 +289,6 @@ describe('Controller', () => {
     });
   });
 
-  describe('renderRegion', () => {
-    it('renders content inside a given region', () => {
-      const controller = new Controller({
-        regions: {
-          region: '#region',
-        },
-      });
-      const regionEl = document.createElement('div');
-      regionEl.setAttribute('id', 'region');
-      controller.el.appendChild(regionEl);
-      regionEl.appendChild(document.createElement('div'));
-      controller.renderRegion(regionEl);
-      expect(regionEl.hasChildNodes()).toBe(false);
-      controller.renderRegion(regionEl, document.createElement('div'));
-      expect(regionEl.hasChildNodes()).toBe(true);
-    });
-  });
-
   describe('navigate', () => {
     let controller;
 
@@ -341,6 +323,21 @@ describe('Controller', () => {
       expect(controller._fragment).toBe('');
       controller.navigate();
       expect(controller._fragment).toEqual('blank');
+    });
+
+    it('handles custom roots while checking the url', () => {
+      controller = new Controller({
+        routes: {
+          user: '/',
+          name: '/:name',
+        },
+        root: '/user',
+      });
+      controller._location = { pathname: '/user', search: '', hash: '' };
+      controller.navigate();
+      expect(controller._fragment).toEqual('');
+      controller.navigate('/abc');
+      expect(controller._fragment).toEqual('/abc');
     });
 
     it('checks the new url against routes unless `silent:true`', () => {
