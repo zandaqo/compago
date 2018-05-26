@@ -101,7 +101,7 @@ class Todo extends Controller {
 In the above example, Controller will attach a single handler `Controller#_handle` to the controller's DOM element to handle `click` events
 and another one to handle `attributes` event that will be emitted if the element's attribute `data-name` changes.
 It will invoke `onClick` whenever a click happens inside the element, and `onSubmit` whenever that click happens on a child element that matches `.submit`
-selector, the second argument (target) supplied to `onSubmit` method will be the matched element. This way you also don't need to bind your handlers to their instances.
+selector, the second argument (target) supplied to `onSubmit` method will be the matched element. Also, this way you don't have to bind your handlers to their instances.
 The attaching or detaching of the event handlers happens only once upon creation or destruction of the controller respectively. You can still add event handlers
 the usual way with `addEventListener` or delegate this entirely to your View engine if it offers such feature.
 
@@ -151,6 +151,7 @@ class Dashboard extends Controller {
     }
   }
 }
+```
 
 In the above example we specify two regions tied to two elements within the Dashboard controller and fill each with controller upon first render of the Dashboard.
 If we call `show` again:
