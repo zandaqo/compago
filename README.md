@@ -4,7 +4,6 @@
 [![David-dm](https://david-dm.org/zandaqo/compago.svg?style=flat-square)](https://david-dm.org/zandaqo/compago)
 [![Travis branch](https://img.shields.io/travis/zandaqo/compago.svg?style=flat-square)](https://travis-ci.org/zandaqo/compago)
 [![Codecov](https://img.shields.io/codecov/c/github/zandaqo/compago.svg?style=flat-square)](https://codecov.io/github/zandaqo/compago)
-[![Code Climate](https://img.shields.io/codeclimate/github/zandaqo/compago.svg?style=flat-square)](https://codeclimate.com/github/zandaqo/compago)
 
 A minimalist MVC framework for building web applications using the power of modern web technologies.
 Compago evolved from [Backbone.js](http://backbonejs.org) with which it shares the general approach 
@@ -36,9 +35,9 @@ and import modules as needed:
 import { Model, Controller } from 'compago';
 ```
 
-### Notes on testing:
-Using Compago with Node.js based testing tools may require some tinkering, since Compago relies on modern DOM
-and uses ECMAScript Modules. To see a fully set up Jest test environment look at [compago-todo](https://github.com/zandaqo/compago-todo).
+#### Notes on testing:
+Using Compago with Node.js based testing tools may require some tinkering since Compago relies on modern DOM
+and uses ECMAScript Modules. To see a fully set up Jest test environment check out [compago-todo](https://github.com/zandaqo/compago-todo).
 
 
 ## Overview
@@ -61,8 +60,36 @@ model.a.b = 1;
 // a CustomEvent "change" emitted with { detail: { emitter: model, path: ':a:b', previous: undefined } }
 ```
 
-Since only enumerable own properties are tracked or serialized for storage, getters, setters, class methods,
+Only enumerable own properties are tracked or serialized for storage, thus, getters, setters, class methods,
 or data properties set to be non-enumerable can be used to implement private properties, computed properties, and so forth.
+To make setting non-enumerable data properties easy, Model offers a helper function [Model.definePrivate](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model.definePrivate).
+Three additional methods, [Model#set](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model+set), [Model#assign](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model+assign),
+and [Model#merge](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model+merge) make it easier to mass-change data properties.
+
+Data synchronization uses [Model#read](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model+read), [Model#write](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model+write),
+and [Model#erase](https://github.com/zandaqo/compago/blob/master/docs/API.md#Model+erase) methods to respectively to update the model with a stored version, to save the model, or to remove it from the storage.
+Internally, all methods serialize and relay Model's data to storage drivers such as [RemoteStorage](https://github.com/zandaqo/compago/blob/master/docs/API.md#remotestorage--eventtarget).
+The RemoteStorage class uses Fetch API to interact with REST servers:
+
+```
+const todoRestStorage = new RemoteStorage({ url: 'http://example.com/todos' });
+
+const model = new Model({}, {
+  storage: todoRestStorage
+});
+await model.write();
+// sends POST request to http://example.com/todos with serialized data to create a new model on the server
+
+model.a = 1;
+await model.write();
+// updates the stored model with the current model sending a PUT request
+
+await model.read();
+// updates the current model from the storage
+
+await model.erase();
+// removes the model from the storage
+```
 
 ### Controller
 Controllers handle user interactions and glue together Models and Views. The current Controller class is written with CustomElements in mind to one day seamlessly integrate with them.
