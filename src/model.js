@@ -232,13 +232,16 @@ class Model extends Listener() {
    * Given a hash of property names and their initial values,
    * sets them up as non-enumerable properties of the model.
    *
-   * @param {Model} model the model on which properties are to be set
+   * @param {Object} model the model on which properties are to be set
    * @param {Object} properties a hash of Symbol key names and initial values to be set on the model
    * @returns {void}
    * @example
-   * Model.definePrivate(model, { private_key: 1 });
-   * model[Symbol.for('private_key')]
+   * const model = new Model();
+   * Model.definePrivate(model, { _privateKey: 1 });
+   * model._privateKey
    * //=> 1
+   * Object.keys(model)
+   * //=> []
    */
   static definePrivate(model, properties) {
     Reflect.ownKeys(properties).forEach((property) => {
@@ -277,20 +280,22 @@ class Model extends Listener() {
    */
   static _getProxy(target, path, model, processed) {
     let proxy;
-    let handler = Model.proxies.get(target);
-    if (handler) {
+    // if the target already has a proxy
+    if (target[Symbol.for('c_model')]) {
       proxy = target;
-      handler.path = path;
-      handler.model = model;
+      proxy[Symbol.for('c_model')] = model;
+      proxy[Symbol.for('c_path')] = path;
     } else {
-      handler = { path, model, set: this._setHandler, deleteProperty: this._deleteHandler };
+      const handler = target === model ? this.proxyModelHandler : this.proxyHandler;
       proxy = new Proxy(target, handler);
+      this.definePrivate(proxy, {
+        [Symbol.for('c_model')]: model,
+        [Symbol.for('c_path')]: path,
+      });
       if (target === model) {
-        handler.model = proxy;
-        handler.get = this._getHandler;
+        target[Symbol.for('c_model')] = proxy;
         model = proxy;
       }
-      Model.proxies.set(proxy, handler);
     }
 
     Object.keys(target).forEach((key) => {
@@ -301,66 +306,6 @@ class Model extends Listener() {
     });
     return proxy;
   }
-
-  /**
-   * Set operation trap for proxies on Model
-   *
-   * @param {*} target
-   * @param {string} property
-   * @param {*} value
-   * @returns {boolean}
-   */
-  static _setHandler(target, property, value) {
-    // do not track symbols or non-enumerable properties
-    if (typeof property === 'symbol' ||
-      (Reflect.has(target, property) && !target.propertyIsEnumerable(property))) {
-      target[property] = value;
-      return true;
-    }
-    if (isEqual(target[property], value)) return true;
-    const { path, model } = this;
-    const previous = target[property];
-    target[property] = typeof value === 'object' ?
-      Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
-    Model._emitChanges(model, path, property, previous);
-    return true;
-  }
-
-  /**
-   * `delete` operation trap for proxies on Model
-   *
-   * @param {*} target
-   * @param {string} property
-   * @returns {boolean}
-   */
-  static _deleteHandler(target, property) {
-    if (!Reflect.has(target, property)) return true;
-    if (typeof property === 'symbol' || !target.propertyIsEnumerable(property)) {
-      delete target[property];
-      return true;
-    }
-    const { path, model } = this;
-    const previous = target[property];
-    delete target[property];
-    Model._emitChanges(model, path, property, previous);
-    return true;
-  }
-
-  /**
-   * `get` operation trap for the main proxy of a model.
-   *
-   * @param {*} target
-   * @param {string} property
-   * @returns {*}
-   */
-  static _getHandler(target, property) {
-    if (_eventMethods.includes(property)) {
-      return function (...args) {
-        return Reflect.apply(target[property], target, args);
-      };
-    }
-    return target[property];
-  }
 }
 
 /**
@@ -369,10 +314,70 @@ class Model extends Listener() {
  */
 Model.idAttribute = '_id';
 
-/**
- * The WeakMap holding references to metadata associated with proxies in Model.
- * @type {WeakMap}
- */
-Model.proxies = new WeakMap();
+Model.proxyHandler = {
+  /**
+   * Set operation trap for proxies on Model
+   *
+   * @param {*} target
+   * @param {string} property
+   * @param {*} value
+   * @returns {boolean}
+   */
+  set(target, property, value) {
+    // do not track symbols or non-enumerable properties
+    if (typeof property === 'symbol' ||
+      (Reflect.has(target, property) && !target.propertyIsEnumerable(property))) {
+      target[property] = value;
+      return true;
+    }
+    if (isEqual(target[property], value)) return true;
+    const path = target[Symbol.for('c_path')];
+    const model = target[Symbol.for('c_model')];
+    const previous = target[property];
+    target[property] = typeof value === 'object' ?
+      Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
+    Model._emitChanges(model, path, property, previous);
+    return true;
+  },
+
+  /**
+   * `delete` operation trap for proxies on Model
+   *
+   * @param {*} target
+   * @param {string} property
+   * @returns {boolean}
+   */
+  deleteProperty(target, property) {
+    if (!Reflect.has(target, property)) return true;
+    if (typeof property === 'symbol' || !target.propertyIsEnumerable(property)) {
+      delete target[property];
+      return true;
+    }
+    const path = target[Symbol.for('c_path')];
+    const model = target[Symbol.for('c_model')];
+    const previous = target[property];
+    delete target[property];
+    Model._emitChanges(model, path, property, previous);
+    return true;
+  },
+};
+
+Model.proxyModelHandler = Object.assign({
+  /**
+   * `get` operation trap for the main proxy of a model.
+   *
+   * @param {*} target
+   * @param {string} property
+   * @returns {*}
+   */
+  get(target, property) {
+    if (_eventMethods.includes(property)) {
+      return function (...args) {
+        return Reflect.apply(target[property], target, args);
+      };
+    }
+    return target[property];
+  },
+}, Model.proxyHandler);
 
 export default Model;

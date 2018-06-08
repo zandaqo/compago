@@ -68,7 +68,7 @@ describe('Model', () => {
       const ab = { a: 1, b: 2 };
       ab.c = ab;
       model.first = ab;
-      expect(model.constructor.proxies.get(model.first).path).toEqual(':first');
+      expect(ab[Symbol.for('c_path')]).toEqual(':first');
     });
 
     it('handles moving attributes within model', () => {
