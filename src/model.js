@@ -75,8 +75,8 @@ class Model extends Listener() {
     Object.keys(source).forEach((key) => {
       const current = source[key];
       const existing = target[key];
-      target[key] = (typeof existing === 'object' && typeof current === 'object') ?
-        this.merge(current, existing) : target[key] = current;
+      target[key] = (typeof existing === 'object' && typeof current === 'object')
+        ? this.merge(current, existing) : target[key] = current;
     });
     return target;
   }
@@ -206,8 +206,8 @@ class Model extends Listener() {
    * @returns {Promise}
    */
   sync(method, options) {
-    const storage = (this[Symbol.for('c_collection')] && this[Symbol.for('c_collection')].storage) ?
-      this[Symbol.for('c_collection')].storage : this[Symbol.for('c_storage')];
+    const storage = (this[Symbol.for('c_collection')] && this[Symbol.for('c_collection')].storage)
+      ? this[Symbol.for('c_collection')].storage : this[Symbol.for('c_storage')];
     if (storage) return storage.sync(method, this, options);
     return Promise.reject(new Error('Storage is not defined.'));
   }
@@ -276,7 +276,7 @@ class Model extends Listener() {
    * @param {string} path the string path to the object in Model
    * @param {Object} model the model to which the proxy should belong
    * @param {Array} processed an array of already processed objects
-   * @returns {Proxy} a new Proxy object
+   * @returns {Object} a new Proxy object
    */
   static _getProxy(target, path, model, processed) {
     let proxy;
@@ -325,8 +325,8 @@ Model.proxyHandler = {
    */
   set(target, property, value) {
     // do not track symbols or non-enumerable properties
-    if (typeof property === 'symbol' ||
-      (Reflect.has(target, property) && !target.propertyIsEnumerable(property))) {
+    if (typeof property === 'symbol'
+      || (Reflect.has(target, property) && !target.propertyIsEnumerable(property))) {
       target[property] = value;
       return true;
     }
@@ -334,8 +334,8 @@ Model.proxyHandler = {
     const path = target[Symbol.for('c_path')];
     const model = target[Symbol.for('c_model')];
     const previous = target[property];
-    target[property] = typeof value === 'object' ?
-      Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
+    target[property] = typeof value === 'object'
+      ? Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
     Model._emitChanges(model, path, property, previous);
     return true;
   },

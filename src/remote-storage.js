@@ -47,9 +47,11 @@ class RemoteStorage extends Listener() {
    *                                to use as the `init` parameter in calls to the global fetch()
    * @returns {Promise}
    */
-  sync(method, model, { silent, patch, url = this.url, init = this.init } = _opt) {
+  sync(method, model, {
+    silent, patch, url = this.url, init = this.init,
+  } = _opt) {
     const options = Object.assign({}, init);
-    const methods = this.constructor.methods;
+    const { methods } = this.constructor;
     options.method = methods[method];
     if (!options.method) return Promise.reject(new Error('Method is not found.'));
 
@@ -70,7 +72,13 @@ class RemoteStorage extends Listener() {
 
     return fetch(url, options)
       .then((response) => {
-        if (!silent) this.dispatchEvent(new CustomEvent('response', { detail: { emitter: this, model, options, response } }));
+        if (!silent) {
+          this.dispatchEvent(new CustomEvent('response', {
+            detail: {
+              emitter: this, model, options, response,
+            },
+          }));
+        }
         if (response.ok || response.status === 304) {
           const contentType = response.headers.get('content-type');
           if (contentType && ~contentType.indexOf('application/json')) return response.json();

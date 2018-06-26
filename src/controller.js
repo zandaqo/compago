@@ -33,7 +33,9 @@ class Controller {
    * @param {string} [options.root]
    */
   constructor(options = _opt) {
-    const { el, tagName = 'div', attributes, handlers, model, view, regions, routes, root } = options;
+    const {
+      el, tagName = 'div', attributes, handlers, model, view, regions, routes, root,
+    } = options;
     this.el = this.constructor._prepareElement(el, tagName, attributes);
     this._handle = this._handle.bind(this);
     this._handlers = handlers ? this._prepareHandlers(handlers) : undefined;
@@ -86,7 +88,8 @@ class Controller {
    * @param {Object} [options]
    * @param {string} [options.handler] if true, the handler is managed by controller's event
    *                                   handling system nd not directly attached to the DOM element.
-   * @param {string} [options.selector] the CSS selector to handle events on a specific child element
+   * @param {string} [options.selector] the CSS selector to handle events
+   *                                    on a specific child element
    * @returns {undefined}
    *
    * @example
@@ -128,7 +131,8 @@ class Controller {
    * @param {string} [name] the event name
    * @param {Function} [callback]  the handler function
    * @param {Object} [options]
-   * @param {string} [options.handler] whether the handler is in the controller's event handling system
+   * @param {string} [options.handler] whether the handler is in
+   *                                   the controller's event handling system
    * @param {string} [options.selector] the CSS selector
    * @returns {undefined}
    *
@@ -139,7 +143,8 @@ class Controller {
    * controller.removeEventListener('click', controller.onButtonClick,
    *                                { handler: true, selector: '#button'});
    * // removes `controller.onButtonClick` as a handler
-   * // for the `click` events on `#button` child element from the controller's event handling system
+   * // for the `click` events on `#button` child element
+   * // from the controller's event handling system
    */
   removeEventListener(name, callback, options = _opt) {
     const { handler, selector } = options;
@@ -213,7 +218,11 @@ class Controller {
     if (!silent) {
       this.dispatchEvent(new CustomEvent(
         'show',
-        { detail: { emitter: this, region, content, keep, keepModel } },
+        {
+          detail: {
+            emitter: this, region, content, keep, keepModel,
+          },
+        },
       ));
     }
 
@@ -340,11 +349,13 @@ class Controller {
    * @returns {void}
    */
   _handleBond(event, target, data) {
-    const { value = 'value', bond, parse, nested = false, prevent } = data;
+    const {
+      value = 'value', bond, parse, nested = false, prevent,
+    } = data;
     if (prevent) event.preventDefault();
     const path = bond !== true ? bond : target.getAttribute('data-bond');
     const content = typeof parse === 'function' ? parse(target[value]) : target[value];
-    let model = this.model;
+    let { model } = this;
     let field = path;
     if (nested) {
       const chunks = path.split('.');
@@ -426,9 +437,8 @@ class Controller {
     const method = undelegate ? 'removeEventListener' : 'addEventListener';
     const handlers = this._handlers;
     const handler = this._handle;
-    const el = this.el;
     if (!handlers) return this;
-    handlers.forEach((eventHandlers, eventName) => el[method](eventName, handler));
+    handlers.forEach((eventHandlers, eventName) => this.el[method](eventName, handler), this);
     return this;
   }
 
@@ -544,7 +554,9 @@ class Controller {
         const name = route.route;
         const hash = decodeURIComponent(this._location.hash);
         const query = decodeURIComponent(this._location.search);
-        const detail = { emitter: this, route: name, params, query, hash };
+        const detail = {
+          emitter: this, route: name, params, query, hash,
+        };
         this.el.dispatchEvent(new CustomEvent('route', { detail }));
         return true;
       }
@@ -563,7 +575,7 @@ class Controller {
     const matches = route.exec(path);
     const params = {};
     if (matches.length < 2) return params;
-    const keys = route.keys;
+    const { keys } = route;
     let n = 0;
     for (let i = 1; i < matches.length; i += 1) {
       const key = keys[i - 1];

@@ -65,7 +65,9 @@ class ModelArray extends Listener(Array) {
    * // avoids sorting the resulting list of models
    */
   set(models = [], options = {}) {
-    const { keep, at, silent, unsorted } = options;
+    const {
+      keep, at, silent, unsorted,
+    } = options;
 
     const sortable = this.comparator && (!Number.isInteger(at)) && !unsorted;
     const parseResults = this._parseModels(models, options, sortable);
@@ -96,7 +98,11 @@ class ModelArray extends Listener(Array) {
 
     let currentAt = at;
     for (let i = 0; i < toAdd.length; i += 1) {
-      toAdd[i].dispatchEvent(new CustomEvent('add', { detail: { emitter: toAdd[i], at: currentAt, sort, collection: this } }));
+      toAdd[i].dispatchEvent(new CustomEvent('add', {
+        detail: {
+          emitter: toAdd[i], at: currentAt, sort, collection: this,
+        },
+      }));
       if (Number.isInteger(at)) currentAt += 1;
     }
 
@@ -131,7 +137,11 @@ class ModelArray extends Listener(Array) {
       super.splice(index, 1);
       hasChanged = true;
       if (!silent) {
-        model.dispatchEvent(new CustomEvent('remove', { detail: { emitter: model, index, collection: this, save } }));
+        model.dispatchEvent(new CustomEvent('remove', {
+          detail: {
+            emitter: model, index, collection: this, save,
+          },
+        }));
       }
       this._removeReference(model);
       if (!save) model.dispose();
@@ -153,7 +163,6 @@ class ModelArray extends Listener(Array) {
    * // adds model to the end of the array
    */
   push(models, options = {}) {
-    // options.at = this.length;
     options.keep = true;
     options.skip = true;
     return this.set(models, options);
@@ -455,8 +464,8 @@ class ModelArray extends Listener(Array) {
     for (let i = 0; i < attrsArray.length; i += 1) {
       const attrs = attrsArray[i];
       const isModel = (attrs instanceof this.Model);
-      const existing = isModel ? this[this.indexOf(attrs)] :
-        this.get(attrs[this.Model.idAttribute]);
+      const existing = isModel ? this[this.indexOf(attrs)]
+        : this.get(attrs[this.Model.idAttribute]);
 
       if (existing) {
         if (!keep) modelSet.add(existing);
@@ -496,7 +505,11 @@ class ModelArray extends Listener(Array) {
    * @returns {void}
    */
   _onModelEvent(event) {
-    const { type: eventName, detail: { emitter: model, collection, previous, path } } = event;
+    const {
+      type: eventName, detail: {
+        emitter: model, collection, previous, path,
+      },
+    } = event;
     if ((eventName === 'add' || eventName === 'remove') && collection !== this) return;
     if (eventName === 'dispose') {
       this.unset(model, { save: true });
