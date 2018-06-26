@@ -7,4 +7,6 @@ tests
 .npmignore
 .codeclimate.yml
 .eslintrc.yml
+.jsdoc2md.json
+.travis.yml
 jsdoc.json
