@@ -299,7 +299,7 @@ class Model extends Listener() {
     }
 
     Object.keys(target).forEach((key) => {
-      if (typeof target[key] === 'object' && !processed.includes(target[key])) {
+      if (typeof target[key] === 'object' && target[key] !== null && !processed.includes(target[key])) {
         processed.push(target[key]);
         target[key] = this._getProxy(target[key], `${path}:${key}`, model, processed);
       }
@@ -334,7 +334,7 @@ Model.proxyHandler = {
     const path = target[Symbol.for('c_path')];
     const model = target[Symbol.for('c_model')];
     const previous = target[property];
-    target[property] = typeof value === 'object'
+    target[property] = (typeof value === 'object' && value !== null)
       ? Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
     Model._emitChanges(model, path, property, previous);
     return true;

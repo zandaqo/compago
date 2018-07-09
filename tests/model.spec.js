@@ -51,14 +51,14 @@ describe('Model', () => {
     });
 
     it('reacts to changes on nested arrays', () => {
-      model.second = { third: [] };
+      model.second = { third: [null] };
       model.addEventListener('change', firstSpy);
       model.second.third.push(1);
       expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
         type: 'change',
         detail: {
           emitter: model,
-          path: ':second:third:0',
+          path: ':second:third:1',
           previous: undefined,
         },
       })]]);
