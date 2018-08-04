@@ -283,7 +283,7 @@ class Controller {
     this._fragment = path;
     const url = this._root + path;
     this._history[replace ? 'replaceState' : 'pushState']({}, document.title, url);
-    if (!silent) this._checkUrl(path);
+    if (!silent) this._checkUrl();
     return true;
   }
 
@@ -540,13 +540,12 @@ class Controller {
   }
 
   /**
-   * Checks the fragment against routes and emits `route` events if an appropriate route is found.
+   * Checks the current url against routes and emits `route` events if an appropriate route is found.
    *
-   * @param {string} [fragment]
    * @returns {boolean}
    */
-  _checkUrl(fragment) {
-    this._fragment = this._getFragment(fragment);
+  _checkUrl() {
+    this._fragment = this._getFragment();
     for (let i = 0; i < this._routes.length; i += 1) {
       const route = this._routes[i];
       if (route.test(this._fragment)) {

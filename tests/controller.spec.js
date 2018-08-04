@@ -291,6 +291,15 @@ describe('Controller', () => {
 
   describe('navigate', () => {
     let controller;
+    const historyState = (state, title, url) => {
+      const [path, params] = url.split('?');
+      const [search, hash] = params ? params.split('#') : ['', ''];
+      controller._location = {
+        pathname: path,
+        search: search ? `?${search}` : '',
+        hash: hash ? `#${hash}` : '',
+      };
+    };
 
     beforeEach(() => {
       controller = new Controller({
@@ -300,40 +309,35 @@ describe('Controller', () => {
           user: '/user/:name',
         },
       });
-      jest.spyOn(window.history, 'replaceState').mockImplementation(() => true);
-      jest.spyOn(window.history, 'pushState').mockImplementation(() => true);
-    });
-
-    afterEach(() => {
-      window.history.replaceState.mockRestore();
-      window.history.pushState.mockRestore();
+      controller._location = {};
+      controller._history = {
+        pushState: jest.fn(historyState),
+        replaceState: jest.fn(historyState),
+      };
     });
 
     it('saves a url into browser history', () => {
       controller.navigate('/path');
-      expect(window.history.pushState).toHaveBeenCalled();
+      expect(controller._history.pushState).toHaveBeenCalled();
     });
 
     it('replaces the current url if `replace:true`', () => {
       controller.navigate('/path', { replace: true });
-      expect(window.history.replaceState).toHaveBeenCalled();
+      expect(controller._history.replaceState).toHaveBeenCalled();
     });
 
     it('checks the current url if no new url provided', () => {
       expect(controller._fragment).toBe('');
+      controller._location = {
+        pathname: '/foo',
+      };
       controller.navigate();
-      expect(controller._fragment).toEqual('blank');
+      expect(controller._fragment).toEqual('/foo');
     });
 
     it('handles custom roots while checking the url', () => {
-      controller = new Controller({
-        routes: {
-          user: '/',
-          name: '/:name',
-        },
-        root: '/user',
-      });
-      controller._location = { pathname: '/user', search: '', hash: '' };
+      controller._root = '/user';
+      controller._location.pathname = '/user';
       controller.navigate();
       expect(controller._fragment).toEqual('');
       controller.navigate('/abc');
@@ -349,9 +353,9 @@ describe('Controller', () => {
     });
 
     it('does not update history if the url is unchanged', () => {
-      controller.navigate('/path');
-      controller.navigate('/path');
-      expect(window.history.pushState).toHaveBeenCalledTimes(1);
+      controller.navigate('/about');
+      controller.navigate('/about');
+      expect(controller._history.pushState).toHaveBeenCalledTimes(1);
     });
 
     it('emits `route` event if the url matches a route', () => {
@@ -371,6 +375,21 @@ describe('Controller', () => {
         params: {
           name: 'arthur',
         },
+      });
+    });
+
+    it('sends query and hash parameters with the `route` event', () => {
+      const callback = jest.fn();
+      controller.addEventListener('route', callback, { handler: true });
+      controller.navigate('/user/arthur?a=b#c');
+      expect(callback).toHaveBeenCalled();
+      expect(callback.mock.calls[0][0].detail).toMatchObject({
+        route: 'user',
+        params: {
+          name: 'arthur',
+        },
+        query: '?a=b',
+        hash: '#c',
       });
     });
   });
