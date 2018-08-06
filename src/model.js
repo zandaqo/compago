@@ -8,6 +8,13 @@ const _opt = Object.seal(Object.create(null));
 const _eventMethods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
 
 /**
+ * Checks if value is a non-null object.
+ * @param {*} value
+ * @returns {boolean}
+ */
+const _isObject = value => typeof value === 'object' && value !== null;
+
+/**
  * The Model in MVC.
  * It manages data and business logic. Models handle synchronization with a persistence layer
  * through storage controllers and notify subscribers through events when their data is changed.
@@ -75,7 +82,7 @@ class Model extends Listener() {
     Object.keys(source).forEach((key) => {
       const current = source[key];
       const existing = target[key];
-      target[key] = (typeof existing === 'object' && typeof current === 'object')
+      target[key] = (_isObject(existing) && _isObject(current))
         ? this.merge(current, existing) : target[key] = current;
     });
     return target;
@@ -159,7 +166,7 @@ class Model extends Listener() {
   write(options = _opt) {
     return this.sync('write', options)
       .then((response) => {
-        if ((typeof response === 'object') && !options.skip) {
+        if (_isObject(response) && !options.skip) {
           const method = options.method in this ? options.method : 'assign';
           this[method](response);
         }
@@ -299,7 +306,7 @@ class Model extends Listener() {
     }
 
     Object.keys(target).forEach((key) => {
-      if (typeof target[key] === 'object' && target[key] !== null && !processed.includes(target[key])) {
+      if (_isObject(target[key]) && !processed.includes(target[key])) {
         processed.push(target[key]);
         target[key] = this._getProxy(target[key], `${path}:${key}`, model, processed);
       }
@@ -334,8 +341,7 @@ Model.proxyHandler = {
     const path = target[Symbol.for('c_path')];
     const model = target[Symbol.for('c_model')];
     const previous = target[property];
-    target[property] = (typeof value === 'object' && value !== null)
-      ? Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
+    target[property] = _isObject(value) ? Model._getProxy(value, `${path}:${property}`, model, [value]) : value;
     Model._emitChanges(model, path, property, previous);
     return true;
   },
