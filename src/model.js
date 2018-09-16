@@ -12,7 +12,9 @@ const _eventMethods = ['addEventListener', 'dispatchEvent', 'removeEventListener
  * @param {*} value
  * @returns {boolean}
  */
-const _isObject = value => typeof value === 'object' && value !== null;
+const _isObject = value => typeof value === 'object' && value !== null
+  && (Object.prototype.toString.call(value) === '[object Object]'
+    || Object.prototype.toString.call(value) === '[object Array]');
 
 /**
  * The Model in MVC.

@@ -88,6 +88,24 @@ describe('Model', () => {
       })]);
     });
 
+    it('allows usage of any data', () => {
+      model.a = new RegExp();
+      model.addEventListener('change', firstSpy);
+      model.a = new RegExp('abc');
+      expect(firstSpy).toHaveBeenCalled();
+    });
+
+    it('does not react to changes in instances of built classes that are not Object or Array', () => {
+      model.a = new Set();
+      model.b = new Map();
+      model.addEventListener('change', firstSpy);
+      model.a.add(1);
+      model.b.set(1, 1);
+      expect(model.a.has(1)).toBe(true);
+      expect(model.b.has(1)).toBe(true);
+      expect(firstSpy).not.toHaveBeenCalled();
+    });
+
     it('does not react to changing symbols', () => {
       model.addEventListener('change', firstSpy);
       model[Symbol.for('m_test')] = 1;
