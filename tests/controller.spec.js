@@ -116,12 +116,12 @@ describe('Controller', () => {
       const controller = new Controller({
         root,
         routes: {
-          user: '/user/:username',
-          category: '/category/:categoryname',
+          user: /^\/user\/(?<username>[^/]+)$/,
+          category: /^\/category\/(?<categoryname>[^/]+)$/,
         },
       });
       expect(controller._root).toBe(root);
-      expect(controller._routes.length).toBe(2);
+      expect(controller.routes).toBeDefined();
     });
 
     it('reacts to `popstate` events in a controller with a router', () => {
@@ -304,9 +304,9 @@ describe('Controller', () => {
     beforeEach(() => {
       controller = new Controller({
         routes: {
-          home: '/',
-          about: '/about',
-          user: '/user/:name',
+          home: /^\/$/,
+          about: /^\/about$/,
+          user: /^\/user\/(?<name>[^/]+)$/,
         },
       });
       controller._location = {};

@@ -1,5 +1,3 @@
-import pathToRegExp from 'path-to-regexp';
-
 /** Used to split event names and selectors in handler declaration. */
 const _reSplitEvents = /(\w+)\s+?(.*)/;
 
@@ -50,14 +48,8 @@ class Controller {
     this._observeAttributes();
 
     if (routes) {
+      this.routes = routes;
       this._root = root ? (`/${root}`).replace(_reStartingSlash, '/').replace(_reTrailingSlash, '') : '';
-      this._routes = Object.entries(routes).map((route) => {
-        const keys = [];
-        const parsed = pathToRegExp(route[1], keys);
-        parsed.route = route[0];
-        parsed.keys = keys;
-        return parsed;
-      });
       this._fragment = '';
       this._location = window.location;
       this._history = window.history;
@@ -312,7 +304,7 @@ class Controller {
       this._observer.disconnect();
       this._observer = undefined;
     }
-    if (this._routes) {
+    if (this.routes) {
       window.removeEventListener('popstate', this._onPopstateEvent);
     }
     const parent = this.el.parentNode;
@@ -540,17 +532,20 @@ class Controller {
   }
 
   /**
-   * Checks the current url against routes and emits `route` events if an appropriate route is found.
+   * Checks the current url against routes
+   * and emits `route` events if an appropriate route is found.
    *
    * @returns {boolean}
    */
   _checkUrl() {
     this._fragment = this._getFragment();
-    for (let i = 0; i < this._routes.length; i += 1) {
-      const route = this._routes[i];
-      if (route.test(this._fragment)) {
-        const params = this.constructor._extractParameters(route, this._fragment);
-        const name = route.route;
+    const names = Object.keys(this.routes);
+    for (let i = 0; i < names.length; i += 1) {
+      const name = names[i];
+      const route = this.routes[name];
+      const match = route.exec(this._fragment);
+      if (match) {
+        const params = match.groups;
         const hash = decodeURIComponent(this._location.hash);
         const query = decodeURIComponent(this._location.search);
         const detail = {
@@ -561,31 +556,6 @@ class Controller {
       }
     }
     return false;
-  }
-
-  /**
-   * Gets an array of extracted parameters from a URL fragment.
-   *
-   * @param {RegExp} route
-   * @param {string} path
-   * @returns {Object}
-   */
-  static _extractParameters(route, path) {
-    const matches = route.exec(path);
-    const params = {};
-    if (matches.length < 2) return params;
-    const { keys } = route;
-    let n = 0;
-    for (let i = 1; i < matches.length; i += 1) {
-      const key = keys[i - 1];
-      const prop = key ? key.name : n += 1;
-      const val = (typeof matches[i] !== 'string') ? matches[i] : decodeURIComponent(matches[i]);
-
-      if (val !== undefined || !Reflect.has(params, prop)) {
-        params[prop] = val;
-      }
-    }
-    return params;
   }
 
   /**
