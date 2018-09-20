@@ -533,6 +533,44 @@ describe('Controller', () => {
     });
   });
 
+  describe('_handle', () => {
+    it('handles `attributes` event', () => {
+      v._handlers = v._prepareHandlers({
+        attributes: 'someMethod',
+      });
+      v._setEventHandlers();
+      v._dispatchAttributesEvent(':a', undefined);
+      expect(v.someMethod.mock.calls.length).toBe(1);
+    });
+
+    it('handles `attributes` event with a selector', () => {
+      v._handlers = v._prepareHandlers({
+        'attributes :a': 'someMethod',
+      });
+      v._setEventHandlers();
+      v._dispatchAttributesEvent(':b', undefined);
+      v._dispatchAttributesEvent(undefined, undefined);
+      expect(v.someMethod).not.toHaveBeenCalled();
+      v._dispatchAttributesEvent(':a:b', undefined);
+      expect(v.someMethod.mock.calls.length).toBe(1);
+    });
+
+    it('handles multiple callbacks for `attributes` events', () => {
+      const anotherMethod = jest.fn();
+      v._handlers = v._prepareHandlers({
+        'attributes :a': 'someMethod',
+        attributes: anotherMethod,
+      });
+      v._setEventHandlers();
+      v._dispatchAttributesEvent(':b', undefined);
+      expect(v.someMethod).not.toHaveBeenCalled();
+      expect(anotherMethod.mock.calls.length).toBe(1);
+      v._dispatchAttributesEvent(':a:b', undefined);
+      expect(v.someMethod.mock.calls.length).toBe(1);
+      expect(anotherMethod.mock.calls.length).toBe(2);
+    });
+  });
+
   describe('_handleBond', () => {
     let input;
     let event;

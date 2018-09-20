@@ -418,11 +418,14 @@ class Controller {
       }
       if (!selector) {
         cb.call(this, event, undefined, data);
-      } else {
+      } else if (name !== 'attributes') {
         const el = event.target.closest(selector);
         if (el && this.el.contains(el)) {
           cb.call(this, event, el, data);
         }
+      } else {
+        const attribute = event.detail && event.detail.attribute;
+        if (attribute && attribute.startsWith(selector)) cb.call(this, event);
       }
     }
   }
@@ -540,7 +543,8 @@ class Controller {
   }
 
   /**
-   * Checks the current url against routes and emits `route` events if an appropriate route is found.
+   * Checks the current url against routes
+   * and emits `route` events if an appropriate route is found.
    *
    * @returns {boolean}
    */
