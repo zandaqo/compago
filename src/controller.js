@@ -74,7 +74,7 @@ class Controller extends HTMLElement {
   addEventListener(name, callback, options = _opt) {
     const { handler, selector } = options;
     if (!handler) {
-      this.addEventListener(name, callback, options);
+      super.addEventListener(name, callback, options);
       return;
     }
     this.removeEventListener(name, callback, options);
@@ -85,7 +85,7 @@ class Controller extends HTMLElement {
     if (typeof cb !== 'function') return;
     if (!event) {
       event = this[Symbol.for('c_handlers')].set(name, []).get(name);
-      this.addEventListener(name, this._handle);
+      super.addEventListener(name, this._handle);
     }
     event.push(selector ? [cb, selector] : cb);
   }
@@ -114,7 +114,7 @@ class Controller extends HTMLElement {
   removeEventListener(name, callback, options = _opt) {
     const { handler, selector } = options;
     if (!handler) {
-      this.removeEventListener(name, callback, options);
+      super.removeEventListener(name, callback, options);
       return;
     }
     const handlers = this[Symbol.for('c_handlers')] && this[Symbol.for('c_handlers')].get(name);
@@ -131,7 +131,7 @@ class Controller extends HTMLElement {
     }
     if (!handlers.length) {
       this[Symbol.for('c_handlers')].delete(name);
-      this.removeEventListener(name, this._handle);
+      super.removeEventListener(name, this._handle);
     }
   }
 
