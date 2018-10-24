@@ -4,12 +4,6 @@ const _reSplitEvents = /(\w+)\s+?(.*)/;
 /** Used as a source of default options for methods to avoid creating new objects on every call. */
 const _opt = Object.seal(Object.create(null));
 
-/** Cached regex for stripping leading and trailing slashes. */
-const _reStartingSlash = /^\/+/g;
-
-/** Cached regex for removing trailing slashes. */
-const _reTrailingSlash = /\/+$/g;
-
 /**
  * The Controller in MVC.
  * It manages its Model and View while handling user interactions. Controller handles user input
@@ -17,42 +11,22 @@ const _reTrailingSlash = /\/+$/g;
  * to re-render its View.
  *
  */
-class Controller {
-  /**
-   * @param {Object} [options]
-   * @param {string} [options.el] a CSS selector for the DOM element of the controller
-   * @param {string} [options.tagName=div] a tag if the controller should create its own DOM element
-   * @param {Object} [options.attributes] attributes to apply to the controller's DOM element
-   * @param {Object} [options.handlers] the DOM event handlers for the controller
-   * @param {Object} [options.model] the data model used by the controller
-   * @param {Object} [options.view] the view or template function used in rendering the controller
-   * @param {Object} [options.regions] a hash of regions of the controller
-   * @param {Object} [options.routes] a hash of routes
-   * @param {string} [options.root]
-   */
-  constructor(options = _opt) {
-    const {
-      el, tagName = 'div', attributes, handlers, model, view, regions, routes, root,
-    } = options;
-    this.el = this.constructor._prepareElement(el, tagName, attributes);
+class Controller extends HTMLElement {
+  constructor() {
+    super();
+    const { handlers, routes, observedAttributes } = this.constructor;
     this._handle = this._handle.bind(this);
-    this._handlers = handlers ? this._prepareHandlers(handlers) : undefined;
-    this._onRegionDispose = this._onRegionDispose.bind(this);
-    this._setEventHandlers();
-    this._regionSelectors = regions;
-    this._regionControllers = undefined;
-    this._observer = undefined;
-    this._modelAttributes = undefined;
-    this.model = model;
-    this.view = view;
-    this._observeAttributes();
 
+    this[Symbol.for('c_fragment')] = '';
+    this[Symbol.for('c_modelAttributes')] = observedAttributes.filter(attribute => attribute.includes(':'));
+
+    if (this[Symbol.for('c_modelAttributes')].length) {
+      this._onModelChange = this._onModelChange.bind(this);
+    }
+
+    this[Symbol.for('c_handlers')] = handlers ? this._prepareHandlers(handlers) : undefined;
+    this._setEventHandlers();
     if (routes) {
-      this.routes = routes;
-      this._root = root ? (`/${root}`).replace(_reStartingSlash, '/').replace(_reTrailingSlash, '') : '';
-      this._fragment = '';
-      this._location = window.location;
-      this._history = window.history;
       this._onPopstateEvent = this._onPopstateEvent.bind(this);
       window.addEventListener('popstate', this._onPopstateEvent);
     }
@@ -61,37 +35,36 @@ class Controller {
   /**
    * Renders the controller.
    *
-   * By default, invokes `this.view` supplying the controller
-   * and returns the controller's DOM element.
+   * By default, invokes `this.constructor.view`
+   * supplying the controller and returns the controller.
    *
-   * @returns {HTMLElement} the DOM element of the controller
+   * @returns {Controller} the controller
    */
   render() {
-    if (this.view) this.view(this);
-    return this.el;
+    if (this.constructor.view) this.constructor.view(this);
+    return this;
   }
 
   /**
-   * Attaches an event handler to the controller's DOM element.
+   * Attaches an event handler to the controller.
    *
    * @param {string} [name] the event name
    * @param {(Function|string)} [callback] the handler function. Can be either a function
    *                                      or a name of the controller's method
    * @param {Object} [options]
    * @param {string} [options.handler] if true, the handler is managed by controller's event
-   *                                   handling system nd not directly attached to the DOM element.
+   *                                   dispatching system instead of being attached directly.
    * @param {string} [options.selector] the CSS selector to handle events
    *                                    on a specific child element
    * @returns {undefined}
    *
    * @example
    * controller.addEventListener('click', controller.onClick);
-   * // attaches `controller.onClick` as a handler for a `click`
-   * // event on the controller's DOM element directly
+   * // attaches `controller.onClick` as a handler for a `click` event directly
    *
    * controller.addEventListener('click', controller.onClick, { handler: true });
    * // registers `controller.onClick` as a handler for a `click`
-   * // in controller's event handling system
+   * // in controller's event dispatching system
    *
    * controller.addEventListener('click', controller.onButtonClick,
    *                             { handler: true, selector: '#button' });
@@ -101,30 +74,30 @@ class Controller {
   addEventListener(name, callback, options = _opt) {
     const { handler, selector } = options;
     if (!handler) {
-      this.el.addEventListener(name, callback, options);
+      this.addEventListener(name, callback, options);
       return;
     }
     this.removeEventListener(name, callback, options);
-    if (!this._handlers) this._handlers = new Map();
-    let event = this._handlers.get(name);
+    if (!this[Symbol.for('c_handlers')]) this[Symbol.for('c_handlers')] = new Map();
+    let event = this[Symbol.for('c_handlers')].get(name);
     let cb = callback;
     if (typeof cb === 'string') cb = this[cb];
     if (typeof cb !== 'function') return;
     if (!event) {
-      event = this._handlers.set(name, []).get(name);
-      this.el.addEventListener(name, this._handle);
+      event = this[Symbol.for('c_handlers')].set(name, []).get(name);
+      this.addEventListener(name, this._handle);
     }
     event.push(selector ? [cb, selector] : cb);
   }
 
   /**
-   * Detaches an event handler from the controller's DOM element.
+   * Detaches an event handler from the controller.
    *
    * @param {string} [name] the event name
    * @param {Function} [callback]  the handler function
    * @param {Object} [options]
    * @param {string} [options.handler] whether the handler is in
-   *                                   the controller's event handling system
+   *                                   the controller's event dispatching system
    * @param {string} [options.selector] the CSS selector
    * @returns {undefined}
    *
@@ -136,15 +109,15 @@ class Controller {
    *                                { handler: true, selector: '#button'});
    * // removes `controller.onButtonClick` as a handler
    * // for the `click` events on `#button` child element
-   * // from the controller's event handling system
+   * // from the controller's event dispatching system
    */
   removeEventListener(name, callback, options = _opt) {
     const { handler, selector } = options;
     if (!handler) {
-      this.el.removeEventListener(name, callback, options);
+      this.removeEventListener(name, callback, options);
       return;
     }
-    const handlers = this._handlers && this._handlers.get(name);
+    const handlers = this[Symbol.for('c_handlers')] && this[Symbol.for('c_handlers')].get(name);
     if (!handlers) return;
     if (!selector) {
       const index = handlers.indexOf(callback);
@@ -157,94 +130,24 @@ class Controller {
       });
     }
     if (!handlers.length) {
-      this._handlers.delete(name);
-      this.el.removeEventListener(name, this._handle);
+      this[Symbol.for('c_handlers')].delete(name);
+      this.removeEventListener(name, this._handle);
     }
   }
 
   /**
-   * Dispatches an event.
-   *
-   * @param {Event} event the event object to be dispatched
-   * @returns {undefined}
-   */
-  dispatchEvent(event) {
-    this.el.dispatchEvent(event);
-  }
-
-  /**
-   * Renders a controller or any DOM element inside a region replacing the existing content.
+   * Renders DOM elements inside a region replacing the existing content.
    *
    * @param {string} region the name of the region
-   * @param {Controller|HTMLElement} content a DOM element or a controller to render
-   * @param {Object} [options]
-   * @param {boolean} [options.silent] whether to avoid firing any event
-   * @param {boolean} [options.keep] whether to avoid disposing the previous controller
-   * @param {boolean} [options.keepModel] whether to avoid disposing the previous controller's model
-   * @returns {this}
+   * @param {HTMLElement} content a DOM element to render
+   * @returns {Controller}
    * @example
-   * controller.show('sidebar', otherController);
-   * // renders and inserts the otherController's DOM element inside
-   * // the 'sidebar' region of the controller
-   *
-   * controller.show('sidebar', yetAnotherController);
-   * // disposes the current controller and replaces it with the new controller
-   *
-   * controller.show('sidebar', anotherController);
-   * // returns if the controller did not change
-   *
-   * controller.show('sidebar', otherController, { keep: true });
-   * // replaces the previous controller without disposing it
-   *
-   * controller.show('sidebar', otherController, { keepModel: true });
-   * // replaces the previous controller without disposing it's model
+   * controller.show('sidebar', someElements);
+   * // inserts `someElements` inside the 'sidebar' region of the controller
    */
-  show(region, content, { silent, keep, keepModel } = _opt) {
-    const regionElement = this.el.querySelector(this._regionSelectors[region]);
+  show(region, content) {
+    const regionElement = this.querySelector(this.constructor.regions[region]);
     if (!regionElement) return this;
-    const controllers = this._regionControllers || {};
-    const previousController = controllers[region];
-    const isController = content instanceof Controller;
-    const isSame = isController && (content === previousController);
-    if (isSame) return this;
-    if (!silent) {
-      this.dispatchEvent(new CustomEvent(
-        'show',
-        {
-          detail: {
-            emitter: this, region, content, keep, keepModel,
-          },
-        },
-      ));
-    }
-
-    if (previousController) {
-      previousController.removeEventListener('dispose', this._onRegionDispose);
-      controllers[region] = undefined;
-      if (!keep) {
-        previousController.dispose({ save: keepModel });
-      }
-    }
-
-    let elements = content;
-    if (isController) {
-      content.addEventListener('dispose', this._onRegionDispose);
-      controllers[region] = content;
-      elements = content.render();
-    }
-    this._regionControllers = controllers;
-    this._renderRegion(regionElement, elements);
-    return this;
-  }
-
-  /**
-   * Renders content inside a region.
-   *
-   * @param {HTMLElement} regionElement the DOM element serving as a container for a region
-   * @param {HTMLElement} [content] DOM elements to render inside the region
-   * @returns {this}
-   */
-  _renderRegion(regionElement, content) {
     regionElement.innerHTML = '';
     if (content) regionElement.appendChild(content);
     return this;
@@ -271,10 +174,10 @@ class Controller {
    */
   navigate(fragment, { replace, silent } = _opt) {
     const path = this._getFragment(fragment);
-    if (this._fragment === path) return false;
-    this._fragment = path;
+    if (this[Symbol.for('c_fragment')] === path) return false;
+    this[Symbol.for('c_fragment')] = path;
     const url = this._root + path;
-    this._history[replace ? 'replaceState' : 'pushState']({}, document.title, url);
+    this.constructor[Symbol.for('c_history')][replace ? 'replaceState' : 'pushState']({}, document.title, url);
     if (!silent) this._checkUrl();
     return true;
   }
@@ -282,7 +185,7 @@ class Controller {
   /**
    * Prepares the controller to be disposed.
    *
-   * Removes the controller's element from the DOM, detaches handlers,
+   * Removes the controller from the DOM, detaches handlers,
    * disposes the controller's model unless `save` option is provided,
    * and removes all event listeners.
    *
@@ -294,22 +197,47 @@ class Controller {
   dispose({ silent, save } = _opt) {
     if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     if (!save && this.model && this.model.dispose) this.model.dispose();
-    if (this._modelAttributes) {
+    if (this[Symbol.for('c_modelAttributes')].length) {
       this.model.removeEventListener('change', this._onModelChange);
     }
     this.model = undefined;
     this._setEventHandlers(true);
-    this._disposeRegions();
-    if (this._observer) {
-      this._observer.disconnect();
-      this._observer = undefined;
-    }
-    if (this.routes) {
+    if (this.constructor.routes) {
       window.removeEventListener('popstate', this._onPopstateEvent);
     }
-    const parent = this.el.parentNode;
-    if (parent) parent.removeChild(this.el);
+    const parent = this.parentNode;
+    if (parent) parent.removeChild(this);
     return this;
+  }
+
+  /**
+   * Invoked once the controller is attached to the DOM.
+   * By default, controller starts observing attributes of its model.
+   * @returns {undefined}
+   */
+  connectedCallback() {
+    if (this.model) this._observeAttributes();
+  }
+
+  /**
+   * Invoked once the controller is detached from the DOM.
+   * By default, disposes of the controller.
+   * @returns {undefined}
+   */
+  disconnectedCallback() {
+    this.dispose();
+  }
+
+  /**
+   * Invoked when observed attributes of the controller are changed.
+   * By default, dispatches `attributes` event.
+   *
+   * @param {string} name the name of the changed attribute
+   * @param {*} oldValue previous value of the attribute
+   * @returns {undefined}
+   */
+  attributeChangedCallback(name, oldValue) {
+    this._dispatchAttributesEvent(name, oldValue);
   }
 
   /**
@@ -360,7 +288,7 @@ class Controller {
   }
 
   /**
-   * Pre-processes `this._handlers`.
+   * Pre-processes handlers.
    *
    * @param {Object} handlers
    * @returns {Map}
@@ -392,14 +320,14 @@ class Controller {
 
   /**
    * The actual event handler attached by the controller to every event it's listening to.
-   * Internally acts as a dispatcher calling appropriate handlers set up in `this._handlers`.
+   * Internally acts as a dispatcher calling appropriate handlers.
    *
    * @param {Event} event
    * @returns {void}
    */
   _handle(event) {
     const name = event.type.toLowerCase();
-    const handlers = this._handlers && this._handlers.get(name);
+    const handlers = this[Symbol.for('c_handlers')] && this[Symbol.for('c_handlers')].get(name);
     if (!handlers) return;
     for (let i = 0; i < handlers.length; i += 1) {
       let data;
@@ -412,7 +340,7 @@ class Controller {
         cb.call(this, event, undefined, data);
       } else {
         const el = event.target.closest(selector);
-        if (el && this.el.contains(el)) {
+        if (el && this.contains(el)) {
           cb.call(this, event, el, data);
         }
       }
@@ -427,61 +355,22 @@ class Controller {
    */
   _setEventHandlers(undelegate) {
     const method = undelegate ? 'removeEventListener' : 'addEventListener';
-    const handlers = this._handlers;
+    const handlers = this[Symbol.for('c_handlers')];
     const handler = this._handle;
     if (!handlers) return this;
-    handlers.forEach((eventHandlers, eventName) => this.el[method](eventName, handler), this);
+    handlers.forEach((eventHandlers, eventName) => this[method](eventName, handler), this);
     return this;
   }
 
   /**
-   * Removes references to a disposed controller held in a region.
-   *
-   * @returns {void}
-   */
-  _onRegionDispose({ detail: { emitter: controller } } = _opt) {
-    if (!this._regionControllers) return;
-    const regionEntry = Object.entries(this._regionControllers)
-      .find(entry => entry[1] === controller);
-    if (regionEntry) this._regionControllers[regionEntry[0]] = undefined;
-  }
-
-  /**
-   * Disposes all regions of the controller.
-   *
-   * @returns {void}
-   */
-  _disposeRegions() {
-    if (!this._regionControllers) return;
-    const regions = this._regionControllers;
-    this._regionControllers = undefined;
-    Object.values(regions).forEach((region) => {
-      if (region instanceof Controller) {
-        region.removeEventListener('dispose', this._onRegionDispose);
-        region.dispose();
-      }
-    });
-  }
-
-  /**
-   * Sets up a MutationObserver and event listener to watch for changes
-   * in attributes of the controller's element or model.
+   * Sets up an event listener to observe changes in model attributes.
    *
    * @returns {void}
    */
   _observeAttributes() {
-    const attributeFilter = this.constructor.observedAttributes;
-    const modelAttributes = attributeFilter.filter(attribute => attribute.includes(':'));
-    if (modelAttributes.length) {
-      this._modelAttributes = modelAttributes;
-      this._onModelChange = this._onModelChange.bind(this);
+    if (this.model && this[Symbol.for('c_modelAttributes')].length) {
+      this.model.removeEventListener('change', this._onModelChange);
       this.model.addEventListener('change', this._onModelChange);
-    }
-    if (modelAttributes.length < attributeFilter.length) {
-      this._observer = new MutationObserver(({ attributeName, oldValue }) => {
-        this._dispatchAttributesEvent(attributeName, oldValue);
-      });
-      this._observer.observe(this.el, { attributes: true, attributeFilter });
     }
   }
 
@@ -492,7 +381,7 @@ class Controller {
    * @returns {void}
    */
   _onModelChange({ detail: { path, previous } }) {
-    if (!this._modelAttributes.some(name => path.startsWith(name))) return;
+    if (!this[Symbol.for('c_modelAttributes')].some(name => path.startsWith(name))) return;
     this._dispatchAttributesEvent(path, previous);
   }
 
@@ -504,7 +393,7 @@ class Controller {
    * @returns {void}
    */
   _dispatchAttributesEvent(attribute, previous) {
-    this.el.dispatchEvent(new CustomEvent('attributes', { detail: { emitter: this, attribute, previous } }));
+    this.dispatchEvent(new CustomEvent('attributes', { detail: { emitter: this, attribute, previous } }));
   }
 
   /**
@@ -516,7 +405,7 @@ class Controller {
   _getFragment(fragment) {
     if (fragment !== undefined) return fragment.trim();
     const root = this._root;
-    let newFragment = decodeURIComponent(this._location.pathname);
+    let newFragment = decodeURIComponent(this.constructor[Symbol.for('c_location')].pathname);
     if (root && newFragment.startsWith(root)) newFragment = newFragment.slice(root.length);
     return newFragment;
   }
@@ -528,7 +417,7 @@ class Controller {
    */
   _onPopstateEvent() {
     const current = this._getFragment();
-    if (current !== this._fragment) this._checkUrl();
+    if (current !== this[Symbol.for('c_fragment')]) this._checkUrl();
   }
 
   /**
@@ -538,39 +427,25 @@ class Controller {
    * @returns {boolean}
    */
   _checkUrl() {
-    this._fragment = this._getFragment();
-    const names = Object.keys(this.routes);
+    this[Symbol.for('c_fragment')] = this._getFragment();
+    const names = Object.keys(this.constructor.routes);
     for (let i = 0; i < names.length; i += 1) {
       const name = names[i];
-      const route = this.routes[name];
-      const match = route.exec(this._fragment);
+      const route = this.constructor.routes[name];
+      const match = route.exec(this[Symbol.for('c_fragment')]);
       if (match) {
         const params = match.groups;
-        const hash = decodeURIComponent(this._location.hash);
-        const query = decodeURIComponent(this._location.search);
+        const location = this.constructor[Symbol.for('c_location')];
+        const hash = decodeURIComponent(location.hash);
+        const query = decodeURIComponent(location.search);
         const detail = {
           emitter: this, route: name, params, query, hash,
         };
-        this.el.dispatchEvent(new CustomEvent('route', { detail }));
+        this.dispatchEvent(new CustomEvent('route', { detail }));
         return true;
       }
     }
     return false;
-  }
-
-  /**
-   * Ensures that the controller has a valid DOM element.
-   *
-   * @param {string|HTMLElement} element
-   * @param {string} tagName
-   * @param {Object} attributes
-   * @returns {HTMLElement}
-   */
-  static _prepareElement(element, tagName, attributes) {
-    const el = (element && document.querySelector(element)) || document.createElement(tagName);
-    if (!(attributes)) return el;
-    Object.keys(attributes).forEach(name => el.setAttribute(name, attributes[name]));
-    return el;
   }
 }
 
@@ -580,5 +455,22 @@ class Controller {
  * use just `:`.
  */
 Controller.observedAttributes = [];
+
+Controller.handlers = undefined;
+
+Controller.regions = undefined;
+
+/**
+ * The view or template function used in rendering the controller.
+ */
+Controller.view = undefined;
+
+Controller.routes = undefined;
+
+Controller.root = '';
+
+Controller[Symbol.for('c_history')] = window.history;
+
+Controller[Symbol.for('c_location')] = window.location;
 
 export default Controller;
