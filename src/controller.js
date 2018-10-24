@@ -270,19 +270,28 @@ class Controller extends HTMLElement {
    */
   _handleBond(event, target, data) {
     const {
-      value = 'value', bond, parse, nested = false, prevent,
+      value = 'value', bond, parse, prevent,
     } = data;
     if (prevent) event.preventDefault();
     const path = bond !== true ? bond : target.getAttribute('data-bond');
     const content = typeof parse === 'function' ? parse(target[value]) : target[value];
+    const isOwnAttribute = path[0] !== ':';
+    if (isOwnAttribute) {
+      this.setAttribute(path, content);
+      return;
+    }
+
+    const isNested = path.includes('.');
+    if (!isNested) {
+      this.model[path] = content;
+      return;
+    }
+
     let { model } = this;
-    let field = path;
-    if (nested) {
-      const chunks = path.split('.');
-      field = chunks[chunks.length - 1];
-      for (let i = 0; i < chunks.length - 1; i += 1) {
-        model = model[chunks[i]];
-      }
+    const chunks = path.split('.');
+    const field = chunks[chunks.length - 1];
+    for (let i = 0; i < chunks.length - 1; i += 1) {
+      model = model[chunks[i]];
     }
     if (model) model[field] = content;
   }
