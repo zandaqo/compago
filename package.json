@@ -1,6 +1,6 @@
 {
   "name": "compago",
-  "version": "4.0.0-beta.2",
+  "version": "4.0.0-beta.3",
   "description": "A minimalist MVC framework for modern browsers.",
   "browser": "src/index.js",
   "module": "src/index.js",

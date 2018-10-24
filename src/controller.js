@@ -176,7 +176,7 @@ class Controller extends HTMLElement {
     const path = this._getFragment(fragment);
     if (this[Symbol.for('c_fragment')] === path) return false;
     this[Symbol.for('c_fragment')] = path;
-    const url = this._root + path;
+    const url = this.constructor.root + path;
     this.constructor[Symbol.for('c_history')][replace ? 'replaceState' : 'pushState']({}, document.title, url);
     if (!silent) this._checkUrl();
     return true;
@@ -404,7 +404,7 @@ class Controller extends HTMLElement {
    */
   _getFragment(fragment) {
     if (fragment !== undefined) return fragment.trim();
-    const root = this._root;
+    const { root } = this.constructor;
     let newFragment = decodeURIComponent(this.constructor[Symbol.for('c_location')].pathname);
     if (root && newFragment.startsWith(root)) newFragment = newFragment.slice(root.length);
     return newFragment;
