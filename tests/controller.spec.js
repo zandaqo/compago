@@ -1,291 +1,146 @@
 import Listener from '../src/listener';
 import Controller from '../src/controller';
 
-window.MutationObserver = class {
-  constructor(callback) {
-    this.callback = callback;
-    this.observe = jest.fn();
-    this.disconnect = jest.fn();
-  }
-};
-
 class Model extends Listener() {}
 
 describe('Controller', () => {
+  let ControllerClass;
+  let someMethod;
   let v;
-  let el;
 
   beforeEach(() => {
-    v = new Controller();
-    el = document.createElement('div');
-    el.setAttribute('id', 'region');
-    v.el.appendChild(el);
-    v.someMethod = jest.fn();
-    v._handlers = v._prepareHandlers({
+    someMethod = jest.fn();
+    ControllerClass = class extends Controller {};
+    ControllerClass.handlers = {
       click: 'someMethod',
-      'click #submit': v.someMethod,
-    });
+      'click #submit': someMethod,
+    };
+    ControllerClass.regions = { region: '#region' };
+    v = new ControllerClass();
+    v.someMethod = jest.fn();
   });
 
   describe('constructor', () => {
     it('creates a controller instance', () => {
-      const controller = new Controller();
-      expect(controller instanceof Controller).toBe(true);
-    });
-
-    it('sets controller element from selector', () => {
-      const elem = document.createElement('div');
-      elem.className = 'someClass';
-      document.body.appendChild(elem);
-      const controller = new Controller({
-        el: '.someClass',
-      });
-      expect(controller.el).toBe(elem);
-      document.body.removeChild(elem);
-    });
-
-    it('creates a controller element with specified tag and attributes', () => {
-      const controller = new Controller({
-        tagName: 'ul',
-        attributes: {
-          class: 'unordered-list',
-        },
-      });
-      expect(controller.el.className).toBe('unordered-list');
-      expect(controller.el.tagName).toBe('UL');
+      expect(v instanceof Controller).toBe(true);
+      expect(v instanceof ControllerClass).toBe(true);
     });
 
     it('sets up event handlers', () => {
-      const handlers = {
+      ControllerClass.handlers = {
         click: 'render',
         'click #submit': 'navigate',
         focus: 'nonExistantMethod',
       };
-      const controller = new Controller({ handlers });
-      jest.spyOn(controller, 'render');
-      jest.spyOn(controller, 'navigate');
-      // re-init handlers to let jest spy on them
-      controller._handlers = controller._prepareHandlers(handlers);
-      controller.el.click();
-      expect(controller.render).toHaveBeenCalled();
-      expect(controller.navigate).not.toHaveBeenCalled();
+      const controller = new ControllerClass();
+      expect(controller[Symbol.for('c_handlers')].size).toBe(1);
     });
 
     it('creates a controller with a model', () => {
       const model = new Model();
-      const controller = new Controller({
+      const controller = new ControllerClass({
         model,
       });
       expect(controller.model).toBe(model);
     });
 
-    it('creates a contoller with a view', () => {
-      const view = jest.fn();
-      const controller = new Controller({
-        view,
-      });
-      expect(controller.view).toBe(view);
-    });
-
-    it('creates a controller with regions', () => {
-      const controller = new Controller({
-        regions: {
-          region: '#region',
-        },
-      });
-      expect(controller._regionSelectors.region).toBe('#region');
-      expect(controller._regionControllers).toBe(undefined);
-    });
-
-    it('handles removal of regions', () => {
-      const parentController = new Controller({ regions: { region: '#region' } });
-      const regionEl = document.createElement('div');
-      regionEl.setAttribute('id', 'region');
-      parentController.el.appendChild(regionEl);
-      const someController = new Controller();
-      parentController.show('region', someController);
-      expect(parentController._regionControllers.region).toBe(someController);
-      expect(regionEl.hasChildNodes()).toBe(true);
-      someController.dispose();
-      expect(parentController._regionControllers.region).toBeUndefined();
-      expect(regionEl.hasChildNodes()).toBe(false);
-    });
-
-    it('creates a controller with router capabilities', () => {
-      const root = '/subdomain';
-      const controller = new Controller({
-        root,
-        routes: {
-          user: /^\/user\/(?<username>[^/]+)$/,
-          category: /^\/category\/(?<categoryname>[^/]+)$/,
-        },
-      });
-      expect(controller._root).toBe(root);
-      expect(controller.routes).toBeDefined();
-    });
-
     it('reacts to `popstate` events in a controller with a router', () => {
-      const controller = new Controller({
-        routes: {},
-      });
-      controller._checkUrl = jest.fn();
-      window.dispatchEvent(new Event('popstate'));
-      expect(controller._checkUrl).toHaveBeenCalled();
+      jest.spyOn(window, 'addEventListener');
+      ControllerClass.routes = {};
+      new ControllerClass();
+      expect(window.addEventListener.mock.calls.length).toBe(1);
+      expect(window.addEventListener.mock.calls[0][0]).toBe('popstate');
+      window.addEventListener.mockRestore();
     });
   });
 
   describe('render', () => {
-    it('renders and returns the controller element', () => {
-      v.view = jest.fn();
-      v.model = {};
-      const result = v.render();
-      expect(result).toBe(v.el);
-      expect(v.view.mock.calls).toEqual([[v]]);
+    it('renders and returns the controller', () => {
+      ControllerClass.view = jest.fn();
+      const controller = new ControllerClass();
+      controller.render();
+      expect(ControllerClass.view).toHaveBeenCalled();
     });
   });
 
   describe('addEventListener', () => {
     beforeEach(() => {
-      v._setEventHandlers(true);
-      v.el.addEventListener = jest.fn();
-      v.el.removeEventListener = jest.fn();
+      jest.spyOn(v, 'addEventListener');
+      jest.spyOn(v, 'removeEventListener');
+    });
+
+    afterEach(() => {
+      v.addEventListener.mockRestore();
+      v.removeEventListener.mockRestore();
     });
 
     it('attaches a normal event handler if option `handler` is not present', () => {
       v.addEventListener('mouseover', v.someMethod);
-      expect(v.el.addEventListener).toHaveBeenCalled();
-      expect(v._handlers.get('mouseover')).toBe(undefined);
+      expect(v.addEventListener).toHaveBeenCalled();
+      expect(v[Symbol.for('c_handlers')].get('mouseover')).toBe(undefined);
     });
 
     it('attaches a handler for a DOM event', () => {
       v.addEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
-      expect(v._handlers.get('mouseover')[0]).toEqual([v.someMethod, '#submit']);
-      expect(v.el.addEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
-    });
-
-    it('does not attach a handler twice for the same event', () => {
-      v.addEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
-      v.addEventListener('mouseover', 'someMethod', { handler: true });
-      expect(v.el.addEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
+      expect(v[Symbol.for('c_handlers')].get('mouseover')[0]).toEqual([v.someMethod, '#submit']);
     });
 
     it('does not attach a handler if the callback is not a function', () => {
       v.addEventListener('mouseover', 'nonExistantCallback', { handler: true, selector: '#submit' });
-      expect(v._handlers.get('mouseover')).toBe(undefined);
-      expect(v.el.addEventListener).not.toHaveBeenCalled();
+      expect(v[Symbol.for('c_handlers')].get('mouseover')).toBe(undefined);
     });
   });
 
   describe('removeEventListener', () => {
     beforeEach(() => {
-      v._setEventHandlers(true);
-      v.el.addEventListener = jest.fn();
-      v.el.removeEventListener = jest.fn();
+      jest.spyOn(v, 'addEventListener');
+      jest.spyOn(v, 'removeEventListener');
+    });
+
+    afterEach(() => {
+      v.addEventListener.mockRestore();
+      v.removeEventListener.mockRestore();
     });
 
     it('detaches a normal event handler if option `handler` is not present', () => {
       v.removeEventListener('click', v.someMethod);
-      expect(v.el.removeEventListener).toHaveBeenCalled();
+      expect(v.removeEventListener).toHaveBeenCalled();
     });
 
     it('detaches a specific handler', () => {
       v.removeEventListener('click', v.someMethod, { handler: true });
-      expect(v._handlers.get('click')).toEqual([[v.someMethod, '#submit', undefined]]);
+      expect(v[Symbol.for('c_handlers')].get('click').length).toBe(1);
 
       v.addEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
       v.removeEventListener('mouseover', v.someMethod, { handler: true, selector: '#submit' });
-      expect(v._handlers.get('mouseover')).toBe(undefined);
-      expect(v.el.removeEventListener.mock.calls).toEqual([['mouseover', v._handle]]);
-    });
-  });
-
-  describe('dispatchEvent', () => {
-    it('dispatches a given event from the DOM element of the controller', () => {
-      v.el.dispatchEvent = jest.fn();
-      v.dispatchEvent(new Event('a'));
-      expect(v.el.dispatchEvent).toHaveBeenCalled();
+      expect(v[Symbol.for('c_handlers')].get('mouseover')).toBe(undefined);
     });
   });
 
   describe('show', () => {
-    let parentController;
-    let someController;
-    let otherController;
-    let model;
-
-    beforeEach(() => {
-      parentController = new Controller({
-        regions: {
-          region: '#region',
-        },
-      });
-      const regionEl = document.createElement('div');
-      regionEl.setAttribute('id', 'region');
-      parentController.el.appendChild(regionEl);
-
-      someController = new Controller();
-      someController.render = jest.fn().mockReturnValue(someController.el);
-      jest.spyOn(someController, 'dispose');
-      model = {
-        dispose: jest.fn(),
-      };
-      someController.model = model;
-
-      otherController = new Controller();
-      otherController.render = jest.fn().mockReturnValue(otherController.el);
-      otherController.dispose = jest.fn();
-    });
-
-    afterEach(() => {
-      someController.dispose.mockRestore();
-    });
-
     it('renders any given DOM nodes inside a given region', () => {
-      const regionElement = parentController.el.querySelector('#region');
+      const region = document.createElement('div');
+      v.querySelector = jest.fn(() => region);
       const domNode = document.createElement('div');
-      parentController.show('region', domNode);
-      expect(regionElement.contains(domNode)).toBe(true);
+      v.show('region', domNode);
+      expect(v.querySelector.mock.calls[0]).toEqual(['#region']);
+      expect(region.contains(domNode)).toBe(true);
     });
 
-    it('renders a given controller inside a given region', () => {
-      const regionElement = parentController.el.querySelector('#region');
-      parentController.show('region', someController);
-      expect(someController.render).toHaveBeenCalled();
-      expect(regionElement.contains(someController.el)).toBe(true);
-      expect(parentController._regionControllers.region).toBe(someController);
+    it('does not render if region is not found', () => {
+      const region = document.createElement('div');
+      v.querySelector = jest.fn(() => undefined);
+      const domNode = document.createElement('div');
+      v.show('region', domNode);
+      expect(region.contains(domNode)).toBe(false);
     });
 
-    it('replaces existing nodes and controllers disposing them and their models', () => {
-      parentController.show('region', someController);
-      parentController.show('region', otherController);
-      expect(someController.dispose).toHaveBeenCalled();
-      expect(model.dispose).toHaveBeenCalled();
-      expect(otherController.render).toHaveBeenCalled();
-    });
-
-    it('does not dispose the existing controller if `keep:true`', () => {
-      parentController.show('region', someController);
-      parentController.show('region', otherController, { keep: true });
-      expect(someController.dispose).not.toHaveBeenCalled();
-    });
-
-    it('does not dispose the model of the existing controller if `keepModel:true`', () => {
-      parentController.show('region', someController);
-      parentController.show('region', otherController, { keepModel: true });
-      expect(model.dispose).not.toHaveBeenCalled();
-    });
-
-    it('does nothing if the region is not found', () => {
-      parentController._regionSelectors.region = '#nonexistant';
-      parentController.show('region', someController);
-      expect(parentController.el.querySelector('#region').hasChildNodes()).toBe(false);
-      expect(someController.render).not.toHaveBeenCalled();
-    });
-
-    it('does not replace (or re-render) the existing controller with the same controller', () => {
-      parentController.show('region', someController);
-      parentController.show('region', someController);
-      expect(someController.render.mock.calls.length).toBe(1);
+    it('empties region if no content is provided', () => {
+      const region = document.createElement('div');
+      region.innerHTML = '<p></p>';
+      v.querySelector = jest.fn(() => region);
+      v.show('region');
+      expect(region.innerHTML).toBe('');
     });
   });
 
@@ -294,7 +149,7 @@ describe('Controller', () => {
     const historyState = (state, title, url) => {
       const [path, params] = url.split('?');
       const [search, hash] = params ? params.split('#') : ['', ''];
-      controller._location = {
+      ControllerClass[Symbol.for('c_location')] = {
         pathname: path,
         search: search ? `?${search}` : '',
         hash: hash ? `#${hash}` : '',
@@ -302,46 +157,45 @@ describe('Controller', () => {
     };
 
     beforeEach(() => {
-      controller = new Controller({
-        routes: {
-          home: /^\/$/,
-          about: /^\/about$/,
-          user: /^\/user\/(?<name>[^/]+)$/,
-        },
-      });
-      controller._location = {};
-      controller._history = {
+      ControllerClass.routes = {
+        home: /^\/$/,
+        about: /^\/about$/,
+        user: /^\/user\/(?<name>[^/]+)$/,
+      };
+      ControllerClass[Symbol.for('c_location')] = {};
+      ControllerClass[Symbol.for('c_history')] = {
         pushState: jest.fn(historyState),
         replaceState: jest.fn(historyState),
       };
+      controller = new ControllerClass();
     });
 
     it('saves a url into browser history', () => {
       controller.navigate('/path');
-      expect(controller._history.pushState).toHaveBeenCalled();
+      expect(ControllerClass[Symbol.for('c_history')].pushState).toHaveBeenCalled();
     });
 
     it('replaces the current url if `replace:true`', () => {
       controller.navigate('/path', { replace: true });
-      expect(controller._history.replaceState).toHaveBeenCalled();
+      expect(ControllerClass[Symbol.for('c_history')].replaceState).toHaveBeenCalled();
     });
 
     it('checks the current url if no new url provided', () => {
-      expect(controller._fragment).toBe('');
-      controller._location = {
+      expect(controller[Symbol.for('c_fragment')]).toBe('');
+      ControllerClass[Symbol.for('c_location')] = {
         pathname: '/foo',
       };
       controller.navigate();
-      expect(controller._fragment).toEqual('/foo');
+      expect(controller[Symbol.for('c_fragment')]).toEqual('/foo');
     });
 
     it('handles custom roots while checking the url', () => {
-      controller._root = '/user';
-      controller._location.pathname = '/user';
+      ControllerClass.root = '/user';
+      ControllerClass[Symbol.for('c_location')].pathname = '/user';
       controller.navigate();
-      expect(controller._fragment).toEqual('');
+      expect(controller[Symbol.for('c_fragment')]).toEqual('');
       controller.navigate('/abc');
-      expect(controller._fragment).toEqual('/abc');
+      expect(controller[Symbol.for('c_fragment')]).toEqual('/abc');
     });
 
     it('checks the new url against routes unless `silent:true`', () => {
@@ -355,7 +209,7 @@ describe('Controller', () => {
     it('does not update history if the url is unchanged', () => {
       controller.navigate('/about');
       controller.navigate('/about');
-      expect(controller._history.pushState).toHaveBeenCalledTimes(1);
+      expect(ControllerClass[Symbol.for('c_history')].pushState).toHaveBeenCalledTimes(1);
     });
 
     it('emits `route` event if the url matches a route', () => {
@@ -395,32 +249,11 @@ describe('Controller', () => {
   });
 
   describe('dispose', () => {
-    it('prepares the controller to be disposed', () => {
-      class ObservedController extends Controller {}
-      ObservedController.observedAttributes = ['data-id'];
-      const controller = new ObservedController();
-      controller.dispose();
-      expect(controller._observer).toBeUndefined();
-    });
-
     it('removes the controller element from the DOM', () => {
-      document.body.appendChild(v.el);
-      expect(document.body.contains(v.el)).toBe(true);
+      const parentNode = { removeChild: jest.fn() };
+      v.parentNode = parentNode;
       v.dispose();
-      expect(document.body.contains(v.el)).toBe(false);
-    });
-
-    it('disposes of the regions of the controller', () => {
-      const controller = new Controller({ regions: { one: '#region' } });
-      const regionEl = document.createElement('div');
-      regionEl.setAttribute('id', 'region');
-      controller.el.appendChild(el);
-      const regionController = new Controller();
-      jest.spyOn(regionController, 'dispose');
-      controller.show('one', regionController);
-      controller.dispose();
-      expect(regionController.dispose).toHaveBeenCalled();
-      expect(controller._regionControllers).toBeUndefined();
+      expect(parentNode.removeChild.mock.calls).toEqual([[v]]);
     });
 
     it('disposes the model unless `save:true`', () => {
@@ -441,10 +274,10 @@ describe('Controller', () => {
 
     it('removes event listeners from the model', () => {
       const model = new Model();
-      class ObservedController extends Controller {}
-      ObservedController.observedAttributes = [':a'];
+      ControllerClass.observedAttributes = [':a'];
       jest.spyOn(model, 'removeEventListener');
-      const controller = new ObservedController({ model });
+      const controller = new ControllerClass({ model });
+      controller._observeAttributes();
       controller.dispose();
       expect(model.removeEventListener).toHaveBeenCalledWith('change', controller._onModelChange);
       model.removeEventListener.mockRestore();
@@ -452,7 +285,8 @@ describe('Controller', () => {
 
     it('removes event listener for `popstate` event', () => {
       jest.spyOn(window, 'removeEventListener');
-      const controller = new Controller({ routes: {} });
+      ControllerClass.routes = {};
+      const controller = new ControllerClass();
       controller.dispose();
       expect(window.removeEventListener).toHaveBeenCalledWith('popstate', controller._onPopstateEvent);
       window.removeEventListener.mockRestore();
@@ -470,6 +304,31 @@ describe('Controller', () => {
     });
   });
 
+  describe('connectedCallback', () => {
+    it('subscribes to model events upon connecting to the DOM', () => {
+      v._observeAttributes = jest.fn();
+      v.model = {};
+      v.connectedCallback();
+      expect(v._observeAttributes).toHaveBeenCalled();
+    });
+  });
+
+  describe('disconnectedCallback', () => {
+    it('disposes of the controller upon disconnecting from the DOM', () => {
+      v.dispose = jest.fn();
+      v.disconnectedCallback();
+      expect(v.dispose).toHaveBeenCalled();
+    });
+  });
+
+  describe('attributeChangedCallback', () => {
+    it('dispatches `attributes` event upon changing observed attributes of the controller', () => {
+      v._dispatchAttributesEvent = jest.fn();
+      v.attributeChangedCallback();
+      expect(v._dispatchAttributesEvent).toHaveBeenCalled();
+    });
+  });
+
   describe('debounce', () => {
     it('debounces a given function is set', (done) => {
       const cb = jest.fn();
@@ -484,14 +343,11 @@ describe('Controller', () => {
   });
 
   describe('observedAttributes', () => {
-    class ObservedController extends Controller {}
-
     it('dispatches `attribute` event if observed attributes of a model change', (done) => {
       const model = new Model();
-      ObservedController.observedAttributes = [':a'];
-      const controller = new ObservedController({
-        model,
-      });
+      ControllerClass.observedAttributes = [':a'];
+      const controller = new ControllerClass({ model });
+      controller.connectedCallback();
       jest.spyOn(controller, 'render').mockImplementation(({ detail: { emitter, attribute, previous } }) => {
         expect(emitter).toBe(controller);
         expect(attribute).toBe(':a');
@@ -505,10 +361,9 @@ describe('Controller', () => {
 
     it('dispatches `attribute` event on any model change if `:` attribute is observed', (done) => {
       const model = new Model();
-      ObservedController.observedAttributes = [':'];
-      const controller = new ObservedController({
-        model,
-      });
+      ControllerClass.observedAttributes = [':'];
+      const controller = new ControllerClass({ model });
+      controller.connectedCallback();
       jest.spyOn(controller, 'render');
       controller.addEventListener('attributes', controller.render, { handler: true });
       model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
@@ -520,8 +375,8 @@ describe('Controller', () => {
     });
 
     it('dispatches `attribute` event if observed attributes of a controller element change', (done) => {
-      ObservedController.observedAttributes = ['data-id'];
-      const controller = new ObservedController();
+      ControllerClass.observedAttributes = ['data-id'];
+      const controller = new ControllerClass();
       jest.spyOn(controller, 'render').mockImplementation(({ detail: { emitter, attribute, previous } }) => {
         expect(emitter).toBe(controller);
         expect(attribute).toBe('data-id');
@@ -529,7 +384,7 @@ describe('Controller', () => {
         done();
       });
       controller.addEventListener('attributes', controller.render, { handler: true });
-      controller._observer.callback({ attributeName: 'data-id', oldValue: undefined });
+      controller.attributeChangedCallback('data-id', undefined);
     });
   });
 
@@ -539,32 +394,41 @@ describe('Controller', () => {
 
     beforeEach(() => {
       v.model = {};
+      v.contains = jest.fn(() => true);
       input = document.createElement('input');
       input.setAttribute('id', 'name');
-      v.el.appendChild(input);
       event = { type: 'input', target: input, preventDefault: jest.fn() };
     });
 
     it('handles one way binding between DOM elements and the model', () => {
-      v._handlers = v._prepareHandlers({
-        'input #name': { bond: 'name' },
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
+        'input #name': { bond: ':name' },
       });
       v._handle(event);
       expect(v.model).toEqual({ name: '' });
     });
 
-    it('binds to a nested attribute of the model if `nested:true`', () => {
+    it('binds to a nested attribute of the model if attribute name contains `.`', () => {
       v.model = { name: {} };
-      v._handlers = v._prepareHandlers({
-        'input #name': { bond: 'name.first', nested: true },
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
+        'input #name': { bond: ':name.first' },
       });
       v._handle(event);
       expect(v.model).toEqual({ name: { first: '' } });
     });
 
+    it('binds to attributes of the controller', () => {
+      v.setAttribute = jest.fn();
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
+        'input #name': { bond: 'data-name', nested: true },
+      });
+      v._handle(event);
+      expect(v.setAttribute.mock.calls[0]).toEqual(['data-name', '']);
+    });
+
     it('prevents default action if `prevent:true`', () => {
-      v._handlers = v._prepareHandlers({
-        'input #name': { bond: 'name', prevent: true },
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
+        'input #name': { bond: ':name', prevent: true },
       });
       v._handle(event);
       expect(v.model).toEqual({ name: '' });
@@ -573,8 +437,8 @@ describe('Controller', () => {
 
     it('parses value if parsing function is provided as `parse` option', () => {
       v.parser = parseInt;
-      v._handlers = v._prepareHandlers({
-        'input #name': { bond: 'id', parse: 'parser' },
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
+        'input #name': { bond: ':id', parse: 'parser' },
       });
       input.value = '1';
       v._handle(event);
@@ -583,11 +447,28 @@ describe('Controller', () => {
 
     it('debounces handlers if `debounce` is set', () => {
       jest.spyOn(Controller, 'debounce');
-      v._handlers = v._prepareHandlers({
-        'input #name': { bond: 'name', debounce: 1000 },
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
+        'input #name': { bond: ':name', debounce: 1000 },
       });
       expect(Controller.debounce).toHaveBeenCalled();
       Controller.debounce.mockRestore();
+    });
+  });
+
+  describe('_onPopstateEvent', () => {
+    it('checks the current URL upon recieving a `popstate` event from the window', () => {
+      v._checkUrl = jest.fn();
+      v._getFragment = jest.fn(() => 'new_fragment');
+      v._onPopstateEvent();
+      expect(v._checkUrl).toHaveBeenCalled();
+    });
+
+    it('does not check the URL if the fragment has not changed', () => {
+      v._checkUrl = jest.fn();
+      v._getFragment = jest.fn(() => 'old_fragment');
+      v[Symbol.for('c_fragment')] = 'old_fragment';
+      v._onPopstateEvent();
+      expect(v._checkUrl).not.toHaveBeenCalled();
     });
   });
 });

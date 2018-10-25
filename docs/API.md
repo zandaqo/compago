@@ -51,7 +51,11 @@ to re-render its View.
         * [.attributeChangedCallback(name, oldValue)](#Controller+attributeChangedCallback) ⇒ <code>undefined</code>
     * _static_
         * [.observedAttributes](#Controller.observedAttributes)
+        * [.handlers](#Controller.handlers)
+        * [.regions](#Controller.regions)
         * [.view](#Controller.view)
+        * [.routes](#Controller.routes)
+        * [.root](#Controller.root)
         * [.debounce(callback, wait)](#Controller.debounce) ⇒ <code>function</code>
 
 <a name="Controller+render"></a>
@@ -213,10 +217,34 @@ Names of the model attributes should start with `:`, to watch for all changes on
 use just `:`.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.handlers"></a>
+
+### Controller.handlers
+A hash of event names and their handlers.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.regions"></a>
+
+### Controller.regions
+A hash of region names and their corresponding CSS selectors.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.view"></a>
 
 ### Controller.view
 The view or template function used in rendering the controller.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.routes"></a>
+
+### Controller.routes
+A hash of route names and their RegExp matchers.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.root"></a>
+
+### Controller.root
+A custom root for the controller's router.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.debounce"></a>

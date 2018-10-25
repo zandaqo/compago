@@ -12,8 +12,9 @@ const _opt = Object.seal(Object.create(null));
  *
  */
 class Controller extends HTMLElement {
-  constructor() {
+  constructor({ model } = _opt) {
     super();
+    this.model = model;
     const { handlers, routes, observedAttributes } = this.constructor;
     this._handle = this._handle.bind(this);
 
@@ -273,14 +274,14 @@ class Controller extends HTMLElement {
       value = 'value', bond, parse, prevent,
     } = data;
     if (prevent) event.preventDefault();
-    const path = bond !== true ? bond : target.getAttribute('data-bond');
+    let path = bond !== true ? bond : target.getAttribute('data-bond');
     const content = typeof parse === 'function' ? parse(target[value]) : target[value];
     const isOwnAttribute = path[0] !== ':';
     if (isOwnAttribute) {
       this.setAttribute(path, content);
       return;
     }
-
+    path = path.slice(1);
     const isNested = path.includes('.');
     if (!isNested) {
       this.model[path] = content;
@@ -465,8 +466,14 @@ class Controller extends HTMLElement {
  */
 Controller.observedAttributes = [];
 
+/**
+ * A hash of event names and their handlers.
+ */
 Controller.handlers = undefined;
 
+/**
+ * A hash of region names and their corresponding CSS selectors.
+ */
 Controller.regions = undefined;
 
 /**
@@ -474,8 +481,14 @@ Controller.regions = undefined;
  */
 Controller.view = undefined;
 
+/**
+ * A hash of route names and their RegExp matchers.
+ */
 Controller.routes = undefined;
 
+/**
+ * A custom root for the controller's router.
+ */
 Controller.root = '';
 
 Controller[Symbol.for('c_history')] = window.history;
