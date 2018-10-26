@@ -12,6 +12,10 @@ const _opt = Object.seal(Object.create(null));
  *
  */
 class Controller extends HTMLElement {
+  /**
+   * @param {Object} [options]
+   * @param {Model} [options.model] the model of the controller
+   */
   constructor({ model } = _opt) {
     super();
     this.model = model;
@@ -438,10 +442,12 @@ class Controller extends HTMLElement {
    */
   _checkUrl() {
     this[Symbol.for('c_fragment')] = this._getFragment();
-    const names = Object.keys(this.constructor.routes);
+    const { routes } = this.constructor;
+    if (!routes) return false;
+    const names = Object.keys(routes);
     for (let i = 0; i < names.length; i += 1) {
       const name = names[i];
-      const route = this.constructor.routes[name];
+      const route = routes[name];
       const match = route.exec(this[Symbol.for('c_fragment')]);
       if (match) {
         const params = match.groups;
@@ -463,31 +469,50 @@ class Controller extends HTMLElement {
  * A getter that returns an array of attribute names that should be watched for changes.
  * Names of the model attributes should start with `:`, to watch for all changes on the model
  * use just `:`.
+ * @type {Array.<string>}
  */
 Controller.observedAttributes = [];
 
 /**
+ * @typedef {Object} Handler
+ * @property {Function} [handler] the callback function to handle the event,
+ *                                not used if `bond` is present
+ * @property {number} [debounce] the debounce time for the handler
+ * @property {(string|boolean)} [bond] name of the property to bond to,
+ *                                     or `true` to get the name from the bound element
+ * @property {string} [value='value'] the name of the bound elements property
+ *                                    to use as a source of a value
+ * @property {Function} [parse] the parse function to parse the bounded value
+ *                              before updating model or controller with it
+ * */
+
+/**
  * A hash of event names and their handlers.
+ * @type {Object.<string, (Function|String|Handler)>}
  */
 Controller.handlers = undefined;
 
 /**
  * A hash of region names and their corresponding CSS selectors.
+ * @type {Object.<string, string>}
  */
 Controller.regions = undefined;
 
 /**
  * The view or template function used in rendering the controller.
+ * @type {Function}
  */
 Controller.view = undefined;
 
 /**
  * A hash of route names and their RegExp matchers.
+ * @type {Object.<string, RegExp>}
  */
 Controller.routes = undefined;
 
 /**
  * A custom root for the controller's router.
+ * @type {string}
  */
 Controller.root = '';
 

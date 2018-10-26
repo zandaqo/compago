@@ -28,6 +28,13 @@ through storage controllers and notify subscribers through events when their dat
 </dd>
 </dl>
 
+## Typedefs
+
+<dl>
+<dt><a href="#Handler">Handler</a> : <code>Object</code></dt>
+<dd></dd>
+</dl>
+
 <a name="Controller"></a>
 
 ## Controller
@@ -39,6 +46,7 @@ to re-render its View.
 **Kind**: global class  
 
 * [Controller](#Controller)
+    * [new Controller([options])](#new_Controller_new)
     * _instance_
         * [.render()](#Controller+render) ⇒ [<code>Controller</code>](#Controller)
         * [.addEventListener([name], [callback], [options])](#Controller+addEventListener) ⇒ <code>undefined</code>
@@ -50,13 +58,22 @@ to re-render its View.
         * [.disconnectedCallback()](#Controller+disconnectedCallback) ⇒ <code>undefined</code>
         * [.attributeChangedCallback(name, oldValue)](#Controller+attributeChangedCallback) ⇒ <code>undefined</code>
     * _static_
-        * [.observedAttributes](#Controller.observedAttributes)
-        * [.handlers](#Controller.handlers)
-        * [.regions](#Controller.regions)
-        * [.view](#Controller.view)
-        * [.routes](#Controller.routes)
-        * [.root](#Controller.root)
+        * [.observedAttributes](#Controller.observedAttributes) : <code>Array.&lt;string&gt;</code>
+        * [.handlers](#Controller.handlers) : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
+        * [.regions](#Controller.regions) : <code>Object.&lt;string, string&gt;</code>
+        * [.view](#Controller.view) : <code>function</code>
+        * [.routes](#Controller.routes) : <code>Object.&lt;string, RegExp&gt;</code>
+        * [.root](#Controller.root) : <code>string</code>
         * [.debounce(callback, wait)](#Controller.debounce) ⇒ <code>function</code>
+
+<a name="new_Controller_new"></a>
+
+### new Controller([options])
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> |  |
+| [options.model] | [<code>Model</code>](#Model) | the model of the controller |
 
 <a name="Controller+render"></a>
 
@@ -211,7 +228,7 @@ By default, dispatches `attributes` event.
 
 <a name="Controller.observedAttributes"></a>
 
-### Controller.observedAttributes
+### Controller.observedAttributes : <code>Array.&lt;string&gt;</code>
 A getter that returns an array of attribute names that should be watched for changes.
 Names of the model attributes should start with `:`, to watch for all changes on the model
 use just `:`.
@@ -219,31 +236,31 @@ use just `:`.
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.handlers"></a>
 
-### Controller.handlers
+### Controller.handlers : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
 A hash of event names and their handlers.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.regions"></a>
 
-### Controller.regions
+### Controller.regions : <code>Object.&lt;string, string&gt;</code>
 A hash of region names and their corresponding CSS selectors.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.view"></a>
 
-### Controller.view
+### Controller.view : <code>function</code>
 The view or template function used in rendering the controller.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.routes"></a>
 
-### Controller.routes
+### Controller.routes : <code>Object.&lt;string, RegExp&gt;</code>
 A hash of route names and their RegExp matchers.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.root"></a>
 
-### Controller.root
+### Controller.root : <code>string</code>
 A custom root for the controller's router.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
@@ -923,4 +940,18 @@ Checks whether the model has been already persisted on the server.
 | --- | --- |
 | target | <code>\*</code> | 
 | property | <code>string</code> | 
+
+<a name="Handler"></a>
+
+## Handler : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| [handler] | <code>function</code> |  | the callback function to handle the event,                                not used if `bond` is present |
+| [debounce] | <code>number</code> |  | the debounce time for the handler |
+| [bond] | <code>string</code> \| <code>boolean</code> |  | name of the property to bond to,                                     or `true` to get the name from the bound element |
+| [value] | <code>string</code> | <code>&quot;&#x27;value&#x27;&quot;</code> | the name of the bound elements property                                    to use as a source of a value |
+| [parse] | <code>function</code> |  | the parse function to parse the bounded value                              before updating model or controller with it |
 

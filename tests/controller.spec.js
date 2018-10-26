@@ -246,6 +246,13 @@ describe('Controller', () => {
         hash: '#c',
       });
     });
+
+    it('can be used if no routes are specified', () => {
+      ControllerClass.routes = {};
+      const anotherController = new ControllerClass();
+      anotherController.navigate('/abc');
+      expect(ControllerClass[Symbol.for('c_history')].pushState).toHaveBeenCalled();
+    });
   });
 
   describe('dispose', () => {
