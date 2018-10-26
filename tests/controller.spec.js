@@ -397,7 +397,7 @@ describe('Controller', () => {
 
   describe('_handle', () => {
     it('handles `attributes` event', () => {
-      v._handlers = v._prepareHandlers({
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
         attributes: 'someMethod',
       });
       v._setEventHandlers();
@@ -406,7 +406,7 @@ describe('Controller', () => {
     });
 
     it('handles `attributes` event with a selector', () => {
-      v._handlers = v._prepareHandlers({
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
         'attributes :a': 'someMethod',
       });
       v._setEventHandlers();
@@ -419,7 +419,7 @@ describe('Controller', () => {
 
     it('handles multiple callbacks for `attributes` events', () => {
       const anotherMethod = jest.fn();
-      v._handlers = v._prepareHandlers({
+      v[Symbol.for('c_handlers')] = v._prepareHandlers({
         'attributes :a': 'someMethod',
         attributes: anotherMethod,
       });
