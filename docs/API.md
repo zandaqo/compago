@@ -20,6 +20,21 @@ through storage controllers and notify subscribers through events when their dat
 </dd>
 </dl>
 
+## Functions
+
+<dl>
+<dt><a href="#get">get(target, property)</a> ⇒ <code>*</code></dt>
+<dd><p><code>get</code> operation trap for the main proxy of a model.</p>
+</dd>
+</dl>
+
+## Typedefs
+
+<dl>
+<dt><a href="#Handler">Handler</a> : <code>Object</code></dt>
+<dd></dd>
+</dl>
+
 <a name="Controller"></a>
 
 ## Controller
@@ -33,48 +48,47 @@ to re-render its View.
 * [Controller](#Controller)
     * [new Controller([options])](#new_Controller_new)
     * _instance_
-        * [.render()](#Controller+render) ⇒ <code>HTMLElement</code>
+        * [.render()](#Controller+render) ⇒ [<code>Controller</code>](#Controller)
         * [.addEventListener([name], [callback], [options])](#Controller+addEventListener) ⇒ <code>undefined</code>
         * [.removeEventListener([name], [callback], [options])](#Controller+removeEventListener) ⇒ <code>undefined</code>
-        * [.dispatchEvent(event)](#Controller+dispatchEvent) ⇒ <code>undefined</code>
-        * [.show(region, content, [options])](#Controller+show) ⇒ <code>this</code>
+        * [.show(region, content)](#Controller+show) ⇒ [<code>Controller</code>](#Controller)
         * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
         * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
+        * [.connectedCallback()](#Controller+connectedCallback) ⇒ <code>undefined</code>
+        * [.disconnectedCallback()](#Controller+disconnectedCallback) ⇒ <code>undefined</code>
+        * [.attributeChangedCallback(name, oldValue)](#Controller+attributeChangedCallback) ⇒ <code>undefined</code>
     * _static_
-        * [.observedAttributes](#Controller.observedAttributes)
+        * [.observedAttributes](#Controller.observedAttributes) : <code>Array.&lt;string&gt;</code>
+        * [.handlers](#Controller.handlers) : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
+        * [.regions](#Controller.regions) : <code>Object.&lt;string, string&gt;</code>
+        * [.view](#Controller.view) : <code>function</code>
+        * [.routes](#Controller.routes) : <code>Object.&lt;string, RegExp&gt;</code>
+        * [.root](#Controller.root) : <code>string</code>
         * [.debounce(callback, wait)](#Controller.debounce) ⇒ <code>function</code>
 
 <a name="new_Controller_new"></a>
 
 ### new Controller([options])
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.el] | <code>string</code> |  | a CSS selector for the DOM element of the controller |
-| [options.tagName] | <code>string</code> | <code>&quot;div&quot;</code> | a tag if the controller should create its own DOM element |
-| [options.attributes] | <code>Object</code> |  | attributes to apply to the controller's DOM element |
-| [options.handlers] | <code>Object</code> |  | the DOM event handlers for the controller |
-| [options.model] | <code>Object</code> |  | the data model used by the controller |
-| [options.view] | <code>Object</code> |  | the view or template function used in rendering the controller |
-| [options.regions] | <code>Object</code> |  | a hash of regions of the controller |
-| [options.routes] | <code>Object</code> |  | a hash of routes |
-| [options.root] | <code>string</code> |  |  |
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> |  |
+| [options.model] | [<code>Model</code>](#Model) | the model of the controller |
 
 <a name="Controller+render"></a>
 
-### controller.render() ⇒ <code>HTMLElement</code>
+### controller.render() ⇒ [<code>Controller</code>](#Controller)
 Renders the controller.
 
-By default, invokes `this.view` supplying the controller
-and returns the controller's DOM element.
+By default, invokes `this.constructor.view`
+supplying the controller and returns the controller.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
-**Returns**: <code>HTMLElement</code> - the DOM element of the controller  
+**Returns**: [<code>Controller</code>](#Controller) - the controller  
 <a name="Controller+addEventListener"></a>
 
 ### controller.addEventListener([name], [callback], [options]) ⇒ <code>undefined</code>
-Attaches an event handler to the controller's DOM element.
+Attaches an event handler to the controller.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
@@ -83,18 +97,17 @@ Attaches an event handler to the controller's DOM element.
 | [name] | <code>string</code> | the event name |
 | [callback] | <code>function</code> \| <code>string</code> | the handler function. Can be either a function                                      or a name of the controller's method |
 | [options] | <code>Object</code> |  |
-| [options.handler] | <code>string</code> | if true, the handler is managed by controller's event                                   handling system nd not directly attached to the DOM element. |
-| [options.selector] | <code>string</code> | the CSS selector to handle events on a specific child element |
+| [options.handler] | <code>string</code> | if true, the handler is managed by controller's event                                   dispatching system instead of being attached directly. |
+| [options.selector] | <code>string</code> | the CSS selector to handle events                                    on a specific child element |
 
 **Example**  
 ```js
 controller.addEventListener('click', controller.onClick);
-// attaches `controller.onClick` as a handler for a `click`
-// event on the controller's DOM element directly
+// attaches `controller.onClick` as a handler for a `click` event directly
 
 controller.addEventListener('click', controller.onClick, { handler: true });
 // registers `controller.onClick` as a handler for a `click`
-// in controller's event handling system
+// in controller's event dispatching system
 
 controller.addEventListener('click', controller.onButtonClick,
                             { handler: true, selector: '#button' });
@@ -104,7 +117,7 @@ controller.addEventListener('click', controller.onButtonClick,
 <a name="Controller+removeEventListener"></a>
 
 ### controller.removeEventListener([name], [callback], [options]) ⇒ <code>undefined</code>
-Detaches an event handler from the controller's DOM element.
+Detaches an event handler from the controller.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
@@ -113,7 +126,7 @@ Detaches an event handler from the controller's DOM element.
 | [name] | <code>string</code> | the event name |
 | [callback] | <code>function</code> | the handler function |
 | [options] | <code>Object</code> |  |
-| [options.handler] | <code>string</code> | whether the handler is in the controller's event handling system |
+| [options.handler] | <code>string</code> | whether the handler is in                                   the controller's event dispatching system |
 | [options.selector] | <code>string</code> | the CSS selector |
 
 **Example**  
@@ -124,52 +137,25 @@ controller.removeEventListener('click', controller.onClick);
 controller.removeEventListener('click', controller.onButtonClick,
                                { handler: true, selector: '#button'});
 // removes `controller.onButtonClick` as a handler
-// for the `click` events on `#button` child element from the controller's event handling system
+// for the `click` events on `#button` child element
+// from the controller's event dispatching system
 ```
-<a name="Controller+dispatchEvent"></a>
+<a name="Controller+show"></a>
 
-### controller.dispatchEvent(event) ⇒ <code>undefined</code>
-Dispatches an event.
+### controller.show(region, content) ⇒ [<code>Controller</code>](#Controller)
+Renders DOM elements inside a region replacing the existing content.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| event | <code>Event</code> | the event object to be dispatched |
-
-<a name="Controller+show"></a>
-
-### controller.show(region, content, [options]) ⇒ <code>this</code>
-Renders a controller or any DOM element inside a region replacing the existing content.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| region | <code>string</code> |  | the name of the region |
-| content | [<code>Controller</code>](#Controller) \| <code>HTMLElement</code> |  | a DOM element or a controller to render |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any event |
-| [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the previous controller |
-| [options.keepModel] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the previous controller's model |
+| region | <code>string</code> | the name of the region |
+| content | <code>HTMLElement</code> | a DOM element to render |
 
 **Example**  
 ```js
-controller.show('sidebar', otherController);
-// renders and inserts the otherController's DOM element inside
-// the 'sidebar' region of the controller
-
-controller.show('sidebar', yetAnotherController);
-// disposes the current controller and replaces it with the new controller
-
-controller.show('sidebar', anotherController);
-// returns if the controller did not change
-
-controller.show('sidebar', otherController, { keep: true });
-// replaces the previous controller without disposing it
-
-controller.show('sidebar', otherController, { keepModel: true });
-// replaces the previous controller without disposing it's model
+controller.show('sidebar', someElements);
+// inserts `someElements` inside the 'sidebar' region of the controller
 ```
 <a name="Controller+navigate"></a>
 
@@ -201,7 +187,7 @@ controller.navigate('/users', { silent: true });
 ### controller.dispose([options]) ⇒ <code>this</code>
 Prepares the controller to be disposed.
 
-Removes the controller's element from the DOM, detaches handlers,
+Removes the controller from the DOM, detaches handlers,
 disposes the controller's model unless `save` option is provided,
 and removes all event listeners.
 
@@ -213,12 +199,69 @@ and removes all event listeners.
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
 | [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model of the controller |
 
+<a name="Controller+connectedCallback"></a>
+
+### controller.connectedCallback() ⇒ <code>undefined</code>
+Invoked once the controller is attached to the DOM.
+By default, controller starts observing attributes of its model.
+
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+<a name="Controller+disconnectedCallback"></a>
+
+### controller.disconnectedCallback() ⇒ <code>undefined</code>
+Invoked once the controller is detached from the DOM.
+By default, disposes of the controller.
+
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+<a name="Controller+attributeChangedCallback"></a>
+
+### controller.attributeChangedCallback(name, oldValue) ⇒ <code>undefined</code>
+Invoked when observed attributes of the controller are changed.
+By default, dispatches `attributes` event.
+
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | the name of the changed attribute |
+| oldValue | <code>\*</code> | previous value of the attribute |
+
 <a name="Controller.observedAttributes"></a>
 
-### Controller.observedAttributes
+### Controller.observedAttributes : <code>Array.&lt;string&gt;</code>
 A getter that returns an array of attribute names that should be watched for changes.
 Names of the model attributes should start with `:`, to watch for all changes on the model
 use just `:`.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.handlers"></a>
+
+### Controller.handlers : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
+A hash of event names and their handlers.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.regions"></a>
+
+### Controller.regions : <code>Object.&lt;string, string&gt;</code>
+A hash of region names and their corresponding CSS selectors.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.view"></a>
+
+### Controller.view : <code>function</code>
+The view or template function used in rendering the controller.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.routes"></a>
+
+### Controller.routes : <code>Object.&lt;string, RegExp&gt;</code>
+A hash of route names and their RegExp matchers.
+
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.root"></a>
+
+### Controller.root : <code>string</code>
+A custom root for the controller's router.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.debounce"></a>
@@ -611,7 +654,6 @@ through storage controllers and notify subscribers through events when their dat
         * [.dispose([options])](#Model+dispose) ⇒ <code>this</code>
     * _static_
         * [.idAttribute](#Model.idAttribute) : <code>string</code>
-        * [.proxies](#Model.proxies) : <code>WeakMap</code>
         * [.definePrivate(model, properties)](#Model.definePrivate) ⇒ <code>void</code>
 
 <a name="new_Model_new"></a>
@@ -791,12 +833,6 @@ model.dispose();
 The id property name for the models of the class.
 
 **Kind**: static property of [<code>Model</code>](#Model)  
-<a name="Model.proxies"></a>
-
-### Model.proxies : <code>WeakMap</code>
-The WeakMap holding references to metadata associated with proxies in Model.
-
-**Kind**: static property of [<code>Model</code>](#Model)  
 <a name="Model.definePrivate"></a>
 
 ### Model.definePrivate(model, properties) ⇒ <code>void</code>
@@ -807,14 +843,17 @@ sets them up as non-enumerable properties of the model.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| model | [<code>Model</code>](#Model) | the model on which properties are to be set |
+| model | <code>Object</code> | the model on which properties are to be set |
 | properties | <code>Object</code> | a hash of Symbol key names and initial values to be set on the model |
 
 **Example**  
 ```js
-Model.definePrivate(model, { private_key: 1 });
-model[Symbol.for('private_key')]
+const model = new Model();
+Model.definePrivate(model, { _privateKey: 1 });
+model._privateKey
 //=> 1
+Object.keys(model)
+//=> []
 ```
 <a name="RemoteStorage"></a>
 
@@ -889,4 +928,30 @@ Checks whether the model has been already persisted on the server.
 | Param | Type | Description |
 | --- | --- | --- |
 | model | [<code>Model</code>](#Model) | the model to be checked |
+
+<a name="get"></a>
+
+## get(target, property) ⇒ <code>\*</code>
+`get` operation trap for the main proxy of a model.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| target | <code>\*</code> | 
+| property | <code>string</code> | 
+
+<a name="Handler"></a>
+
+## Handler : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| [handler] | <code>function</code> |  | the callback function to handle the event,                                not used if `bond` is present |
+| [debounce] | <code>number</code> |  | the debounce time for the handler |
+| [bond] | <code>string</code> \| <code>boolean</code> |  | name of the property to bond to,                                     or `true` to get the name from the bound element |
+| [value] | <code>string</code> | <code>&quot;&#x27;value&#x27;&quot;</code> | the name of the bound elements property                                    to use as a source of a value |
+| [parse] | <code>function</code> |  | the parse function to parse the bounded value                              before updating model or controller with it |
 

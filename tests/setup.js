@@ -18,3 +18,6 @@ Object.defineProperty(window.Element.prototype, 'closest', {
   },
   writable: true,
 });
+
+
+Object.defineProperty(window, 'HTMLElement', { value: class extends EventTarget {} });
