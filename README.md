@@ -92,11 +92,11 @@ await model.erase();
 ```
 
 ### Controller
-Controllers handle user interactions and glue together Models and Views. The current Controller class is written with CustomElements in mind to one day seamlessly integrate with them.
-For now, each Controller is tied to a DOM element that serves as the parent element for rendering its View. Controller reacts to DOM events passing through the said element (emitted by it or its children) updating Model and re-rendering View as need be.
+Controllers handle user interactions and glue together Models and Views. The current Controller class relies on CustomElements v1 and extends HTMLElement.
+Controller reacts to DOM events passing through it (emitted by it or its children) updating Model and re-rendering View as need be.
 
 #### Observing Attributes
-In `Controller.observedAttributes` class property, you can specify attribute names of the controller's element
+In `Controller.observedAttributes` class property, you can specify attribute names of the controller
 or property names of the controller's model to be watched for changes. Every time such change happens, the controller will emit `attributes` event with necessary data attached.
 Now, watching for changes both on Model and DOM attributes may seem redundant, but that's a deliberate choice to keep Model free of UI logic:
 UI state should be kept in DOM while the business data in your Models. Also, this way you can have UI specific controllers with a state without a model.
@@ -106,29 +106,24 @@ Controller provide a declarative event handling interface that takes care of man
 
 ```
 class Todo extends Controller {
-  constructor() {
-    super({
-      el: '#todo'
-      handlers: {
-        'click': 'onClick',
-        'click .submit': 'onSubmit',
-        'attributes': 'render',
-      }
-    });
-  }
   onClick(event) {}
   onSubmit(event, target) {}
-
-  static get observedAttributes() {
-    return ['data-name']
-  }
 }
+
+Todo.observedAttributes = ['data-name'];
+
+Todo.handlers = {
+  'click': 'onClick',
+  'click .submit': 'onSubmit',
+  'attributes': 'render',
+};
+
 ```
 
-In the above example, Controller will attach a single handler `Controller#_handle` to the controller's DOM element to handle `click` events
-and another one to handle `attributes` event that will be emitted if the element's attribute `data-name` changes.
-It will invoke `onClick` whenever a click happens inside the element, and `onSubmit` whenever that click happens on a child element that matches `.submit`
-selector, the second argument (target) supplied to `onSubmit` method will be the matched element. Also, this way you don't have to bind your handlers to their instances.
+In the above example, Controller will attach to itself a single handler `Controller#_handle` to handle `click` events
+and another one to handle `attributes` event that will be emitted if its attribute `data-name` changes.
+It will invoke `onClick` whenever a click happens inside it, and `onSubmit` whenever that click happens on a child element that matches `.submit`
+selector; the second argument (`target`) supplied to `onSubmit` method will be the matched element. Also, this way you don't have to bind your handlers to their instances.
 The attaching or detaching of the event handlers happens only once upon creation or destruction of the controller respectively. You can still add event handlers
 the usual way with `addEventListener` or delegate this entirely to your View engine if it offers such feature.
 
@@ -137,59 +132,22 @@ A controller can act as a router watching for changes in URL and emitting `route
 
 ```
 class Todo extends Controller {
-  constructor() {
-    super({
-      routes: {
-        home: '/'
-        filter: '/:filter'
-      }
-      handlers: {
-        route: 'onRouteChange'
-      }
-    });
-  }
   onRouteChange(event) {}
 }
+
+Todo.routes = {
+  home: /\//,
+  filter: /\/:(?<filter>[^\]+/,
+};
+
+Todo.handlers = {
+  route: 'onRouteChange',
+};
 ```
 
-In the above example, the controller will `route` event if URL matches one of the specified routes. Since the controller also
+In the above example, the controller will dispatch a `route` event if URL matches one of the specified routes. Since the controller also
 has a handler for the route event, it will invoke the handler as well with data specifying the name of route and other parameters.
-
-#### Managing Nested Controllers
-Controller uses the concept of regions to manage nested controllers. A region is a DOM element within the controller's element that can host another controller.
-The main reason for having regions is to make sure that we dispose of child controllers when we remove the parent controller. To that end, controller offers an interface
-to speficy regions and a single `Controller#show` method to include child controllers within a given region.
-
-```
-class Dashboard extends Controller {
-  constructor() {
-    super({
-      regions: {
-        menu: '#menu',
-        content: '#content',
-      }
-    }
-  }
-
-  render() {
-    if (!this.el.hasChildren() {
-      this.show('menu', new Menu());
-      this.show('content', new Content());
-    }
-  }
-}
-```
-
-In the above example we specify two regions tied to two elements within the Dashboard controller and fill each with controller upon first render of the Dashboard.
-If we call `show` again:
-
-```
-...
-this.show('content', new OtherContent());
-...
-```
-
-the Dashboard controller will dispose of the old Content controller and fill the `#content` with the new OtherContent controller.
+Routes use RegExps for matching, RegExp named groups can be used to supply matched parameters to `route` event listeners in `event.detail.params`.
 
 
 ## See Also
