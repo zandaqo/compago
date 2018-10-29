@@ -51,7 +51,6 @@ to re-render its View.
         * [.render()](#Controller+render) ⇒ [<code>Controller</code>](#Controller)
         * [.addEventListener([name], [callback], [options])](#Controller+addEventListener) ⇒ <code>undefined</code>
         * [.removeEventListener([name], [callback], [options])](#Controller+removeEventListener) ⇒ <code>undefined</code>
-        * [.show(region, content)](#Controller+show) ⇒ [<code>Controller</code>](#Controller)
         * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
         * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
         * [.connectedCallback()](#Controller+connectedCallback) ⇒ <code>undefined</code>
@@ -60,7 +59,6 @@ to re-render its View.
     * _static_
         * [.observedAttributes](#Controller.observedAttributes) : <code>Array.&lt;string&gt;</code>
         * [.handlers](#Controller.handlers) : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
-        * [.regions](#Controller.regions) : <code>Object.&lt;string, string&gt;</code>
         * [.view](#Controller.view) : <code>function</code>
         * [.routes](#Controller.routes) : <code>Object.&lt;string, RegExp&gt;</code>
         * [.root](#Controller.root) : <code>string</code>
@@ -139,23 +137,6 @@ controller.removeEventListener('click', controller.onButtonClick,
 // removes `controller.onButtonClick` as a handler
 // for the `click` events on `#button` child element
 // from the controller's event dispatching system
-```
-<a name="Controller+show"></a>
-
-### controller.show(region, content) ⇒ [<code>Controller</code>](#Controller)
-Renders DOM elements inside a region replacing the existing content.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| region | <code>string</code> | the name of the region |
-| content | <code>HTMLElement</code> | a DOM element to render |
-
-**Example**  
-```js
-controller.show('sidebar', someElements);
-// inserts `someElements` inside the 'sidebar' region of the controller
 ```
 <a name="Controller+navigate"></a>
 
@@ -238,12 +219,6 @@ use just `:`.
 
 ### Controller.handlers : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
 A hash of event names and their handlers.
-
-**Kind**: static property of [<code>Controller</code>](#Controller)  
-<a name="Controller.regions"></a>
-
-### Controller.regions : <code>Object.&lt;string, string&gt;</code>
-A hash of region names and their corresponding CSS selectors.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.view"></a>

@@ -141,24 +141,6 @@ class Controller extends HTMLElement {
   }
 
   /**
-   * Renders DOM elements inside a region replacing the existing content.
-   *
-   * @param {string} region the name of the region
-   * @param {HTMLElement} content a DOM element to render
-   * @returns {Controller}
-   * @example
-   * controller.show('sidebar', someElements);
-   * // inserts `someElements` inside the 'sidebar' region of the controller
-   */
-  show(region, content) {
-    const regionElement = this.querySelector(this.constructor.regions[region]);
-    if (!regionElement) return this;
-    regionElement.innerHTML = '';
-    if (content) regionElement.appendChild(content);
-    return this;
-  }
-
-  /**
    * Saves a fragment into the browser history.
    *
    * @param {string} fragment a properly URL-encoded fragment to place into the history
@@ -202,7 +184,7 @@ class Controller extends HTMLElement {
   dispose({ silent, save } = _opt) {
     if (!silent) this.dispatchEvent(new CustomEvent('dispose', { detail: { emitter: this } }));
     if (!save && this.model && this.model.dispose) this.model.dispose();
-    if (this[Symbol.for('c_modelAttributes')].length) {
+    if (this.model && this[Symbol.for('c_modelAttributes')].length) {
       this.model.removeEventListener('change', this._onModelChange);
     }
     this.model = undefined;
@@ -494,12 +476,6 @@ Controller.observedAttributes = [];
  * @type {Object.<string, (Function|String|Handler)>}
  */
 Controller.handlers = undefined;
-
-/**
- * A hash of region names and their corresponding CSS selectors.
- * @type {Object.<string, string>}
- */
-Controller.regions = undefined;
 
 /**
  * The view or template function used in rendering the controller.

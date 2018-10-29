@@ -117,33 +117,6 @@ describe('Controller', () => {
     });
   });
 
-  describe('show', () => {
-    it('renders any given DOM nodes inside a given region', () => {
-      const region = document.createElement('div');
-      v.querySelector = jest.fn(() => region);
-      const domNode = document.createElement('div');
-      v.show('region', domNode);
-      expect(v.querySelector.mock.calls[0]).toEqual(['#region']);
-      expect(region.contains(domNode)).toBe(true);
-    });
-
-    it('does not render if region is not found', () => {
-      const region = document.createElement('div');
-      v.querySelector = jest.fn(() => undefined);
-      const domNode = document.createElement('div');
-      v.show('region', domNode);
-      expect(region.contains(domNode)).toBe(false);
-    });
-
-    it('empties region if no content is provided', () => {
-      const region = document.createElement('div');
-      region.innerHTML = '<p></p>';
-      v.querySelector = jest.fn(() => region);
-      v.show('region');
-      expect(region.innerHTML).toBe('');
-    });
-  });
-
   describe('navigate', () => {
     let controller;
     const historyState = (state, title, url) => {
