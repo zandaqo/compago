@@ -18,7 +18,7 @@ class RemoteStorage extends Listener() {
   constructor({ url = window.location.origin, init } = _opt) {
     super();
     this.url = url;
-    this.init = init || { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'include' };
+    this.init = init;
   }
 
   /**
@@ -64,13 +64,12 @@ class RemoteStorage extends Listener() {
     }
 
     if (method === 'write') {
-      options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(changes || model.toJSON());
     }
 
     if (!silent) this.dispatchEvent(new CustomEvent('request', { detail: { emitter: this, model, options } }));
 
-    return fetch(url, options)
+    return this.constructor.fetch(url, options)
       .then((response) => {
         if (!silent) {
           this.dispatchEvent(new CustomEvent('response', {
@@ -94,10 +93,22 @@ class RemoteStorage extends Listener() {
   }
 
   /**
+   * Wraps global fetch to apply default headers.
+   *
+   * @param {string|Request} url the resource to fetch
+   * @param {Object} options custom settings for the request
+   * @returns {Promise}
+   */
+  static fetch(url, options = {}) {
+    options.headers = Object.assign({}, this.headers, options.headers);
+    return window.fetch(url, options);
+  }
+
+  /**
    * Prepares the storage controller to be disposed.
    *
    * @param {Object} [options]
-   * @param {boolean} [options.silent] whether to avoid emitting the `dispose` event.
+   * @param {boolean} [options.silent] whether to avoid emitting the `dispose` event
    * @returns {this}
    */
   dispose({ silent } = _opt) {
@@ -115,6 +126,14 @@ RemoteStorage.methods = {
   read: 'GET',
   update: 'PUT',
   patch: 'PATCH',
+};
+
+/**
+ * Default headers for all fetch requests.
+ */
+RemoteStorage.headers = {
+  'X-Requested-With': 'XMLHttpRequest',
+  'Content-Type': 'application/json',
 };
 
 export default RemoteStorage;

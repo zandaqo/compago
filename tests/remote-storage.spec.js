@@ -48,8 +48,7 @@ describe('RemoteStorage', () => {
       model = { id: 42 };
       model.toJSON = () => model;
       response = new MockResponse(200, { 'content-type': 'application/json' }, {});
-      window.fetch = () => Promise.resolve(response);
-      jest.spyOn(window, 'fetch');
+      window.fetch = jest.fn(() => Promise.resolve(response));
     });
 
     afterEach(() => {
@@ -66,8 +65,7 @@ describe('RemoteStorage', () => {
       return storage.sync('read', model).then((data) => {
         expect(window.fetch.mock.calls).toEqual([['http://example.com/posts/42', {
           method: 'GET',
-          headers: { 'X-Requested-With': 'XMLHttpRequest' },
-          credentials: 'include',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         }]]);
         expect(data).toEqual(result);
       });
@@ -79,8 +77,7 @@ describe('RemoteStorage', () => {
       return storage.sync('read', collection).then(() => {
         expect(window.fetch.mock.calls).toEqual([['http://example.com/posts', {
           method: 'GET',
-          headers: { 'X-Requested-With': 'XMLHttpRequest' },
-          credentials: 'include',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         }]]);
       });
     });
@@ -95,7 +92,6 @@ describe('RemoteStorage', () => {
           method: 'POST',
           body: JSON.stringify(model),
           headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
-          credentials: 'include',
         }]]);
         expect(data).toEqual(result);
       });
@@ -106,7 +102,6 @@ describe('RemoteStorage', () => {
         method: 'PUT',
         body: JSON.stringify(model),
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
-        credentials: 'include',
       }]]);
     }));
 
@@ -117,7 +112,6 @@ describe('RemoteStorage', () => {
           method: 'PATCH',
           body: JSON.stringify(model.changes),
           headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
-          credentials: 'include',
         }]]);
       });
     });
@@ -125,8 +119,7 @@ describe('RemoteStorage', () => {
     it('deletes a model', () => storage.sync('erase', model).then(() => {
       expect(window.fetch.mock.calls).toEqual([['http://example.com/posts/42', {
         method: 'DELETE',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        credentials: 'include',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
       }]]);
     }));
 
@@ -136,8 +129,7 @@ describe('RemoteStorage', () => {
       return storage.sync('read', model).catch((error) => {
         expect(window.fetch.mock.calls).toEqual([['http://example.com/posts/42', {
           method: 'GET',
-          headers: { 'X-Requested-With': 'XMLHttpRequest' },
-          credentials: 'include',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         }]]);
         expect(error.message).toBe('404');
       });

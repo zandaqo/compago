@@ -845,7 +845,9 @@ Facilitates interaction with a REST server through the Fetch API.
         * [.dispose([options])](#RemoteStorage+dispose) ⇒ <code>this</code>
     * _static_
         * [.methods](#RemoteStorage.methods)
+        * [.headers](#RemoteStorage.headers)
         * [.isStored(model)](#RemoteStorage.isStored) ⇒ <code>boolean</code>
+        * [.fetch(url, options)](#RemoteStorage.fetch) ⇒ <code>Promise</code>
 
 <a name="new_RemoteStorage_new"></a>
 
@@ -884,12 +886,18 @@ Prepares the storage controller to be disposed.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting the `dispose` event. |
+| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting the `dispose` event |
 
 <a name="RemoteStorage.methods"></a>
 
 ### RemoteStorage.methods
 The map translating internal method names to their respective HTTP methods.
+
+**Kind**: static property of [<code>RemoteStorage</code>](#RemoteStorage)  
+<a name="RemoteStorage.headers"></a>
+
+### RemoteStorage.headers
+Default headers for all fetch requests.
 
 **Kind**: static property of [<code>RemoteStorage</code>](#RemoteStorage)  
 <a name="RemoteStorage.isStored"></a>
@@ -903,6 +911,18 @@ Checks whether the model has been already persisted on the server.
 | Param | Type | Description |
 | --- | --- | --- |
 | model | [<code>Model</code>](#Model) | the model to be checked |
+
+<a name="RemoteStorage.fetch"></a>
+
+### RemoteStorage.fetch(url, options) ⇒ <code>Promise</code>
+Wraps global fetch to apply default headers.
+
+**Kind**: static method of [<code>RemoteStorage</code>](#RemoteStorage)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| url | <code>string</code> \| <code>Request</code> | the resource to fetch |
+| options | <code>Object</code> | custom settings for the request |
 
 <a name="get"></a>
 
