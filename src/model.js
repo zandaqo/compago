@@ -30,7 +30,7 @@ class Model extends Listener() {
    * @param {Object} [options.collection] the collection to which the model should belong
    * @param {Object} [options.storage] the storage engine for the model
    */
-  constructor(attributes = {}, { collection, storage } = _opt) {
+  constructor(attributes, { collection, storage } = _opt) {
     super();
     Model.definePrivate(this, {
       [Symbol.for('c_collection')]: collection,
@@ -53,10 +53,9 @@ class Model extends Listener() {
    * model
    * //=>{ foo: bar }
    */
-  set(attributes = {}) {
+  set(attributes) {
     Object.keys(this).forEach(key => delete this[key]);
-    Object.assign(this, attributes);
-    return this;
+    return Object.assign(this, attributes);
   }
 
   /**
@@ -67,8 +66,7 @@ class Model extends Listener() {
    *
    */
   assign(attributes) {
-    Object.assign(this, attributes);
-    return this;
+    return Object.assign(this, attributes);
   }
 
   /**
@@ -215,8 +213,8 @@ class Model extends Listener() {
    * @returns {Promise}
    */
   sync(method, options) {
-    const storage = (this[Symbol.for('c_collection')] && this[Symbol.for('c_collection')].storage)
-      ? this[Symbol.for('c_collection')].storage : this[Symbol.for('c_storage')];
+    const collection = this[Symbol.for('c_collection')];
+    const storage = (collection && collection.storage) ? collection.storage : this[Symbol.for('c_storage')];
     if (storage) return storage.sync(method, this, options);
     return Promise.reject(new Error('Storage is not defined.'));
   }
