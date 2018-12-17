@@ -29,14 +29,13 @@ class Model extends Listener() {
    */
   constructor(attributes, { collection, storage } = _opt) {
     super();
-    // bind EventTarget methods to allow invoking through proxy
-    this.addEventListener = this.addEventListener.bind(this);
-    this.removeEventListener = this.removeEventListener.bind(this);
-    this.dispatchEvent = this.dispatchEvent.bind(this);
 
     Model.definePrivate(this, {
       [Symbol.for('c_collection')]: collection,
       [Symbol.for('c_storage')]: storage,
+      addEventListener: this.addEventListener.bind(this),
+      removeEventListener: this.removeEventListener.bind(this),
+      dispatchEvent: this.dispatchEvent.bind(this),
     });
     this.set(attributes);
     return this.constructor._getProxy(this, '', this, [this]);
