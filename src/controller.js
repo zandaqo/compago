@@ -10,6 +10,7 @@ const _opt = Object.seal(Object.create(null));
  * through DOM events and updates its Model accordingly. It listens to updates on its Model
  * to re-render its View.
  *
+ * @extends HTMLElement
  */
 class Controller extends HTMLElement {
   /**

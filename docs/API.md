@@ -1,7 +1,7 @@
 ## Classes
 
 <dl>
-<dt><a href="#Controller">Controller</a></dt>
+<dt><a href="#Controller">Controller</a> ⇐ <code>HTMLElement</code></dt>
 <dd><p>The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
@@ -20,14 +20,6 @@ through storage controllers and notify subscribers through events when their dat
 </dd>
 </dl>
 
-## Functions
-
-<dl>
-<dt><a href="#get">get(target, property)</a> ⇒ <code>*</code></dt>
-<dd><p><code>get</code> operation trap for the main proxy of a model.</p>
-</dd>
-</dl>
-
 ## Typedefs
 
 <dl>
@@ -37,15 +29,16 @@ through storage controllers and notify subscribers through events when their dat
 
 <a name="Controller"></a>
 
-## Controller
+## Controller ⇐ <code>HTMLElement</code>
 The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
 to re-render its View.
 
 **Kind**: global class  
+**Extends**: <code>HTMLElement</code>  
 
-* [Controller](#Controller)
+* [Controller](#Controller) ⇐ <code>HTMLElement</code>
     * [new Controller([options])](#new_Controller_new)
     * _instance_
         * [.render()](#Controller+render) ⇒ [<code>Controller</code>](#Controller)
@@ -923,18 +916,6 @@ Wraps global fetch to apply default headers.
 | --- | --- | --- |
 | url | <code>string</code> \| <code>Request</code> | the resource to fetch |
 | options | <code>Object</code> | custom settings for the request |
-
-<a name="get"></a>
-
-## get(target, property) ⇒ <code>\*</code>
-`get` operation trap for the main proxy of a model.
-
-**Kind**: global function  
-
-| Param | Type |
-| --- | --- |
-| target | <code>\*</code> | 
-| property | <code>string</code> | 
 
 <a name="Handler"></a>
 

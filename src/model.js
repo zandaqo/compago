@@ -4,9 +4,6 @@ import Listener from './listener';
 /** Used as a source of default options for methods to avoid creating new objects on every call. */
 const _opt = Object.seal(Object.create(null));
 
-/** List of methods derived from EventTarget. */
-const _eventMethods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
-
 /**
  * Checks if value is a non-null object.
  * @param {*} value
@@ -32,6 +29,11 @@ class Model extends Listener() {
    */
   constructor(attributes, { collection, storage } = _opt) {
     super();
+    // bind EventTarget methods to allow invoking through proxy
+    this.addEventListener = this.addEventListener.bind(this);
+    this.removeEventListener = this.removeEventListener.bind(this);
+    this.dispatchEvent = this.dispatchEvent.bind(this);
+
     Model.definePrivate(this, {
       [Symbol.for('c_collection')]: collection,
       [Symbol.for('c_storage')]: storage,
@@ -293,8 +295,7 @@ class Model extends Listener() {
       proxy[Symbol.for('c_model')] = model;
       proxy[Symbol.for('c_path')] = path;
     } else {
-      const handler = target === model ? this.proxyModelHandler : this.proxyHandler;
-      proxy = new Proxy(target, handler);
+      proxy = new Proxy(target, this.proxyHandler);
       this.definePrivate(proxy, {
         [Symbol.for('c_model')]: model,
         [Symbol.for('c_path')]: path,
@@ -367,23 +368,5 @@ Model.proxyHandler = {
     return true;
   },
 };
-
-Model.proxyModelHandler = Object.assign({
-  /**
-   * `get` operation trap for the main proxy of a model.
-   *
-   * @param {*} target
-   * @param {string} property
-   * @returns {*}
-   */
-  get(target, property) {
-    if (_eventMethods.includes(property)) {
-      return function (...args) {
-        return Reflect.apply(target[property], target, args);
-      };
-    }
-    return target[property];
-  },
-}, Model.proxyHandler);
 
 export default Model;
