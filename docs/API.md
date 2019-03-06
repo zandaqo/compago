@@ -544,8 +544,6 @@ Updates the array with its stored version.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | [options] | <code>Object</code> |  |  |
-| [options.success] | <code>function</code> |  | the success callback |
-| [options.error] | <code>function</code> |  | the error callback |
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing events |
 
 **Example**  

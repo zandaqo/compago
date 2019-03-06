@@ -381,8 +381,6 @@ class ModelArray extends Listener(Array) {
    * Updates the array with its stored version.
    *
    * @param {Object} [options]
-   * @param {Function} [options.success] the success callback
-   * @param {Function} [options.error]   the error callback
    * @param {boolean} [options.silent]   whether to avoid firing events
    * @returns {Promise}
    * @example

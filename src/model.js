@@ -321,10 +321,14 @@ class Model extends Listener() {
  */
 Model.idAttribute = '_id';
 
+/**
+ * @private
+ */
 Model.proxyHandler = {
   /**
    * Set operation trap for proxies on Model
    *
+   * @private
    * @param {*} target
    * @param {string} property
    * @param {*} value
@@ -349,6 +353,7 @@ Model.proxyHandler = {
   /**
    * `delete` operation trap for proxies on Model
    *
+   * @private
    * @param {*} target
    * @param {string} property
    * @returns {boolean}
