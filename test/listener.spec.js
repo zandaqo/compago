@@ -1,4 +1,4 @@
-import Listener from '../src/listener';
+import Listener from '../lib/listener';
 
 describe('Listener', () => {
   class ListenerClass extends Listener() {

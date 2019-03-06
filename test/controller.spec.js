@@ -1,5 +1,5 @@
-import Listener from '../src/listener';
-import Controller from '../src/controller';
+import Listener from '../lib/listener';
+import Controller from '../lib/controller';
 
 class Model extends Listener() {}
 

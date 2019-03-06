@@ -1,4 +1,4 @@
-import Model from '../src/model.js';
+import Model from '../lib/model';
 
 describe('Model', () => {
   let model;

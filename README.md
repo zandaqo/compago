@@ -1,7 +1,6 @@
 # Compago
 
 [![npm](https://img.shields.io/npm/v/compago.svg?style=flat-square)](https://www.npmjs.com/package/compago)
-[![David-dm](https://david-dm.org/zandaqo/compago.svg?style=flat-square)](https://david-dm.org/zandaqo/compago)
 [![Travis branch](https://img.shields.io/travis/zandaqo/compago.svg?style=flat-square)](https://travis-ci.org/zandaqo/compago)
 [![Codecov](https://img.shields.io/codecov/c/github/zandaqo/compago.svg?style=flat-square)](https://codecov.io/github/zandaqo/compago)
 
@@ -12,8 +11,7 @@ to architecture.
 
 ## Features
  * Built for modern browsers: No support for IE.
- * No large dependencies such as jQuery, underscore, etc.
- * Small size (5kb) and API surface.
+ * No dependencies; small size (5kb) and API surface.
  * No custom event or messaging system; all components extend [EventTarget](https://medium.com/@zandaqo/eventtarget-the-future-of-javascript-event-systems-205ae32f5e6b), thus, relying on DOM events for communication.
  * Encourages strict implementation of MVC architecture and separation of concerns.
  * Strict control of the life-cycle of its objects through the use of class constructors and `dispose` methods as destructors.
@@ -151,5 +149,5 @@ Routes use RegExps for matching, RegExp named groups can be used to supply match
 
 
 ## See Also
- * [API Documentation](https://github.com/zandaqo/compago/blob/master/docs/API.md)
+ * [API Documentation](https://github.com/zandaqo/compago/blob/master/doc/API.md)
  * [compago-todo](https://github.com/zandaqo/compago-todo) An example of a Todo app that uses lit-html for Views.

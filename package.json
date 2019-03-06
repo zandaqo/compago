@@ -1,10 +1,10 @@
 {
   "name": "compago",
-  "version": "4.0.0-beta.12",
+  "version": "4.0.0-beta.13",
   "description": "A minimalist MVC framework for modern browsers.",
-  "browser": "src/index.js",
   "main": "index.js",
   "module": "index.js",
+  "browser": "index.js",
   "keywords": [
     "mvc",
     "framework",
@@ -13,10 +13,16 @@
   ],
   "scripts": {
     "test": "jest",
-    "lint": "eslint src/*.js tests/*.js",
+    "lint": "eslint lib/*.js test/*.js",
     "coverage:report": "cat ./coverage/lcov.info | codecov",
-    "docs:api": "jsdoc2md --configure jsdoc.json > docs/API.md"
+    "doc:api": "jsdoc2md --configure jsdoc.json > doc/API.md"
   },
+  "directories": {
+    "lib": "lib",
+    "doc": "doc",
+    "test": "test"
+  },
+  "files": ["lib/*.js"],
   "repository": {
     "type": "git",
     "url": "https://github.com/zandaqo/compago.git"
@@ -39,24 +45,26 @@
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "**/src/**",
-      "!**/src/listener.js",
+      "**/lib/**",
+      "!**/lib/listener.js",
+      "!**/lib/is-equal.js",
       "!**/node_modules/**",
-      "!**/tests/**"
+      "!**/test/**"
     ],
     "coverageDirectory": "<rootDir>/coverage",
     "coverageReporters": [
       "lcov"
     ],
     "roots": [
-      "<rootDir>/tests"
+      "<rootDir>/test"
     ],
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js"
+    ]
   },
-  "dependencies": {
-    "fast-deep-equal": "^2.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@types/jest": "^24.0.9",
     "babel-jest": "^24.1.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "codecov": "^3.2.0",
