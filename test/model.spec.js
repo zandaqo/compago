@@ -37,6 +37,26 @@ describe('Model', () => {
       })]]);
     });
 
+    it('handles setters', () => {
+      class ModelSetters extends Model {
+        set setAnswer(value) {
+          this.answer = value;
+        }
+      }
+
+      model = new ModelSetters({ answer: 42, question: '', person: { name: 'Zaphod', heads: 1 } });
+      model.addEventListener('change', firstSpy);
+      model.setAnswer = 45;
+      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
+        type: 'change',
+        detail: {
+          emitter: model,
+          path: ':answer',
+          previous: 42,
+        },
+      })]]);
+    });
+
     it('reacts to changes on nested objects', () => {
       model.addEventListener('change', firstSpy);
       model.person.name = 'Ford';
