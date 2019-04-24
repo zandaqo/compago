@@ -83,13 +83,13 @@ Attaches an event handler to the controller.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| [name] | <code>string</code> | the event name |
-| [callback] | <code>function</code> \| <code>string</code> | the handler function. Can be either a function                                      or a name of the controller's method |
-| [options] | <code>Object</code> |  |
-| [options.handler] | <code>string</code> | if true, the handler is managed by controller's event                                   dispatching system instead of being attached directly. |
-| [options.selector] | <code>string</code> | the CSS selector to handle events                                    on a specific child element |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [name] | <code>string</code> |  | the event name |
+| [callback] | <code>function</code> \| <code>string</code> |  | the handler function. Can be either a function                                      or a name of the controller's method |
+| [options] | <code>Object</code> |  |  |
+| [options.handler] | <code>boolean</code> | <code>false</code> | if true, the handler is managed by controller's event                                   dispatching system instead of being attached directly. |
+| [options.selector] | <code>string</code> |  | the CSS selector to handle events                                    on a specific child element |
 
 **Example**  
 ```js
@@ -254,15 +254,15 @@ Manages an ordered set of models providing methods to create, sort, and dispose 
 
 * [ModelArray](#ModelArray) ⇐ <code>Array</code>
     * [new ModelArray([models], [options])](#new_ModelArray_new)
-    * [.set(models, options)](#ModelArray+set) ⇒ <code>this</code>
+    * [.set(models, [options])](#ModelArray+set) ⇒ <code>this</code>
     * [.unset(models, [options])](#ModelArray+unset) ⇒ <code>this</code>
-    * [.push(models, [options])](#ModelArray+push) ⇒ <code>this</code>
-    * [.pop([options])](#ModelArray+pop) ⇒ [<code>Model</code>](#Model)
-    * [.unshift(models, [options])](#ModelArray+unshift) ⇒ <code>this</code>
-    * [.shift([options])](#ModelArray+shift) ⇒ [<code>Model</code>](#Model)
+    * [.push(...models)](#ModelArray+push) ⇒ <code>this</code>
+    * [.pop()](#ModelArray+pop) ⇒ [<code>Model</code>](#Model)
+    * [.unshift(...models)](#ModelArray+unshift) ⇒ <code>this</code>
+    * [.shift()](#ModelArray+shift) ⇒ [<code>Model</code>](#Model)
     * [.sort([options])](#ModelArray+sort) ⇒ <code>this</code>
-    * [.reverse([options])](#ModelArray+reverse) ⇒ <code>this</code>
-    * [.splice(start, [deleteCount], [items], [options])](#ModelArray+splice) ⇒ <code>Array</code>
+    * [.reverse()](#ModelArray+reverse) ⇒ <code>this</code>
+    * [.splice(start, [deleteCount], [...items])](#ModelArray+splice) ⇒ <code>Array</code>
     * [.get(id)](#ModelArray+get) ⇒ [<code>Model</code>](#Model) \| <code>undefined</code>
     * [.where(attributes, [first])](#ModelArray+where) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
     * [.read([options])](#ModelArray+read) ⇒ <code>Promise</code>
@@ -280,11 +280,11 @@ Manages an ordered set of models providing methods to create, sort, and dispose 
 | [options] | <code>Object</code> |  |
 | [options.storage] | <code>Object</code> | the storage controller for the array |
 | [options.model] | <code>Object</code> | the class of models in the array |
-| [options.comparator] | <code>function</code> \| <code>string</code> | a function or an attribute name                                                   that will be used to sort the array |
+| [options.Comparator] | <code>function</code> \| <code>string</code> | a function or an attribute name                                                   that will be used to sort the array |
 
 <a name="ModelArray+set"></a>
 
-### modelArray.set(models, options) ⇒ <code>this</code>
+### modelArray.set(models, [options]) ⇒ <code>this</code>
 The general method to modify the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
@@ -292,7 +292,7 @@ The general method to modify the array.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | models | <code>Array</code> \| <code>Object</code> |  | a model, a list of models or objects to be added                                to the array or updated if already present |
-| options | <code>Object</code> |  |  |
+| [options] | <code>Object</code> |  |  |
 | [options.at] | <code>number</code> |  | the position at which the model(s) should be placed |
 | [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid removing the models not present                                          in the supplied list |
 | [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing models |
@@ -345,17 +345,14 @@ modelArray.unset(mode2, { save: true });
 ```
 <a name="ModelArray+push"></a>
 
-### modelArray.push(models, [options]) ⇒ <code>this</code>
+### modelArray.push(...models) ⇒ <code>this</code>
 Adds a model(s) to the end of the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| models | <code>Object</code> \| <code>Array</code> |  | the model(s) or objects to be added to the array. |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.unsorted] | <code>boolean</code> | <code>false</code> | whether to avoid sorting the array |
+| Param | Type | Description |
+| --- | --- | --- |
+| ...models | <code>\*</code> | the model(s) or objects to be added to the array. |
 
 **Example**  
 ```js
@@ -364,39 +361,26 @@ modelArray.push(model);
 ```
 <a name="ModelArray+pop"></a>
 
-### modelArray.pop([options]) ⇒ [<code>Model</code>](#Model)
+### modelArray.pop() ⇒ [<code>Model</code>](#Model)
 Removes a model from the end of the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 **Returns**: [<code>Model</code>](#Model) - the removed model  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
-
 **Example**  
 ```js
 modelArray.pop();
 // removes the last model from the array, disposes and returns it
-
-modelArray.pop({ save: true });
-// removes and returns the last model of the array without disposing it
 ```
 <a name="ModelArray+unshift"></a>
 
-### modelArray.unshift(models, [options]) ⇒ <code>this</code>
+### modelArray.unshift(...models) ⇒ <code>this</code>
 Adds a model(s) to the beginning of the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| models | <code>Object</code> \| <code>Array</code> |  | the model(s) or objects to be added to the array. |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.unsorted] | <code>boolean</code> | <code>false</code> | whether to avoid sorting the array |
+| Param | Type | Description |
+| --- | --- | --- |
+| ...models | <code>\*</code> | the model(s) or objects to be added to the array. |
 
 **Example**  
 ```js
@@ -405,25 +389,15 @@ modelArray.unshift(model);
 ```
 <a name="ModelArray+shift"></a>
 
-### modelArray.shift([options]) ⇒ [<code>Model</code>](#Model)
+### modelArray.shift() ⇒ [<code>Model</code>](#Model)
 Removes a model from the beginning of the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 **Returns**: [<code>Model</code>](#Model) - the removed model  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
-
 **Example**  
 ```js
 modelArray.shift();
 // removes the first model from the array, disposes and returns it
-
-modelArray.shift({ save: true });
-// removes and returns the fist model of the array without disposing it
 ```
 <a name="ModelArray+sort"></a>
 
@@ -434,7 +408,7 @@ Sorts the array.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
+| [options] | <code>Object</code> \| <code>function</code> |  |  |
 | [options.comparator] | <code>function</code> \| <code>string</code> |  | a comparator function or an attribute name                                                 for sorting |
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `sort` event |
 | [options.descending] | <code>boolean</code> | <code>false</code> | whether to sort in descending order if the comparator is                                        an attribute name |
@@ -445,27 +419,24 @@ modelArray.sort();
 // attemps to sort the array using its predefined comparator from `this.comparator`
 // emitting the `sort` event
 
+modelArray.sort((a, b) => (a.order > b.order ? 1 : -1));
+// sorts the array using the provided comparator emitting `sort` event
+
 modelArray.sort({ comparator: '_id' });
 // sorts models according to their `_id` field in ascending order
 
 modelArray.sort({ comparator: '_id', descending: true });
 // sorts according to `_id` field in descending order
 
-modelArray.sort({ comparator: (a,b) => a > b });
-// sorts according to the provided comparator function
+modelArray.sort({ comparator: (a,b) => a > b, silent: true });
+// sorts according to the provided comparator function without emitting `sort` event
 ```
 <a name="ModelArray+reverse"></a>
 
-### modelArray.reverse([options]) ⇒ <code>this</code>
+### modelArray.reverse() ⇒ <code>this</code>
 Reverses the order of the models in the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `sort` event |
-
 **Example**  
 ```js
 modelArray.reverse();
@@ -473,20 +444,17 @@ modelArray.reverse();
 ```
 <a name="ModelArray+splice"></a>
 
-### modelArray.splice(start, [deleteCount], [items], [options]) ⇒ <code>Array</code>
+### modelArray.splice(start, [deleteCount], [...items]) ⇒ <code>Array</code>
 Changes the array in place by removing and/or replacing its models
 the same way as Array#splice.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| start | <code>number</code> |  | index at which to start changing the array |
-| [deleteCount] | <code>number</code> |  | the number of old array elements to remove,                                defaults to the length of the array |
-| [items] | [<code>Model</code>](#Model) \| <code>Object</code> \| <code>Array</code> |  | the models to add to the array,                                        beginning at the start index |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
+| Param | Type | Description |
+| --- | --- | --- |
+| start | <code>number</code> | index at which to start changing the array |
+| [deleteCount] | <code>number</code> | the number of old array elements to remove,                                defaults to the length of the array |
+| [...items] | <code>\*</code> | the models to add to the array,                                        beginning at the start index |
 
 **Example**  
 ```js
@@ -837,8 +805,8 @@ Facilitates interaction with a REST server through the Fetch API.
     * _static_
         * [.methods](#RemoteStorage.methods)
         * [.headers](#RemoteStorage.headers)
-        * [.isStored(model)](#RemoteStorage.isStored) ⇒ <code>boolean</code>
         * [.fetch(url, options)](#RemoteStorage.fetch) ⇒ <code>Promise</code>
+        * [.isStored(model)](#RemoteStorage.isStored) ⇒ <code>boolean</code>
 
 <a name="new_RemoteStorage_new"></a>
 
@@ -863,7 +831,7 @@ The general method for synchronization.
 | model | [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray) |  | a model or a collection to be synchronized |
 | options | <code>Object</code> |  |  |
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.patch] | <code>Boolean</code> |  | whether to send only changed attributes (if present)                                  using the `PATCH` method |
+| [options.patch] | <code>boolean</code> | <code>false</code> | whether to send only changed attributes (if present)                                  using the `PATCH` method |
 | [options.url] | <code>string</code> |  | a specific url for the request,                               in case it's different from the default url of the storage |
 | [options.init] | <code>Object</code> |  | an options object for custom settings                                to use as the `init` parameter in calls to the global fetch() |
 
@@ -891,18 +859,6 @@ The map translating internal method names to their respective HTTP methods.
 Default headers for all fetch requests.
 
 **Kind**: static property of [<code>RemoteStorage</code>](#RemoteStorage)  
-<a name="RemoteStorage.isStored"></a>
-
-### RemoteStorage.isStored(model) ⇒ <code>boolean</code>
-Checks whether the model has been already persisted on the server.
-
-**Kind**: static method of [<code>RemoteStorage</code>](#RemoteStorage)  
-**Returns**: <code>boolean</code> - True if the model is already stored on the server  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| model | [<code>Model</code>](#Model) | the model to be checked |
-
 <a name="RemoteStorage.fetch"></a>
 
 ### RemoteStorage.fetch(url, options) ⇒ <code>Promise</code>
@@ -914,6 +870,18 @@ Wraps global fetch to apply default headers.
 | --- | --- | --- |
 | url | <code>string</code> \| <code>Request</code> | the resource to fetch |
 | options | <code>Object</code> | custom settings for the request |
+
+<a name="RemoteStorage.isStored"></a>
+
+### RemoteStorage.isStored(model) ⇒ <code>boolean</code>
+Checks whether the model has been already persisted on the server.
+
+**Kind**: static method of [<code>RemoteStorage</code>](#RemoteStorage)  
+**Returns**: <code>boolean</code> - True if the model is already stored on the server  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | [<code>Model</code>](#Model) | the model to be checked |
 
 <a name="Handler"></a>
 

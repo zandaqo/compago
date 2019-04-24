@@ -23,7 +23,7 @@ describe('ModelArray', () => {
       expect(noc.Model).toBe(Model);
     });
 
-    it('creates a model array with storage and comparator', () => {
+    it('creates a model array with storage and Comparator', () => {
       const storage = {};
       const comparator = 'egg';
       const nc = new ModelArray(undefined, { storage, comparator });
@@ -111,7 +111,7 @@ describe('ModelArray', () => {
       m1.assign({ order: 3 });
       m2.assign({ order: 2 });
       m3.assign({ order: 1 });
-      c.push([m1, m2, m3]);
+      c.push(m1, m2, m3);
       expect(Array.from(c)).toEqual([m3, m2, m1]);
     });
 
@@ -131,7 +131,7 @@ describe('ModelArray', () => {
       c.someMethod = jest.fn();
       c.addEventListener('sort', c.someMethod);
 
-      c.push([m1, m2, m3], { silent: true });
+      c.set([m1, m2, m3], { keep: true, skip: true, silent: true });
       expect(c.someMethod).not.toHaveBeenCalled();
       c.unset(c);
 
@@ -152,7 +152,7 @@ describe('ModelArray', () => {
 
   describe('unset', () => {
     beforeEach(() => {
-      c.push([m1, m2, m3]);
+      c.push(m1, m2, m3);
       c.someMethod = jest.fn();
       c.addEventListener('update', c.someMethod);
     });
@@ -198,7 +198,7 @@ describe('ModelArray', () => {
 
   describe('push', () => {
     it('adds a model to the end of the array', () => {
-      c.push([m1, m2]);
+      c.push(m1, m2);
       c.push(m3);
       expect(c[2]).toBe(m3);
     });
@@ -206,7 +206,7 @@ describe('ModelArray', () => {
 
   describe('pop', () => {
     it('removes and return the last model', () => {
-      c.push([m1, m2]);
+      c.push(m1, m2);
       const last = c.pop();
       expect(c.length).toBe(1);
       expect(last).toBe(m2);
@@ -215,7 +215,7 @@ describe('ModelArray', () => {
 
   describe('unshift', () => {
     it('adds a model to the beginning of the array', () => {
-      c.push([m1, m2]);
+      c.push(m1, m2);
       c.unshift(m3);
       expect(c[0]).toBe(m3);
     });
@@ -223,7 +223,7 @@ describe('ModelArray', () => {
 
   describe('shift', () => {
     it('removes and return the first model', () => {
-      c.push([m1, m2]);
+      c.push(m1, m2);
       const first = c.shift();
       expect(c.length).toBe(1);
       expect(first).toBe(m1);
@@ -238,15 +238,22 @@ describe('ModelArray', () => {
       m3 = new Model({ order: 3 });
     });
 
-    it('sorts models according to the provided comparator', () => {
-      c.push([m3, m2, m1, m2]);
+    it('sorts models using the provided comparator', () => {
+      c.push(m3, m2, m1, m2);
+      expect(Array.from(c)).toEqual([m3, m2, m1, m2]);
+      c.sort((a, b) => (a.order > b.order ? 1 : -1));
+      expect(Array.from(c)).toEqual([m1, m2, m2, m3]);
+    });
+
+    it('sorts models using provided options', () => {
+      c.push(m3, m2, m1, m2);
       expect(Array.from(c)).toEqual([m3, m2, m1, m2]);
       c.sort({ comparator: 'order' });
       expect(Array.from(c)).toEqual([m1, m2, m2, m3]);
     });
 
     it("sorts models according to the array's comparator", () => {
-      c.push([m3, m2, m1]);
+      c.push(m3, m2, m1);
       expect(c[0]).toBe(m3);
       c.comparator = 'order';
       c.sort();
@@ -256,7 +263,7 @@ describe('ModelArray', () => {
     it('fires `sort` event unless `silent:true`', () => {
       c.someMethod = jest.fn();
       c.addEventListener('sort', c.someMethod);
-      c.push([m3, m2, m1]);
+      c.push(m3, m2, m1);
       expect(c[0]).toBe(m3);
       c.sort({ comparator: 'order' });
       expect(c[0]).toBe(m1);
@@ -264,7 +271,7 @@ describe('ModelArray', () => {
     });
 
     it('sorts in descending order', () => {
-      c.push([m1, m3, m2]);
+      c.push(m1, m3, m2);
       c.sort({ comparator: 'order', descending: true });
       expect(c[0]).toBe(m3);
     });
@@ -282,7 +289,7 @@ describe('ModelArray', () => {
     it('reverses the order of the models', () => {
       c.someMethod = jest.fn();
       c.addEventListener('sort', c.someMethod);
-      c.push([m1, m2, m3]);
+      c.push(m1, m2, m3);
       c.reverse();
       expect(c[0]).toBe(m3);
       expect(c.someMethod.mock.calls[0][0].type).toBe('sort');
@@ -299,7 +306,7 @@ describe('ModelArray', () => {
     });
 
     it('removes and returns a number of models starting from a given index', () => {
-      c.push([m1, m2, m3]);
+      c.push(m1, m2, m3);
       expect(Array.from(c)).toEqual([m1, m2, m3]);
       const result = c.splice(0, 2);
       expect(result).toEqual([m1, m2]);
@@ -308,7 +315,7 @@ describe('ModelArray', () => {
     });
 
     it('replaces removed models if replacement(s) is provided', () => {
-      c.push([m1, m2]);
+      c.push(m1, m2);
       expect(c[0]).toBe(m1);
       const result = c.splice(0, 1, m3);
       expect(result).toEqual([m1]);
@@ -316,7 +323,7 @@ describe('ModelArray', () => {
     });
 
     it('handles negative start indexes the same way as Array#splice', () => {
-      c.push([m1, m2, m3]);
+      c.push(m1, m2, m3);
       expect(Array.from(c)).toEqual([m1, m2, m3]);
       const result = c.splice(-1, 1);
       expect(result).toEqual([m3]);
@@ -339,7 +346,7 @@ describe('ModelArray', () => {
       const nm1 = new Model({ name: 'Arthur', species: 'Human' });
       const nm2 = new Model({ name: 'Ford', species: 'Betelgeusian' });
       const nm3 = new Model({ name: 'Zaphod', species: 'Betelgeusian' });
-      nc.push([nm1, nm2, nm3]);
+      nc.push(nm1, nm2, nm3);
       expect(nc.where({ species: 'Betelgeusian' })).toEqual([nm2, nm3]);
       expect(nc.where({ name: 'Arthur' })).toEqual([nm1]);
       expect(nc.where({ species: 'Betelgeusian' }, true)).toEqual(nm2);
@@ -384,7 +391,7 @@ describe('ModelArray', () => {
   describe('toJSON', () => {
     it('returns a copy of models for JSON stringification', () => {
       const nc = new ModelArray([], { model: Model });
-      nc.push([new Model({ name: 'Arthur', species: 'Human' }), new Model()]);
+      nc.push(new Model({ name: 'Arthur', species: 'Human' }), new Model());
       expect(nc.toJSON()).toEqual([{ name: 'Arthur', species: 'Human' }, {}]);
     });
   });
@@ -411,7 +418,7 @@ describe('ModelArray', () => {
 
   describe('dispose', () => {
     beforeEach(() => {
-      c.push([m1, m2, m3]);
+      c.push(m1, m2, m3);
       c.someMethod = jest.fn();
       c.addEventListener('dispose', c.someMethod);
     });
