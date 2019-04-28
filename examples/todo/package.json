@@ -1,8 +1,7 @@
 {
   "name": "compago-todo",
-  "version": "0.0.0",
-  "private": true,
-  "description": "",
+  "version": "4.0.0-beta.17",
+  "description": "A Todo app example using Compago and lit-html",
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production"

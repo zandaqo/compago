@@ -150,4 +150,3 @@ Routes use RegExps for matching, RegExp named groups can be used to supply match
 
 ## See Also
  * [API Documentation](https://github.com/zandaqo/compago/blob/master/doc/API.md)
- * [compago-todo](https://github.com/zandaqo/compago-todo) An example of a Todo app that uses lit-html for Views.
