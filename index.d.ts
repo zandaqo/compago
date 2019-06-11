@@ -191,6 +191,8 @@ export declare class RemoteStorage extends EventTarget {
     constructor(options: RemoteStorageOptions);
     sync(method: string, model: Model|ModelArray, options: RemoteStorageSyncOptions): Promise<Response>;
     dispose(options: CompagoOptions): this;
+    serialize(data: any): string;
+    deserialize(response: Response): Promise<Object>|undefined;
     static fetch(url: string|Request, options: object): Promise<Response>;
     static isStored(model: Model): boolean;
 }

@@ -802,6 +802,8 @@ Facilitates interaction with a REST server through the Fetch API.
     * _instance_
         * [.sync(method, model, options)](#RemoteStorage+sync) ⇒ <code>Promise</code>
         * [.dispose([options])](#RemoteStorage+dispose) ⇒ <code>this</code>
+        * [.serialize(data)](#RemoteStorage+serialize) ⇒ <code>string</code>
+        * [.deserialize(response)](#RemoteStorage+deserialize) ⇒ <code>Promise</code> \| <code>void</code>
     * _static_
         * [.methods](#RemoteStorage.methods)
         * [.headers](#RemoteStorage.headers)
@@ -846,6 +848,28 @@ Prepares the storage controller to be disposed.
 | --- | --- | --- | --- |
 | [options] | <code>Object</code> |  |  |
 | [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting the `dispose` event |
+
+<a name="RemoteStorage+serialize"></a>
+
+### remoteStorage.serialize(data) ⇒ <code>string</code>
+Serializes data before sending.
+
+**Kind**: instance method of [<code>RemoteStorage</code>](#RemoteStorage)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>\*</code> | the data to be serialized |
+
+<a name="RemoteStorage+deserialize"></a>
+
+### remoteStorage.deserialize(response) ⇒ <code>Promise</code> \| <code>void</code>
+Deserializes a received response.
+
+**Kind**: instance method of [<code>RemoteStorage</code>](#RemoteStorage)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| response | <code>Response</code> | the received response |
 
 <a name="RemoteStorage.methods"></a>
 
