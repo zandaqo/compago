@@ -1,8 +1,7 @@
 # Compago
 
 [![npm](https://img.shields.io/npm/v/compago.svg?style=flat-square)](https://www.npmjs.com/package/compago)
-[![Travis branch](https://img.shields.io/travis/zandaqo/compago.svg?style=flat-square)](https://travis-ci.org/zandaqo/compago)
-[![Codecov](https://img.shields.io/codecov/c/github/zandaqo/compago.svg?style=flat-square)](https://codecov.io/github/zandaqo/compago)
+[![Actions Status](https://github.com/zandaqo/compago/workflows/Build/badge.svg)](https://github.com/zandaqo/compago/actions)
 
 A minimalist MVC framework for building web applications using the power of modern web technologies.
 Compago evolved from [Backbone.js](http://backbonejs.org) with which it shares the general approach 
@@ -10,7 +9,7 @@ to architecture.
 
 
 ## Features
- * Built for modern browsers: No support for IE.
+ * Built for modern browsers.
  * No dependencies; small size (5kb) and API surface.
  * No custom event or messaging system; all components extend [EventTarget](https://medium.com/@zandaqo/eventtarget-the-future-of-javascript-event-systems-205ae32f5e6b), thus, relying on DOM events for communication.
  * Encourages strict implementation of MVC architecture and separation of concerns.
@@ -19,7 +18,7 @@ to architecture.
    * one-way data binding and data synchronization;
    * declarative handling of DOM events;
    * non-opinionated approach to the View layer that allows the use of any rendering or templating engine (i.e. React, lit-html, etc.);
-   * simple routing that uses Express-style path strings.
+   * simple regex based routing system.
 
 
 ## Installation
