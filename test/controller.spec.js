@@ -86,7 +86,10 @@ describe('Controller', () => {
     });
 
     it('does not attach a handler if the callback is not a function', () => {
-      v.addEventListener('mouseover', 'nonExistantCallback', { handler: true, selector: '#submit' });
+      v.addEventListener('mouseover', 'nonExistantCallback', {
+        handler: true,
+        selector: '#submit',
+      });
       expect(v[Symbol.for('c_handlers')].get('mouseover')).toBe(undefined);
     });
   });
@@ -268,7 +271,10 @@ describe('Controller', () => {
       ControllerClass.routes = {};
       const controller = new ControllerClass();
       controller.dispose();
-      expect(window.removeEventListener).toHaveBeenCalledWith('popstate', controller._onPopstateEvent);
+      expect(window.removeEventListener).toHaveBeenCalledWith(
+        'popstate',
+        controller._onPopstateEvent,
+      );
       window.removeEventListener.mockRestore();
     });
 
@@ -328,15 +334,21 @@ describe('Controller', () => {
       ControllerClass.observedAttributes = [':a'];
       const controller = new ControllerClass({ model });
       controller.connectedCallback();
-      jest.spyOn(controller, 'render').mockImplementation(({ detail: { emitter, attribute, previous } }) => {
-        expect(emitter).toBe(controller);
-        expect(attribute).toBe(':a');
-        expect(previous).toBeUndefined();
-        done();
-      });
+      jest
+        .spyOn(controller, 'render')
+        .mockImplementation(({ detail: { emitter, attribute, previous } }) => {
+          expect(emitter).toBe(controller);
+          expect(attribute).toBe(':a');
+          expect(previous).toBeUndefined();
+          done();
+        });
       controller.addEventListener('attributes', controller.render, { handler: true });
-      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
-      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':a', previous: undefined } }));
+      model.dispatchEvent(
+        new CustomEvent('change', { detail: { path: ':b', previous: undefined } }),
+      );
+      model.dispatchEvent(
+        new CustomEvent('change', { detail: { path: ':a', previous: undefined } }),
+      );
     });
 
     it('dispatches `attribute` event on any model change if `:` attribute is observed', (done) => {
@@ -346,8 +358,12 @@ describe('Controller', () => {
       controller.connectedCallback();
       jest.spyOn(controller, 'render');
       controller.addEventListener('attributes', controller.render, { handler: true });
-      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':b', previous: undefined } }));
-      model.dispatchEvent(new CustomEvent('change', { detail: { path: ':a', previous: undefined } }));
+      model.dispatchEvent(
+        new CustomEvent('change', { detail: { path: ':b', previous: undefined } }),
+      );
+      model.dispatchEvent(
+        new CustomEvent('change', { detail: { path: ':a', previous: undefined } }),
+      );
       setTimeout(() => {
         expect(controller.render.mock.calls.length).toBe(2);
         done();
@@ -357,12 +373,14 @@ describe('Controller', () => {
     it('dispatches `attribute` event if observed attributes of a controller element change', (done) => {
       ControllerClass.observedAttributes = ['data-id'];
       const controller = new ControllerClass();
-      jest.spyOn(controller, 'render').mockImplementation(({ detail: { emitter, attribute, previous } }) => {
-        expect(emitter).toBe(controller);
-        expect(attribute).toBe('data-id');
-        expect(previous).toBeUndefined();
-        done();
-      });
+      jest
+        .spyOn(controller, 'render')
+        .mockImplementation(({ detail: { emitter, attribute, previous } }) => {
+          expect(emitter).toBe(controller);
+          expect(attribute).toBe('data-id');
+          expect(previous).toBeUndefined();
+          done();
+        });
       controller.addEventListener('attributes', controller.render, { handler: true });
       controller.attributeChangedCallback('data-id', undefined);
     });

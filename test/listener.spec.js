@@ -58,7 +58,9 @@ describe('Listener', () => {
       const listener = new CustomListener();
       listener[Symbol.for('c_fragment')].removeEventListener = jest.fn();
       listener.removeEventListener(1, 2, 3);
-      expect(listener[Symbol.for('c_fragment')].removeEventListener.mock.calls).toEqual([[1, 2, 3]]);
+      expect(listener[Symbol.for('c_fragment')].removeEventListener.mock.calls).toEqual([
+        [1, 2, 3],
+      ]);
     });
   });
 

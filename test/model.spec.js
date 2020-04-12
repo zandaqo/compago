@@ -27,14 +27,18 @@ describe('Model', () => {
     it('emits `change` event when `data` is changed', () => {
       model.addEventListener('change', firstSpy);
       model.answer = 1;
-      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
-        type: 'change',
-        detail: {
-          emitter: model,
-          path: ':answer',
-          previous: 42,
-        },
-      })]]);
+      expect(firstSpy.mock.calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              emitter: model,
+              path: ':answer',
+              previous: 42,
+            },
+          }),
+        ],
+      ]);
     });
 
     it('handles setters', () => {
@@ -47,41 +51,53 @@ describe('Model', () => {
       model = new ModelSetters({ answer: 42, question: '', person: { name: 'Zaphod', heads: 1 } });
       model.addEventListener('change', firstSpy);
       model.setAnswer = 45;
-      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
-        type: 'change',
-        detail: {
-          emitter: model,
-          path: ':answer',
-          previous: 42,
-        },
-      })]]);
+      expect(firstSpy.mock.calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              emitter: model,
+              path: ':answer',
+              previous: 42,
+            },
+          }),
+        ],
+      ]);
     });
 
     it('reacts to changes on nested objects', () => {
       model.addEventListener('change', firstSpy);
       model.person.name = 'Ford';
-      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
-        type: 'change',
-        detail: {
-          emitter: model,
-          path: ':person:name',
-          previous: 'Zaphod',
-        },
-      })]]);
+      expect(firstSpy.mock.calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              emitter: model,
+              path: ':person:name',
+              previous: 'Zaphod',
+            },
+          }),
+        ],
+      ]);
     });
 
     it('reacts to changes on nested arrays', () => {
       model.second = { third: [null] };
       model.addEventListener('change', firstSpy);
       model.second.third.push(1);
-      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
-        type: 'change',
-        detail: {
-          emitter: model,
-          path: ':second:third:1',
-          previous: undefined,
-        },
-      })]]);
+      expect(firstSpy.mock.calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              emitter: model,
+              path: ':second:third:1',
+              previous: undefined,
+            },
+          }),
+        ],
+      ]);
     });
 
     it('handles cyclic references', () => {
@@ -98,14 +114,16 @@ describe('Model', () => {
       model.person = undefined;
       model.first.name = 'Ford';
       expect(firstSpy.mock.calls.length).toBe(3);
-      expect(firstSpy.mock.calls[2]).toEqual([expect.objectContaining({
-        type: 'change',
-        detail: {
-          emitter: model,
-          path: ':first:name',
-          previous: 'Zaphod',
-        },
-      })]);
+      expect(firstSpy.mock.calls[2]).toEqual([
+        expect.objectContaining({
+          type: 'change',
+          detail: {
+            emitter: model,
+            path: ':first:name',
+            previous: 'Zaphod',
+          },
+        }),
+      ]);
     });
 
     it('allows usage of any data', () => {
@@ -144,14 +162,18 @@ describe('Model', () => {
     it('reacts to deleting properties', () => {
       model.addEventListener('change', firstSpy);
       delete model.answer;
-      expect(firstSpy.mock.calls).toEqual([[expect.objectContaining({
-        type: 'change',
-        detail: {
-          emitter: model,
-          path: ':answer',
-          previous: 42,
-        },
-      })]]);
+      expect(firstSpy.mock.calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              emitter: model,
+              path: ':answer',
+              previous: 42,
+            },
+          }),
+        ],
+      ]);
     });
 
     it('does not react to deleting non-existing properties', () => {
@@ -276,21 +298,23 @@ describe('Model', () => {
       });
     });
 
-    it('does not update model if `skip:true`', () => model.read({ skip: true }).then((response) => {
-      expect(response).toEqual({ answer: 40 });
-      expect(model.toJSON()).toEqual({
-        answer: 42,
-        question: '',
-        person: {
-          name: 'Zaphod',
-          heads: 1,
-        },
-      });
-    }));
+    it('does not update model if `skip:true`', () =>
+      model.read({ skip: true }).then((response) => {
+        expect(response).toEqual({ answer: 40 });
+        expect(model.toJSON()).toEqual({
+          answer: 42,
+          question: '',
+          person: {
+            name: 'Zaphod',
+            heads: 1,
+          },
+        });
+      }));
 
-    it('resets the model with response if `method:set`', () => model.read({ method: 'set' }).then(() => {
-      expect(model.toJSON()).toEqual({ answer: 40 });
-    }));
+    it('resets the model with response if `method:set`', () =>
+      model.read({ method: 'set' }).then(() => {
+        expect(model.toJSON()).toEqual({ answer: 40 });
+      }));
 
     it('merges the model with response if `method:merge`', () => {
       Object.defineProperty(model, 'sync', {
@@ -354,18 +378,29 @@ describe('Model', () => {
       });
     });
 
-    it('updates the model if the storage returns an object as a response', () => model.write().then(() => {
-      expect(model.toJSON()).toEqual({ answer: 40, question: '', person: { name: 'Zaphod', heads: 1 } });
-    }));
+    it('updates the model if the storage returns an object as a response', () =>
+      model.write().then(() => {
+        expect(model.toJSON()).toEqual({
+          answer: 40,
+          question: '',
+          person: { name: 'Zaphod', heads: 1 },
+        });
+      }));
 
-    it('does not update the model if `skip:true`', () => model.write({ skip: true }).then((response) => {
-      expect(response).toEqual({ answer: 40 });
-      expect(model.toJSON()).toEqual({ answer: 42, question: '', person: { name: 'Zaphod', heads: 1 } });
-    }));
+    it('does not update the model if `skip:true`', () =>
+      model.write({ skip: true }).then((response) => {
+        expect(response).toEqual({ answer: 40 });
+        expect(model.toJSON()).toEqual({
+          answer: 42,
+          question: '',
+          person: { name: 'Zaphod', heads: 1 },
+        });
+      }));
 
-    it('resets the model with response if `method:set`', () => model.write({ method: 'set' }).then(() => {
-      expect(model.toJSON()).toEqual({ answer: 40 });
-    }));
+    it('resets the model with response if `method:set`', () =>
+      model.write({ method: 'set' }).then(() => {
+        expect(model.toJSON()).toEqual({ answer: 40 });
+      }));
 
     it('merges the model with response if `method:merge`', () => {
       Object.defineProperty(model, 'sync', {
@@ -484,9 +519,10 @@ describe('Model', () => {
       expect(model[Symbol.for('c_collection')].storage.sync).toHaveBeenCalled();
     });
 
-    it('rejects if no storage is found', () => model.sync().catch((error) => {
-      expect(error.message).toBe('Storage is not defined.');
-    }));
+    it('rejects if no storage is found', () =>
+      model.sync().catch((error) => {
+        expect(error.message).toBe('Storage is not defined.');
+      }));
   });
 
   describe('dispose', () => {
@@ -510,8 +546,8 @@ describe('Model', () => {
       expect(Reflect.has(model, 'model_private_a')).toBe(true);
       expect(Reflect.has(model, Symbol.for('model_private_b'))).toBe(true);
       expect(model.model_private_a).toBe(1);
-      expect(Reflect.has(Object.assign({}, model), 'model_private_a')).toBe(false);
-      expect(Reflect.has(Object.assign({}, model), Symbol.for('model_private_b'))).toBe(false);
+      expect(Reflect.has({ ...model }, 'model_private_a')).toBe(false);
+      expect(Reflect.has({ ...model }, Symbol.for('model_private_b'))).toBe(false);
     });
   });
 });

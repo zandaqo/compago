@@ -1,6 +1,6 @@
 {
   "name": "compago-todo",
-  "version": "4.0.0-beta.17",
+  "version": "4.0.0",
   "description": "A Todo app example using Compago and lit-html",
   "main": "index.js",
   "scripts": {
@@ -17,14 +17,14 @@
   "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
   "license": "MIT",
   "dependencies": {
-    "lit-html": "^1.0.0",
-    "named-regexp-groups": "^1.0.3",
-    "todomvc-app-css": "^2.2.0"
+    "lit-html": "^1.2.1",
+    "named-regexp-groups": "^1.0.5",
+    "todomvc-app-css": "^2.3.0"
   },
   "devDependencies": {
     "css-loader": "^2.1.1",
     "mini-css-extract-plugin": "^0.6.0",
-    "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.1"
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   }
 }
