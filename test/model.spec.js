@@ -1,4 +1,4 @@
-import Model from '../lib/model';
+import { Model } from '../index';
 
 describe('Model', () => {
   let model;

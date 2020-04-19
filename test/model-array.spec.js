@@ -1,5 +1,4 @@
-import Model from '../lib/model';
-import ModelArray from '../lib/model-array';
+import { Model, ModelArray } from '../index';
 
 describe('ModelArray', () => {
   let c;

@@ -1,4 +1,4 @@
-import RemoteStorage from '../lib/remote-storage';
+import { RemoteStorage } from '../index';
 
 class MockResponse {
   constructor(status, headers, body) {

@@ -1,4 +1,4 @@
-import Listener from '../lib/listener';
+import { Listener } from '../index';
 
 describe('Listener', () => {
   class ListenerClass extends Listener() {
@@ -18,7 +18,7 @@ describe('Listener', () => {
     it('uses a workaround if exending EventTarget is not possible', () => {
       const listener = new CustomListener();
       expect(listener instanceof EventTarget).toBe(false);
-      expect(listener[Symbol.for('c_fragment')] instanceof DocumentFragment).toBe(true);
+      expect(listener[Symbol.for('c_fragment')] instanceof EventTarget).toBe(true);
       expect(typeof listener.addEventListener === 'function').toBe(true);
       expect(typeof listener.removeEventListener === 'function').toBe(true);
       expect(typeof listener.dispatchEvent === 'function').toBe(true);

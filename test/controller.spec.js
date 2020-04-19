@@ -1,7 +1,6 @@
-import Listener from '../lib/listener';
-import Controller from '../lib/controller';
+import { Controller } from '../index';
 
-class Model extends Listener() {}
+class Model extends EventTarget {}
 
 describe('Controller', () => {
   let ControllerClass;
