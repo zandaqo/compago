@@ -4,6 +4,8 @@ extends:
 env:
   browser: true
   jest: true
+globals:
+  globalThis: true
 rules:
   no-underscore-dangle: 0
   no-nested-ternary: 0

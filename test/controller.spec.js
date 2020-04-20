@@ -119,17 +119,9 @@ describe('Controller', () => {
     });
   });
 
-  describe('navigate', () => {
+  describe('routes', () => {
+    let navigationEvent;
     let controller;
-    const historyState = (state, title, url) => {
-      const [path, params] = url.split('?');
-      const [search, hash] = params ? params.split('#') : ['', ''];
-      ControllerClass[Symbol.for('c_location')] = {
-        pathname: path,
-        search: search ? `?${search}` : '',
-        hash: hash ? `#${hash}` : '',
-      };
-    };
 
     beforeEach(() => {
       ControllerClass.routes = {
@@ -137,80 +129,46 @@ describe('Controller', () => {
         about: /^\/about$/,
         user: /^\/user\/(?<name>[^/]+)$/,
       };
-      ControllerClass[Symbol.for('c_location')] = {};
-      ControllerClass[Symbol.for('c_history')] = {
-        pushState: jest.fn(historyState),
-        replaceState: jest.fn(historyState),
-      };
       controller = new ControllerClass();
-    });
-
-    it('saves a url into browser history', () => {
-      controller.navigate('/path');
-      expect(ControllerClass[Symbol.for('c_history')].pushState).toHaveBeenCalled();
-    });
-
-    it('replaces the current url if `replace:true`', () => {
-      controller.navigate('/path', { replace: true });
-      expect(ControllerClass[Symbol.for('c_history')].replaceState).toHaveBeenCalled();
-    });
-
-    it('checks the current url if no new url provided', () => {
-      expect(controller[Symbol.for('c_fragment')]).toBe('');
-      ControllerClass[Symbol.for('c_location')] = {
-        pathname: '/foo',
+      navigationEvent = {
+        target: undefined,
+        preventDefault: jest.fn(),
       };
-      controller.navigate();
-      expect(controller[Symbol.for('c_fragment')]).toEqual('/foo');
     });
 
-    it('handles custom roots while checking the url', () => {
-      ControllerClass.root = '/user';
-      ControllerClass[Symbol.for('c_location')].pathname = '/user';
-      controller.navigate();
-      expect(controller[Symbol.for('c_fragment')]).toEqual('');
-      controller.navigate('/abc');
-      expect(controller[Symbol.for('c_fragment')]).toEqual('/abc');
+    it('saves a URL into browser history', () => {
+      const historyLength = globalThis.history.length;
+      navigationEvent.target = { href: '/path' };
+      controller.onNavigate(navigationEvent);
+      expect(navigationEvent.preventDefault).toHaveBeenCalled();
+      expect(globalThis.history.length).toBe(historyLength + 1);
+      controller.onNavigate(navigationEvent);
+      expect(globalThis.history.length).toBe(historyLength + 2);
     });
 
-    it('checks the new url against routes unless `silent:true`', () => {
-      controller._checkUrl = jest.fn();
-      controller.navigate('/path', { silent: true });
-      expect(controller._checkUrl).not.toHaveBeenCalled();
-      controller.navigate('/');
-      expect(controller._checkUrl).toHaveBeenCalled();
-    });
-
-    it('does not update history if the url is unchanged', () => {
-      controller.navigate('/about');
-      controller.navigate('/about');
-      expect(ControllerClass[Symbol.for('c_history')].pushState).toHaveBeenCalledTimes(1);
+    it('does not save if no URL is found', () => {
+      const historyLength = globalThis.history.length;
+      navigationEvent.target = {};
+      controller.onNavigate(navigationEvent);
+      expect(navigationEvent.preventDefault).not.toHaveBeenCalled();
+      expect(globalThis.history.length).toBe(historyLength);
     });
 
     it('emits `route` event if the url matches a route', () => {
       const callback = jest.fn();
       controller.addEventListener('route', callback, { handler: true });
-      controller.navigate('/about');
+      navigationEvent.target = { href: '/about' };
+      controller.onNavigate(navigationEvent);
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });
 
     it('sends route parameters with the `route` event', () => {
       const callback = jest.fn();
       controller.addEventListener('route', callback, { handler: true });
-      controller.navigate('/user/arthur');
-      expect(callback).toHaveBeenCalled();
-      expect(callback.mock.calls[0][0].detail).toMatchObject({
-        route: 'user',
-        params: {
-          name: 'arthur',
-        },
-      });
-    });
-
-    it('sends query and hash parameters with the `route` event', () => {
-      const callback = jest.fn();
-      controller.addEventListener('route', callback, { handler: true });
-      controller.navigate('/user/arthur?a=b#c');
+      navigationEvent.target = { href: '/user/arthur?a=b#c' };
+      controller.onNavigate(navigationEvent);
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({
         route: 'user',
@@ -222,11 +180,18 @@ describe('Controller', () => {
       });
     });
 
-    it('can be used if no routes are specified', () => {
-      ControllerClass.routes = {};
-      const anotherController = new ControllerClass();
-      anotherController.navigate('/abc');
-      expect(ControllerClass[Symbol.for('c_history')].pushState).toHaveBeenCalled();
+    it('handles custom roots while checking the url', () => {
+      ControllerClass.root = '/root';
+      const callback = jest.fn();
+      controller.addEventListener('route', callback, { handler: true });
+      navigationEvent.target = { href: '/user/arthur?a=b#c' };
+      controller.onNavigate(navigationEvent);
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      expect(callback).not.toHaveBeenCalled();
+      navigationEvent.target = { href: '/root/user/arthur?a=b#c' };
+      controller.onNavigate(navigationEvent);
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      expect(callback).toHaveBeenCalled();
     });
   });
 
@@ -487,23 +452,6 @@ describe('Controller', () => {
       });
       expect(Controller.debounce).toHaveBeenCalled();
       Controller.debounce.mockRestore();
-    });
-  });
-
-  describe('_onPopstateEvent', () => {
-    it('checks the current URL upon recieving a `popstate` event from the window', () => {
-      v._checkUrl = jest.fn();
-      v._getFragment = jest.fn(() => 'new_fragment');
-      v._onPopstateEvent();
-      expect(v._checkUrl).toHaveBeenCalled();
-    });
-
-    it('does not check the URL if the fragment has not changed', () => {
-      v._checkUrl = jest.fn();
-      v._getFragment = jest.fn(() => 'old_fragment');
-      v[Symbol.for('c_fragment')] = 'old_fragment';
-      v._onPopstateEvent();
-      expect(v._checkUrl).not.toHaveBeenCalled();
     });
   });
 });
