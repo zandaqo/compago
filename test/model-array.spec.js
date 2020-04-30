@@ -1,4 +1,5 @@
-import { Model, ModelArray } from '../index';
+import { jest } from '@jest/globals';
+import { Model, ModelArray } from '../index.js';
 
 describe('ModelArray', () => {
   let c;

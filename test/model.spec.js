@@ -1,4 +1,5 @@
-import { Model } from '../index';
+import { jest } from '@jest/globals';
+import { Model } from '../index.js';
 
 describe('Model', () => {
   let model;

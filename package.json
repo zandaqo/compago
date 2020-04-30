@@ -3,8 +3,7 @@
   "version": "4.0.0",
   "description": "A minimalist MVC framework for modern browsers.",
   "main": "index.js",
-  "module": "index.js",
-  "browser": "index.js",
+  "type": "module",
   "keywords": [
     "mvc",
     "framework",
@@ -36,16 +35,12 @@
   },
   "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
   "license": "MIT",
-  "babel": {
-    "env": {
-      "test": {
-        "plugins": [
-          "transform-es2015-modules-commonjs"
-        ]
-      }
-    }
-  },
   "jest": {
+    "transform": {},
+    "testEnvironment": "jest-environment-jsdom-sixteen",
+    "moduleNameMapper": {
+      "lit-element": "<rootDir>/test/lit-element-mock.js"
+    },
     "collectCoverage": true,
     "collectCoverageFrom": [
       "**/lib/**",
@@ -59,10 +54,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 90,
+        "branches": 95,
         "functions": 100,
         "lines": 100,
-        "statements": 95
+        "statements": 100
       }
     },
     "roots": [
@@ -77,16 +72,55 @@
     "singleQuote": true,
     "trailingComma": "all"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lit-element": "^2.3.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "airbnb-base",
+      "prettier"
+    ],
+    "env": {
+      "browser": true,
+      "jest": true
+    },
+    "globals": {
+      "globalThis": true
+    },
+    "rules": {
+      "no-underscore-dangle": 1,
+      "no-nested-ternary": 1,
+      "no-bitwise": 1,
+      "no-continue": 1,
+      "no-prototype-builtins": 1,
+      "no-param-reassign": [
+        2,
+        {
+          "props": false
+        }
+      ],
+      "valid-jsdoc": [
+        2,
+        {
+          "prefer": {
+            "return": "returns"
+          },
+          "requireReturnDescription": false,
+          "requireParamDescription": false
+        }
+      ],
+      "import/extensions": 0
+    }
+  },
   "devDependencies": {
+    "@jest/globals": "^25.5.2",
     "@types/jest": "^25.2.1",
-    "babel-jest": "^25.4.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-config-prettier": "^6.10.1",
+    "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.20.2",
-    "jest": "^25.4.0",
+    "jest": "^25.5.2",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
     "jsdoc-plugin-false-booleans": "^1.0.0",
     "jsdoc-plugin-named-defaults": "^1.1.1",
     "jsdoc-to-markdown": "^5.0.3"

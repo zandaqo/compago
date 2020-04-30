@@ -1,4 +1,5 @@
-import { RemoteStorage } from '../index';
+import { jest } from '@jest/globals';
+import { RemoteStorage } from '../index.js';
 
 class MockResponse {
   constructor(status, headers, body) {

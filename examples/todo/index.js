@@ -1,7 +1,7 @@
-import Todos from './todos';
+import './todos';
 
 document.addEventListener('DOMContentLoaded', () => {
   /* eslint no-new: 0 */
-  const todos = new Todos();
+  const todos = document.createElement('todo-app');
   document.querySelector('#todoapp').appendChild(todos);
 });

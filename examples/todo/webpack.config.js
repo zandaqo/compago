@@ -16,11 +16,13 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-        ],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
     ],
+  },
+  resolve: {
+    alias: {
+      'lit-html': path.resolve('./node_modules/lit-html'),
+    },
   },
 };

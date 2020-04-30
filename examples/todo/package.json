@@ -4,7 +4,8 @@
   "description": "A Todo app example using Compago and lit-html",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "webpack": "webpack --watch"
   },
   "repository": {
     "type": "git",
