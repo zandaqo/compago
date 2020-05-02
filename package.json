@@ -62,9 +62,6 @@
     },
     "roots": [
       "<rootDir>/test"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/setup.js"
     ]
   },
   "prettier": {

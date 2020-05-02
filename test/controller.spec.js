@@ -88,10 +88,10 @@ describe('Controller', () => {
     it('saves a URL into browser history', () => {
       const historyLength = globalThis.history.length;
       navigationEvent.target = { href: '/path' };
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       expect(navigationEvent.preventDefault).toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength + 1);
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       expect(globalThis.history.length).toBe(historyLength + 2);
     });
 
@@ -100,7 +100,7 @@ describe('Controller', () => {
       navigationEvent.target = {
         getAttribute() {},
       };
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       expect(navigationEvent.preventDefault).not.toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength);
     });
@@ -109,7 +109,7 @@ describe('Controller', () => {
       const callback = jest.fn();
       controller.addEventListener('route', callback);
       navigationEvent.target = { href: '/about' };
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });
@@ -118,7 +118,7 @@ describe('Controller', () => {
       const callback = jest.fn();
       controller.addEventListener('route', callback, { handler: true });
       navigationEvent.target = { href: '/user/arthur?a=b#c' };
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({
@@ -136,11 +136,11 @@ describe('Controller', () => {
       const callback = jest.fn();
       controller.addEventListener('route', callback, { handler: true });
       navigationEvent.target = { href: '/user/arthur?a=b#c' };
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).not.toHaveBeenCalled();
       navigationEvent.target = { href: '/root/user/arthur?a=b#c' };
-      controller.navigate(navigationEvent);
+      Controller.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });
