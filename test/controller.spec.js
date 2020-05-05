@@ -73,11 +73,6 @@ describe('Controller', () => {
     let navigationEvent;
 
     beforeEach(() => {
-      ControllerClass.routes = {
-        home: /^\/$/,
-        about: /^\/about$/,
-        user: /^\/user\/(?<name>[^/]+)$/,
-      };
       navigationEvent = {
         target: undefined,
         preventDefault: jest.fn(),
@@ -104,46 +99,6 @@ describe('Controller', () => {
       expect(navigationEvent.preventDefault).not.toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength);
     });
-
-    it('emits `route` event if the url matches a route', () => {
-      const callback = jest.fn();
-      controller.addEventListener('route', callback);
-      navigationEvent.target = { href: '/about' };
-      Controller.navigate(navigationEvent);
-      globalThis.dispatchEvent(new PopStateEvent('popstate'));
-      expect(callback).toHaveBeenCalled();
-    });
-
-    it('sends route parameters with the `route` event', () => {
-      const callback = jest.fn();
-      controller.addEventListener('route', callback, { handler: true });
-      navigationEvent.target = { href: '/user/arthur?a=b#c' };
-      Controller.navigate(navigationEvent);
-      globalThis.dispatchEvent(new PopStateEvent('popstate'));
-      expect(callback).toHaveBeenCalled();
-      expect(callback.mock.calls[0][0].detail).toMatchObject({
-        route: 'user',
-        params: {
-          name: 'arthur',
-        },
-        query: '?a=b',
-        hash: '#c',
-      });
-    });
-
-    it('handles custom roots while checking the url', () => {
-      ControllerClass.root = '/root';
-      const callback = jest.fn();
-      controller.addEventListener('route', callback, { handler: true });
-      navigationEvent.target = { href: '/user/arthur?a=b#c' };
-      Controller.navigate(navigationEvent);
-      globalThis.dispatchEvent(new PopStateEvent('popstate'));
-      expect(callback).not.toHaveBeenCalled();
-      navigationEvent.target = { href: '/root/user/arthur?a=b#c' };
-      Controller.navigate(navigationEvent);
-      globalThis.dispatchEvent(new PopStateEvent('popstate'));
-      expect(callback).toHaveBeenCalled();
-    });
   });
 
   describe('onModelChange', () => {
@@ -163,18 +118,6 @@ describe('Controller', () => {
       controller.dispose();
       expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
     });
-
-    it('removes event listener for `popstate` event', () => {
-      jest.spyOn(globalThis, 'removeEventListener');
-      ControllerClass.routes = {};
-      controller.connectedCallback();
-      controller.dispose();
-      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
-        'popstate',
-        controller.onPopstate,
-      );
-      globalThis.removeEventListener.mockRestore();
-    });
   });
 
   describe('connectedCallback', () => {
@@ -184,13 +127,6 @@ describe('Controller', () => {
       jest.spyOn(model, 'addEventListener');
       controller.connectedCallback();
       expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-    });
-    it('subscribes to popstate events if routes are present in the controller', () => {
-      jest.spyOn(globalThis, 'addEventListener');
-      ControllerClass.routes = {};
-      controller.connectedCallback();
-      expect(globalThis.addEventListener).toHaveBeenCalledWith('popstate', controller.onPopstate);
-      globalThis.addEventListener.mockRestore();
     });
   });
 

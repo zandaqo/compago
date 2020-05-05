@@ -59,20 +59,24 @@ interface ControllerBinding {
   value?: string;
 }
 
-interface Routes {
-  [propName: string]: RegExp;
-}
-
 export declare class Controller extends LitElement {
   model?: Model | object;
   binding?: ControllerBinding;
-  static routes?: Routes;
-  static root?: string;
 
   bond(event: Event): void;
   navigate(event: Event): void;
   dispose(): this;
   private onModelChange(event: Event): void;
+}
+
+interface Routes {
+  [propName: string]: RegExp;
+}
+
+export declare class Router extends HTMLElement {
+  root: string;
+  routes?: Routes;
+  private currentPath: string;
   private onPopstate(): void;
 }
 
