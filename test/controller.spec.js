@@ -1,9 +1,12 @@
 import { jest } from '@jest/globals';
-import { Controller } from '../index.js';
+import { Controller, Translator } from '../index.js';
 
 class Model extends EventTarget {}
 class ControllerClass extends Controller {}
+ControllerClass.translations = { en: {}, es: {} };
 globalThis.customElements.define('c-controller', ControllerClass);
+
+const translator = Translator.initialize({ languages: ['en', 'es'] });
 
 describe('Controller', () => {
   let controller;
@@ -109,14 +112,32 @@ describe('Controller', () => {
     });
   });
 
+  describe('onLanguageChange', () => {
+    it('requests updating the component', async () => {
+      controller.requestUpdate = jest.fn();
+      await controller.onLanguageChange();
+      expect(controller.requestUpdate).toHaveBeenCalled();
+    });
+  });
+
   describe('dispose', () => {
-    it('removes event listeners from the model', () => {
+    it('removes an event listener from its model', () => {
       const model = new Model();
       controller.model = model;
       jest.spyOn(model, 'removeEventListener');
       controller.connectedCallback();
       controller.dispose();
       expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+    });
+
+    it('removes an event listener from the global translator', () => {
+      jest.spyOn(translator, 'removeEventListener');
+      controller.dispose();
+      expect(translator.removeEventListener).toHaveBeenCalledWith(
+        'language',
+        controller.onLanguageChange,
+      );
+      translator.removeEventListener.mockRestore();
     });
   });
 
@@ -128,6 +149,16 @@ describe('Controller', () => {
       controller.connectedCallback();
       expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
     });
+
+    it('subscribes to language change event if global translator is set', () => {
+      jest.spyOn(translator, 'addEventListener');
+      controller.connectedCallback();
+      expect(translator.addEventListener).toHaveBeenCalledWith(
+        'language',
+        controller.onLanguageChange,
+      );
+      translator.addEventListener.mockRestore();
+    });
   });
 
   describe('disconnectedCallback', () => {
@@ -135,6 +166,22 @@ describe('Controller', () => {
       controller.dispose = jest.fn();
       controller.disconnectedCallback();
       expect(controller.dispose).toHaveBeenCalled();
+    });
+  });
+
+  describe('translate', () => {
+    it('translates a given key using the global translator', () => {
+      jest.spyOn(translator, 'translate');
+      ControllerClass.translate('key', { a: 1 });
+      expect(translator.translate).toHaveBeenCalledWith(
+        ControllerClass.translations,
+        'key',
+        {
+          a: 1,
+        },
+        'ControllerClass',
+      );
+      translator.translate.mockRestore();
     });
   });
 });

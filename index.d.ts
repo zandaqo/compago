@@ -62,11 +62,15 @@ interface ControllerBinding {
 export declare class Controller extends LitElement {
   model?: Model | object;
   binding?: ControllerBinding;
+  static get translator(): Translator;
+  static translations: object;
 
   bond(event: Event): void;
-  navigate(event: Event): void;
   dispose(): this;
-  private onModelChange(event: Event): void;
+  onModelChange(event: Event): void;
+  onLanguageChange(event: Event): void;
+  static navigate(event: Event): void;
+  static translate(key: string, interpolation?: object): string;
 }
 
 interface Routes {
@@ -164,4 +168,32 @@ export declare class RemoteStorage extends EventTarget {
   deserialize(response: Response): Promise<Object> | undefined;
   static fetch(url: string | Request, options: object): Promise<Response>;
   static isStored(model: Model): boolean;
+}
+
+interface TranslatorOptions {
+  language?: string;
+  languages: string[];
+  globalPrefix?: string;
+  translations?: object;
+}
+
+export declare class Translator extends EventTarget {
+  language: string;
+  languages: string[];
+  globalPrefix: string;
+  pluralRules: Intl.PluralRules;
+  translations: object;
+
+  constructor(options: TranslatorOptions);
+  setLanguage(language: string): void;
+  getLanguage(language?: string): string;
+  translate(
+    translations: object,
+    key: string,
+    interpolation?: object,
+    componentName?: string,
+  ): string;
+  reportMissing(componentName: string, key: string, rule?: string): void;
+  static initialize(options: TranslatorOptions, symbol: symbol): Translator;
+  static interpolate(text: string, interpolation: object): string;
 }
