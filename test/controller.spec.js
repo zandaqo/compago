@@ -102,6 +102,14 @@ describe('Controller', () => {
       expect(navigationEvent.preventDefault).not.toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength);
     });
+
+    it('triggers popstate event', () => {
+      const callback = jest.fn();
+      globalThis.addEventListener('popstate', callback);
+      navigationEvent.target = { href: '/path' };
+      Controller.navigate(navigationEvent);
+      expect(callback).not.toHaveBeenCalled();
+    });
   });
 
   describe('onModelChange', () => {
