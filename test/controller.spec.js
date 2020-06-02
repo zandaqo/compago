@@ -77,7 +77,7 @@ describe('Controller', () => {
 
     beforeEach(() => {
       navigationEvent = {
-        target: undefined,
+        currentTarget: undefined,
         preventDefault: jest.fn(),
       };
       controller.connectedCallback();
@@ -85,20 +85,20 @@ describe('Controller', () => {
 
     it('saves a URL into browser history', () => {
       const historyLength = globalThis.history.length;
-      navigationEvent.target = { href: '/path' };
-      Controller.navigate(navigationEvent);
+      navigationEvent.currentTarget = { href: '/path' };
+      controller.navigate(navigationEvent);
       expect(navigationEvent.preventDefault).toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength + 1);
-      Controller.navigate(navigationEvent);
+      controller.navigate(navigationEvent);
       expect(globalThis.history.length).toBe(historyLength + 2);
     });
 
     it('does not save if no URL is found', () => {
       const historyLength = globalThis.history.length;
-      navigationEvent.target = {
+      navigationEvent.currentTarget = {
         getAttribute() {},
       };
-      Controller.navigate(navigationEvent);
+      controller.navigate(navigationEvent);
       expect(navigationEvent.preventDefault).not.toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength);
     });
@@ -106,9 +106,9 @@ describe('Controller', () => {
     it('triggers popstate event', () => {
       const callback = jest.fn();
       globalThis.addEventListener('popstate', callback);
-      navigationEvent.target = { href: '/path' };
-      Controller.navigate(navigationEvent);
-      expect(callback).not.toHaveBeenCalled();
+      navigationEvent.currentTarget = { href: '/path' };
+      controller.navigate(navigationEvent);
+      expect(callback).toHaveBeenCalled();
     });
   });
 
@@ -177,10 +177,10 @@ describe('Controller', () => {
     });
   });
 
-  describe('translate', () => {
+  describe('interpret', () => {
     it('translates a given key using the global translator', () => {
       jest.spyOn(translator, 'translate');
-      ControllerClass.translate('key', { a: 1 });
+      controller.interpret('key', { a: 1 });
       expect(translator.translate).toHaveBeenCalledWith(
         ControllerClass.translations,
         'key',

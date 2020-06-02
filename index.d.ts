@@ -69,8 +69,8 @@ export declare class Controller extends LitElement {
   dispose(): this;
   onModelChange(event: Event): void;
   onLanguageChange(event: Event): void;
-  static navigate(event: Event): void;
-  static translate(key: string, interpolation?: object): string;
+  navigate(event: Event): void;
+  interpret(key: string, interpolation?: object): string;
 }
 
 interface Routes {
