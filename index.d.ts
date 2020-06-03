@@ -52,16 +52,18 @@ export declare class Model extends EventTarget {
   private static _getProxy(target: object, path: string, model: Model, processed: any[]): object;
 }
 
-interface ControllerBinding {
-  property: string;
+interface ControllerBond {
+  to: string;
   parse?: Function;
   prevent?: boolean;
-  value?: string;
+  property?: string;
+  attribute?: string;
+  value?: any;
 }
 
 export declare class Controller extends LitElement {
   model?: Model | object;
-  binding?: ControllerBinding;
+  binding?: ControllerBond;
   static get translator(): Translator;
   static translations: object;
 

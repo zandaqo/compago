@@ -28,6 +28,7 @@ describe('Router', () => {
       router.connectedCallback();
       expect(globalThis.addEventListener).toHaveBeenCalledWith('popstate', router.onPopstate);
       globalThis.addEventListener.mockRestore();
+      expect(router.style.display).toBe('none');
     });
   });
 
@@ -45,8 +46,8 @@ describe('Router', () => {
     it('emits `route` event if the url matches a route', () => {
       const callback = jest.fn();
       router.addEventListener('route', callback);
-      navigationEvent.target = { href: '/about' };
-      Controller.navigate(navigationEvent);
+      navigationEvent.currentTarget = { href: '/about' };
+      Controller.prototype.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });
@@ -54,8 +55,8 @@ describe('Router', () => {
     it('sends route parameters with the `route` event', () => {
       const callback = jest.fn();
       router.addEventListener('route', callback, { handler: true });
-      navigationEvent.target = { href: '/user/arthur?a=b#c' };
-      Controller.navigate(navigationEvent);
+      navigationEvent.currentTarget = { href: '/user/arthur?a=b#c' };
+      Controller.prototype.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({
@@ -72,12 +73,12 @@ describe('Router', () => {
       router.root = '/root';
       const callback = jest.fn();
       router.addEventListener('route', callback, { handler: true });
-      navigationEvent.target = { href: '/user/arthur?a=b#c' };
-      Controller.navigate(navigationEvent);
+      navigationEvent.currentTarget = { href: '/user/arthur?a=b#c' };
+      Controller.prototype.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).not.toHaveBeenCalled();
-      navigationEvent.target = { href: '/root/user/arthur?a=b#c' };
-      Controller.navigate(navigationEvent);
+      navigationEvent.currentTarget = { href: '/root/user/arthur?a=b#c' };
+      Controller.prototype.navigate(navigationEvent);
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });

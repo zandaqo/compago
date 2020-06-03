@@ -21,13 +21,13 @@ describe('Controller', () => {
     beforeEach(() => {
       controller.model = {};
       input = document.createElement('input');
-      input.setAttribute('id', 'name');
-      event = { type: 'input', target: input, preventDefault: jest.fn() };
+      input.setAttribute('type', 'text');
+      event = { type: 'input', currentTarget: input, preventDefault: jest.fn() };
     });
 
     it('handles one way binding between DOM elements and the model', () => {
       input.value = 'abc';
-      input.binding = { property: ':name' };
+      input.binding = { to: ':name' };
       controller.bond(event);
       expect(controller.model).toEqual({ name: 'abc' });
       expect(event.preventDefault).not.toHaveBeenCalled();
@@ -36,21 +36,21 @@ describe('Controller', () => {
     it('binds to a nested attribute of the model if attribute name contains `.`', () => {
       controller.model = { name: {} };
       input.value = 'abc';
-      input.binding = { property: ':name.first' };
+      input.binding = { to: ':name.first' };
       controller.bond(event);
       expect(controller.model).toEqual({ name: { first: 'abc' } });
     });
 
-    it('binds to attributes of the controller', () => {
+    it('binds to a property of the controller', () => {
       input.value = 'abc';
-      input.binding = { property: 'data-name' };
+      input.binding = { to: 'name' };
       controller.bond(event);
-      expect(controller.getAttribute('data-name')).toBe('abc');
+      expect(controller.name).toBe('abc');
     });
 
     it('prevents default action if `prevent:true`', () => {
       input.value = 'abc';
-      input.binding = { property: ':name', prevent: true };
+      input.binding = { to: ':name', prevent: true };
       controller.bond(event);
       expect(controller.model).toEqual({ name: 'abc' });
       expect(event.preventDefault).toHaveBeenCalled();
@@ -58,7 +58,7 @@ describe('Controller', () => {
 
     it('parses value if parsing function is provided as `parse` option', () => {
       input.value = '12';
-      input.binding = { property: ':name', parse: parseInt };
+      input.binding = { to: ':name', parse: parseInt };
       controller.bond(event);
       expect(controller.model).toEqual({ name: 12 });
     });
@@ -69,6 +69,24 @@ describe('Controller', () => {
         input.binding = undefined;
         controller.bond(event);
       }).toThrow('No binding configuration found.');
+    });
+
+    it('sets a value from a specified property', () => {
+      input.binding = { to: 'isDisabled', property: 'disabled' };
+      controller.bond(event);
+      expect(controller.isDisabled).toBe(false);
+    });
+
+    it('sets a value from a specified attribute', () => {
+      input.binding = { to: 'inputType', attribute: 'type' };
+      controller.bond(event);
+      expect(controller.inputType).toBe('text');
+    });
+
+    it('sets a constant value', () => {
+      input.binding = { to: 'name', value: 'abc' };
+      controller.bond(event);
+      expect(controller.name).toBe('abc');
     });
   });
 
