@@ -1,7 +1,11 @@
 import { jest } from '@jest/globals';
 import { Controller, Translator } from '../index.js';
 
-class Model extends EventTarget {}
+class Model extends EventTarget {
+  toJSON() {
+    return { ...this };
+  }
+}
 class ControllerClass extends Controller {}
 ControllerClass.translations = { en: {}, es: {} };
 globalThis.customElements.define('c-controller', ControllerClass);
@@ -19,7 +23,7 @@ describe('Controller', () => {
     let event;
 
     beforeEach(() => {
-      controller.model = {};
+      controller.model = new Model();
       input = document.createElement('input');
       input.setAttribute('type', 'text');
       event = { type: 'input', currentTarget: input, preventDefault: jest.fn() };
@@ -29,16 +33,17 @@ describe('Controller', () => {
       input.value = 'abc';
       input.binding = { to: ':name' };
       controller.bond(event);
-      expect(controller.model).toEqual({ name: 'abc' });
+      expect(controller.model.toJSON()).toEqual({ name: 'abc' });
       expect(event.preventDefault).not.toHaveBeenCalled();
     });
 
     it('binds to a nested attribute of the model if attribute name contains `.`', () => {
-      controller.model = { name: {} };
+      controller.model = new Model();
+      controller.model.name = {};
       input.value = 'abc';
       input.binding = { to: ':name.first' };
       controller.bond(event);
-      expect(controller.model).toEqual({ name: { first: 'abc' } });
+      expect(controller.model.toJSON()).toEqual({ name: { first: 'abc' } });
     });
 
     it('binds to a property of the controller', () => {
@@ -52,7 +57,7 @@ describe('Controller', () => {
       input.value = 'abc';
       input.binding = { to: ':name', prevent: true };
       controller.bond(event);
-      expect(controller.model).toEqual({ name: 'abc' });
+      expect(controller.model.toJSON()).toEqual({ name: 'abc' });
       expect(event.preventDefault).toHaveBeenCalled();
     });
 
@@ -60,7 +65,7 @@ describe('Controller', () => {
       input.value = '12';
       input.binding = { to: ':name', parse: parseInt };
       controller.bond(event);
-      expect(controller.model).toEqual({ name: 12 });
+      expect(controller.model.toJSON()).toEqual({ name: 12 });
     });
 
     it('throws a TypeError if no binding configuration is provided', () => {
@@ -167,14 +172,42 @@ describe('Controller', () => {
     });
   });
 
-  describe('connectedCallback', () => {
-    it('subscribes to model events if model is present', () => {
+  describe('model', () => {
+    it('sets a model', () => {
+      const model = new Model();
+      jest.spyOn(model, 'addEventListener');
+      expect(controller.model).toBeUndefined();
+      controller.model = model;
+      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBe(model);
+    });
+
+    it('replaces an existing model', () => {
+      const oldModel = new Model();
+      controller.model = oldModel;
+      expect(controller.model).toBe(oldModel);
+      const model = new Model();
+      jest.spyOn(model, 'addEventListener');
+      jest.spyOn(oldModel, 'removeEventListener');
+      controller.model = model;
+      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(oldModel.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBe(model);
+    });
+
+    it('removes an existing model', () => {
       const model = new Model();
       controller.model = model;
-      jest.spyOn(model, 'addEventListener');
-      controller.connectedCallback();
-      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBe(model);
+      jest.spyOn(model, 'removeEventListener');
+      controller.model = undefined;
+      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBeUndefined();
     });
+  });
+
+  describe('connectedCallback', () => {
+    it('subscribes to model events if model is present', () => {});
 
     it('subscribes to language change event if global translator is set', () => {
       jest.spyOn(translator, 'addEventListener');

@@ -62,7 +62,7 @@ interface ControllerBond {
 }
 
 export declare class Controller extends LitElement {
-  model?: Model | object;
+  model?: Model | ModelArray;
   binding?: ControllerBond;
   static get translator(): Translator;
   static translations: object;
