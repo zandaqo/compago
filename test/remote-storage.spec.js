@@ -174,7 +174,7 @@ describe('RemoteStorage', () => {
       });
     });
 
-    it('fires `request` and `response` events unless `silent:true`', () => {
+    it('fires `request` and `response` events', () => {
       storage.someMethod = jest.fn();
       storage.otherMethod = jest.fn();
       storage.addEventListener('request', storage.someMethod);
@@ -183,30 +183,6 @@ describe('RemoteStorage', () => {
         expect(storage.someMethod).toHaveBeenCalled();
         expect(storage.otherMethod).toHaveBeenCalled();
       });
-    });
-
-    it('does not fire any events if `silent:true`', () => {
-      storage.someMethod = jest.fn();
-      storage.otherMethod = jest.fn();
-      storage.addEventListener('request', storage.someMethod);
-      storage.addEventListener('response', storage.otherMethod);
-      return storage.sync('read', model, { silent: true }).then(() => {
-        expect(storage.someMethod).not.toHaveBeenCalled();
-        expect(storage.otherMethod).not.toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('dispose', () => {
-    it('fires `dispose` event unless `silent:true`', () => {
-      storage.someMethod = jest.fn();
-      storage.addEventListener('dispose', storage.someMethod);
-      storage.dispose();
-      expect(storage.someMethod).toHaveBeenCalled();
-      const otherMethod = jest.fn();
-      storage.addEventListener('dispose', storage.otherMethod);
-      storage.dispose({ silent: true });
-      expect(otherMethod).not.toHaveBeenCalled();
     });
   });
 });

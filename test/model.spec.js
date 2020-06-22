@@ -15,11 +15,9 @@ describe('Model', () => {
   describe('constructor', () => {
     it('creates a model', () => {
       const collection = {};
-      const storage = {};
-      const m = new Model(undefined, { collection, storage });
+      const m = new Model(undefined, { collection });
       expect(m instanceof Model).toBe(true);
       expect(m[Symbol.for('c_collection')]).toBe(collection);
-      expect(m[Symbol.for('c_storage')]).toBe(storage);
       expect(m.toJSON()).toEqual({});
     });
   });
@@ -270,6 +268,11 @@ describe('Model', () => {
       model._id = 100;
       expect(model.id).toBe(100);
     });
+
+    it('sets the of the model', () => {
+      model.id = 200;
+      expect(model.id).toBe(200);
+    });
   });
 
   describe('toJSON', () => {
@@ -332,13 +335,6 @@ describe('Model', () => {
             heads: 1,
           },
         });
-      });
-    });
-
-    it('does not fire `sync` event if `silent:true`', () => {
-      model.addEventListener('sync', firstSpy);
-      return model.read({ silent: true }).then(() => {
-        expect(firstSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -421,13 +417,6 @@ describe('Model', () => {
       });
     });
 
-    it('does not fire `sync` event if `silent:true`', () => {
-      model.addEventListener('sync', firstSpy);
-      return model.write({ silent: true }).then(() => {
-        expect(firstSpy).not.toHaveBeenCalled();
-      });
-    });
-
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
       Object.defineProperty(model, 'sync', {
@@ -444,45 +433,17 @@ describe('Model', () => {
   });
 
   describe('erase', () => {
-    it('removes the model from the storage and disposes the model firing `sync` event', () => {
+    it('removes the model from the storage firing `sync` event', () => {
       Object.defineProperty(model, 'sync', {
         value: () => Promise.resolve(''),
         enumerable: false,
         configurable: true,
       });
-      model.dispose = jest.fn();
       model.addEventListener('sync', firstSpy);
       return model.erase().then(() => {
         expect(firstSpy.mock.calls[0][0].type).toBe('sync');
         expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
-        expect(model.dispose).toHaveBeenCalled();
-      });
-    });
-
-    it('avoids disposing the model if `keep:true`', () => {
-      Object.defineProperty(model, 'sync', {
-        value: () => Promise.resolve(''),
-        enumerable: false,
-        configurable: true,
-      });
-      model.dispose = jest.fn();
-      model.addEventListener('sync', firstSpy);
-      return model.erase({ keep: true }).then(() => {
-        expect(firstSpy.mock.calls[0][0].type).toBe('sync');
-        expect(firstSpy.mock.calls[0][0].detail.emitter).toBe(model);
-        expect(model.dispose).not.toHaveBeenCalled();
-      });
-    });
-
-    it('does not fire `sync` event if `silent:true`', () => {
-      Object.defineProperty(model, 'sync', {
-        value: () => Promise.resolve(''),
-        enumerable: false,
-        configurable: true,
-      });
-      model.addEventListener('sync', firstSpy);
-      return model.erase({ silent: true }).then(() => {
-        expect(firstSpy).not.toHaveBeenCalled();
+        expect(firstSpy.mock.calls[0][0].detail.operation).toBe('erase');
       });
     });
 
@@ -502,40 +463,34 @@ describe('Model', () => {
   });
 
   describe('sync', () => {
+    class StoredModel extends Model {}
+    let storedModel;
+
+    beforeEach(() => {
+      StoredModel.storage = {
+        sync: jest.fn(),
+      };
+      storedModel = new StoredModel();
+    });
+
     it('calls `sync` method of the storage', () => {
-      model[Symbol.for('c_storage')] = {};
-      model[Symbol.for('c_storage')].sync = jest.fn();
-      model.sync();
-      expect(model[Symbol.for('c_storage')].sync).toHaveBeenCalled();
+      storedModel.sync();
+      expect(StoredModel.storage.sync).toHaveBeenCalled();
     });
 
     it('prefers the storage of the collection', () => {
-      model[Symbol.for('c_storage')] = {};
-      model[Symbol.for('c_storage')].sync = jest.fn();
-      model[Symbol.for('c_collection')] = {};
-      model[Symbol.for('c_collection')].storage = {};
-      model[Symbol.for('c_collection')].storage.sync = jest.fn();
-      model.sync();
-      expect(model[Symbol.for('c_storage')].sync).not.toHaveBeenCalled();
-      expect(model[Symbol.for('c_collection')].storage.sync).toHaveBeenCalled();
+      storedModel[Symbol.for('c_collection')] = {
+        storage: { sync: jest.fn() },
+      };
+      storedModel.sync();
+      expect(StoredModel.storage.sync).not.toHaveBeenCalled();
+      expect(storedModel[Symbol.for('c_collection')].storage.sync).toHaveBeenCalled();
     });
 
     it('rejects if no storage is found', () =>
       model.sync().catch((error) => {
         expect(error.message).toBe('Storage is not defined.');
       }));
-  });
-
-  describe('dispose', () => {
-    it('fires `dispose` event unless `silent:true`', () => {
-      model.addEventListener('dispose', firstSpy);
-      model.dispose();
-      expect(firstSpy).toHaveBeenCalled();
-      const otherMethod = jest.fn();
-      model.addEventListener('dispose', otherMethod);
-      model.dispose({ silent: true });
-      expect(otherMethod).not.toHaveBeenCalled();
-    });
   });
 
   describe('definePrivate', () => {

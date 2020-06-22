@@ -31,10 +31,11 @@ describe('ModelArray', () => {
       expect(nc.comparator).toBe(comparator);
     });
 
-    it('creates an array that updates if its models are disposed', () => {
-      c.push(m1);
-      m1.dispose();
-      expect(c.length).toBe(0);
+    it('uses the storage of the provided model class if no storage option is provided', () => {
+      class StoredModel extends Model {}
+      StoredModel.storage = {};
+      const array = new ModelArray(undefined, { model: StoredModel });
+      expect(array.storage).toBe(StoredModel.storage);
     });
   });
 
@@ -123,28 +124,20 @@ describe('ModelArray', () => {
       expect(c.someMethod.mock.calls[0][0].detail.emitter).toBe(m1);
     });
 
-    it('fires `sort` event if models have been sorted unless `silent:true`', () => {
+    it('fires `sort` event if models have been sorted', () => {
       m1.assign({ order: 3 });
       m2.assign({ order: 2 });
       m3.assign({ order: 1 });
       c.comparator = 'order';
       c.someMethod = jest.fn();
       c.addEventListener('sort', c.someMethod);
-
-      c.set([m1, m2, m3], { keep: true, skip: true, silent: true });
-      expect(c.someMethod).not.toHaveBeenCalled();
-      c.unset(c);
-
       c.push([m1, m2, m3]);
       expect(c.someMethod.mock.calls[0][0].type).toBe('sort');
     });
 
-    it('fires `update` event if the array is changed unless `silent:true`', () => {
+    it('fires `update` event if the array is changed', () => {
       c.someMethod = jest.fn();
       c.addEventListener('update', c.someMethod);
-      c.set(m1, { silent: true });
-      expect(c.someMethod).not.toHaveBeenCalled();
-
       c.set(m2);
       expect(c.someMethod.mock.calls[0][0].type).toBe('update');
     });
@@ -173,21 +166,11 @@ describe('ModelArray', () => {
       expect(m1.someMethod.mock.calls[0][0].type).toBe('remove');
     });
 
-    it('fires `update` event unless `silent:true`', () => {
-      c.push(m1);
-      c.unset(m1, { silent: true });
-      expect(c.someMethod).not.toHaveBeenCalled();
-
+    it('fires `update` event', () => {
       c.push(m1);
       c.unset(m1);
       expect(c.someMethod.mock.calls[0][0].type).toBe('update');
       expect(c.someMethod.mock.calls[0][0].detail.emitter).toBe(c);
-    });
-
-    it('does not dispose removed models if `save:true`', () => {
-      m1.dispose = jest.fn();
-      c.unset(m1, { save: true });
-      expect(m1.dispose).not.toHaveBeenCalled();
     });
 
     it('does not remove if the provided model is not in the array', () => {
@@ -260,7 +243,7 @@ describe('ModelArray', () => {
       expect(c[0]).toBe(m1);
     });
 
-    it('fires `sort` event unless `silent:true`', () => {
+    it('fires `sort` event', () => {
       c.someMethod = jest.fn();
       c.addEventListener('sort', c.someMethod);
       c.push(m3, m2, m1);
@@ -370,13 +353,6 @@ describe('ModelArray', () => {
       });
     });
 
-    it('does not fire `sync` event if `silent:true`', () => {
-      c.addEventListener('sync', c.someMethod);
-      return c.read({ silent: true }).then(() => {
-        expect(c.someMethod).not.toHaveBeenCalled();
-      });
-    });
-
     it('fires `error` event and rejects if an error happens', () => {
       const error = new Error('404');
       c.sync = () => Promise.reject(error);
@@ -403,8 +379,8 @@ describe('ModelArray', () => {
       };
       const options = {};
       const nc = new ModelArray(undefined, { storage });
-      return nc.sync('read', options).then(() => {
-        expect(storage.sync).toHaveBeenCalledWith('read', nc, options);
+      return nc.sync('read').then(() => {
+        expect(storage.sync).toHaveBeenCalledWith('read', nc);
       });
     });
 
@@ -413,35 +389,6 @@ describe('ModelArray', () => {
       return nc.sync('read', {}).catch((error) => {
         expect(error.message).toBe('Storage is not defined.');
       });
-    });
-  });
-
-  describe('dispose', () => {
-    beforeEach(() => {
-      c.push(m1, m2, m3);
-      c.someMethod = jest.fn();
-      c.addEventListener('dispose', c.someMethod);
-    });
-
-    it('prepares the array to be disposed', () => {
-      expect(c.length).toBe(3);
-      c.dispose();
-      expect(c.length).toBe(0);
-    });
-
-    it('fires `dispose` event unless `silent:true`', () => {
-      c.dispose({ silent: true });
-      expect(c.someMethod).not.toHaveBeenCalled();
-      c.addEventListener('dispose', c.someMethod);
-      c.dispose();
-      expect(c.someMethod).toHaveBeenCalled();
-    });
-
-    it('disposes removed models if `dispose:true`', () => {
-      const onDispose = jest.fn();
-      m1.addEventListener('dispose', onDispose);
-      c.dispose({ dispose: true });
-      expect(onDispose).toHaveBeenCalled();
     });
   });
 });
