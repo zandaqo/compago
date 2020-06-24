@@ -87,6 +87,8 @@ describe('Translator', () => {
         },
         date: new Intl.DateTimeFormat('en', { year: 'numeric', era: 'narrow' }),
         amount: new Intl.NumberFormat('en'),
+        ago: new Intl.RelativeTimeFormat('en', { style: 'narrow' }),
+        list: new Intl.ListFormat('en'),
       },
       es: {
         open: 'Abrir',
@@ -97,6 +99,8 @@ describe('Translator', () => {
         },
         date: new Intl.DateTimeFormat('es', { year: '2-digit', era: 'long' }),
         amount: new Intl.NumberFormat('es'),
+        ago: new Intl.RelativeTimeFormat('es', { style: 'narrow' }),
+        list: new Intl.ListFormat('es'),
       },
     };
 
@@ -158,6 +162,22 @@ describe('Translator', () => {
       expect(translator.translate(translations, 'amount', 1000000.999)).toBe('1,000,000.999');
       translator.setLanguage('es');
       expect(translator.translate(translations, 'amount', 1000000.999)).toBe('1.000.000,999');
+    });
+
+    it('formats relative time', () => {
+      expect(translator.translate(translations, 'ago', [2, 'day'])).toBe('in 2 days');
+      translator.setLanguage('es');
+      expect(translator.translate(translations, 'ago', [2, 'day'])).toBe('dentro de 2 días');
+    });
+
+    it('formats relative time', () => {
+      expect(translator.translate(translations, 'list', ['first', 'second'])).toBe(
+        'first and second',
+      );
+      translator.setLanguage('es');
+      expect(translator.translate(translations, 'list', ['first', 'second'])).toBe(
+        'first y second',
+      );
     });
   });
 

@@ -179,23 +179,41 @@ interface TranslatorOptions {
   translations?: object;
 }
 
+interface PluralTranslation {
+  [key: string]: string;
+}
+
+interface Translation {
+  [key: string]:
+    | string
+    | PluralTranslation
+    | Intl.DateTimeFormat
+    | Intl.NumberFormat
+    | Intl.ListFormat
+    | Intl.RelativeTimeFormat;
+}
+
+interface Translations {
+  [language: string]: Translation | PluralTranslation;
+}
+
 export declare class Translator extends EventTarget {
   language: string;
   languages: string[];
   globalPrefix: string;
   pluralRules: Intl.PluralRules;
-  translations: object;
+  translations: Translations;
 
   constructor(options: TranslatorOptions);
   setLanguage(language: string): void;
   getLanguage(language?: string): string;
   translate(
-    translations: object,
+    translations: Translations,
     key: string,
     interpolation?: object,
     componentName?: string,
   ): string;
   reportMissing(componentName: string, key: string, rule?: string): void;
   static initialize(options: TranslatorOptions, symbol: symbol): Translator;
-  static interpolate(text: string, interpolation: object | number): string;
+  static interpolate(text: string, interpolation: object | number | any[]): string;
 }
