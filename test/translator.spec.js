@@ -85,6 +85,8 @@ describe('Translator', () => {
           one: 'One lemon',
           other: '{{count}} lemons',
         },
+        date: new Intl.DateTimeFormat('en', { year: 'numeric', era: 'narrow' }),
+        amount: new Intl.NumberFormat('en'),
       },
       es: {
         open: 'Abrir',
@@ -93,6 +95,8 @@ describe('Translator', () => {
           one: 'Un limón',
           other: '{{count}} limónes',
         },
+        date: new Intl.DateTimeFormat('es', { year: '2-digit', era: 'long' }),
+        amount: new Intl.NumberFormat('es'),
       },
     };
 
@@ -142,6 +146,18 @@ describe('Translator', () => {
         rule: '',
       });
       translator.removeEventListener('missing', cb);
+    });
+
+    it('formats dates', () => {
+      expect(translator.translate(translations, 'date', new Date(0))).toBe('1970 A');
+      translator.setLanguage('es');
+      expect(translator.translate(translations, 'date', new Date(0))).toBe('70 después de Cristo');
+    });
+
+    it('formats numbers', () => {
+      expect(translator.translate(translations, 'amount', 1000000.999)).toBe('1,000,000.999');
+      translator.setLanguage('es');
+      expect(translator.translate(translations, 'amount', 1000000.999)).toBe('1.000.000,999');
     });
   });
 

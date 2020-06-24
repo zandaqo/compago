@@ -197,5 +197,5 @@ export declare class Translator extends EventTarget {
   ): string;
   reportMissing(componentName: string, key: string, rule?: string): void;
   static initialize(options: TranslatorOptions, symbol: symbol): Translator;
-  static interpolate(text: string, interpolation: object): string;
+  static interpolate(text: string, interpolation: object | number): string;
 }
