@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import { render } from 'lit-html';
 import { Controller, Translator } from '../index.js';
 
 class Model extends EventTarget {
@@ -151,26 +152,7 @@ describe('Controller', () => {
     });
   });
 
-  describe('dispose', () => {
-    it('removes an event listener from its model', () => {
-      const model = new Model();
-      controller.model = model;
-      jest.spyOn(model, 'removeEventListener');
-      controller.connectedCallback();
-      controller.dispose();
-      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-    });
-
-    it('removes an event listener from the global translator', () => {
-      jest.spyOn(translator, 'removeEventListener');
-      controller.dispose();
-      expect(translator.removeEventListener).toHaveBeenCalledWith(
-        'language',
-        controller.onLanguageChange,
-      );
-      translator.removeEventListener.mockRestore();
-    });
-  });
+  describe('dispose', () => {});
 
   describe('model', () => {
     it('sets a model', () => {
@@ -221,17 +203,43 @@ describe('Controller', () => {
   });
 
   describe('disconnectedCallback', () => {
-    it('disposes of the controller upon disconnecting from the DOM', () => {
-      controller.dispose = jest.fn();
+    it('removes an event listener from its model', () => {
+      const model = new Model();
+      controller.model = model;
+      jest.spyOn(model, 'removeEventListener');
+      controller.connectedCallback();
       controller.disconnectedCallback();
-      expect(controller.dispose).toHaveBeenCalled();
+      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+    });
+
+    it('removes an event listener from the global translator', () => {
+      jest.spyOn(translator, 'removeEventListener');
+      controller.removeEventListener();
+      expect(translator.removeEventListener).toHaveBeenCalledWith(
+        'language',
+        controller.onLanguageChange,
+      );
+      translator.removeEventListener.mockRestore();
     });
   });
 
-  describe('interpret', () => {
+  describe('translate', () => {
+    let container;
+
+    beforeEach(() => {
+      container = document.createElement('div');
+    });
+
     it('translates a given key using the global translator', () => {
       jest.spyOn(translator, 'translate');
-      controller.interpret('key', { a: 1 });
+      render(
+        ControllerClass.html`<span>${ControllerClass.translate(
+          'key',
+          { a: 1 },
+          ControllerClass,
+        )}</span>`,
+        container,
+      );
       expect(translator.translate).toHaveBeenCalledWith(
         ControllerClass.translations,
         'key',

@@ -66,13 +66,14 @@ export declare class Controller extends LitElement {
   binding?: ControllerBond;
   static get translator(): Translator;
   static translations: object;
+  static bond: Function;
+  static translate: Function;
 
   bond(event: Event): void;
   dispose(): this;
   onModelChange(event: Event): void;
   onLanguageChange(event: Event): void;
-  navigate(event: Event): void;
-  interpret(key: string, interpolation?: object): string;
+  static navigate(event: Event): void;
 }
 
 interface Routes {
