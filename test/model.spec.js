@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 import { Model } from '../index.js';
 
+const collectionSymbol = Symbol.for('c-collection');
+
 describe('Model', () => {
   let model;
   let firstSpy;
@@ -17,7 +19,7 @@ describe('Model', () => {
       const collection = {};
       const m = new Model(undefined, { collection });
       expect(m instanceof Model).toBe(true);
-      expect(m[Symbol.for('c_collection')]).toBe(collection);
+      expect(m[collectionSymbol]).toBe(collection);
       expect(m.toJSON()).toEqual({});
     });
   });
@@ -103,7 +105,7 @@ describe('Model', () => {
       const ab = { a: 1, b: 2 };
       ab.c = ab;
       model.first = ab;
-      expect(ab[Symbol.for('c_path')]).toEqual(':first');
+      expect(ab[Symbol.for('c-path')]).toEqual(':first');
     });
 
     it('handles moving attributes within model', () => {
@@ -183,7 +185,7 @@ describe('Model', () => {
 
     it('does not react to deleting properties set up with symbols', () => {
       model.addEventListener('change', firstSpy);
-      delete model[Symbol.for('c_collection')];
+      delete model[collectionSymbol];
       expect(firstSpy).not.toHaveBeenCalled();
     });
 
@@ -479,12 +481,12 @@ describe('Model', () => {
     });
 
     it('prefers the storage of the collection', () => {
-      storedModel[Symbol.for('c_collection')] = {
+      storedModel[collectionSymbol] = {
         storage: { sync: jest.fn() },
       };
       storedModel.sync();
       expect(StoredModel.storage.sync).not.toHaveBeenCalled();
-      expect(storedModel[Symbol.for('c_collection')].storage.sync).toHaveBeenCalled();
+      expect(storedModel[collectionSymbol].storage.sync).toHaveBeenCalled();
     });
 
     it('rejects if no storage is found', () =>

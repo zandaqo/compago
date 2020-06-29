@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { render } from 'lit-html';
 import { Controller, Translator } from '../index.js';
 
 class Model extends EventTarget {
@@ -8,7 +7,7 @@ class Model extends EventTarget {
   }
 }
 class ControllerClass extends Controller {}
-ControllerClass.translations = { en: {}, es: {} };
+ControllerClass.translations = { en: { two: 'two' }, es: { two: 'dos' } };
 globalThis.customElements.define('c-controller', ControllerClass);
 
 const translator = Translator.initialize({ languages: ['en', 'es'] });
@@ -22,18 +21,23 @@ describe('Controller', () => {
   describe('bond', () => {
     let input;
     let event;
+    let part;
 
     beforeEach(() => {
       controller.model = new Model();
       input = document.createElement('input');
       input.setAttribute('type', 'text');
-      event = { type: 'input', currentTarget: input, preventDefault: jest.fn() };
+      event = { preventDefault: jest.fn() };
+      part = {
+        element: input,
+        eventContext: controller,
+        setValue: jest.fn((f) => (f ? f(event) : undefined)),
+      };
     });
 
     it('handles one way binding between DOM elements and the model', () => {
       input.value = 'abc';
-      input.binding = { to: ':name' };
-      controller.bond(event);
+      ControllerClass.bond({ to: ':name' })(part);
       expect(controller.model.toJSON()).toEqual({ name: 'abc' });
       expect(event.preventDefault).not.toHaveBeenCalled();
     });
@@ -42,96 +46,88 @@ describe('Controller', () => {
       controller.model = new Model();
       controller.model.name = {};
       input.value = 'abc';
-      input.binding = { to: ':name.first' };
-      controller.bond(event);
+      ControllerClass.bond({ to: ':name.first' })(part);
       expect(controller.model.toJSON()).toEqual({ name: { first: 'abc' } });
     });
 
     it('binds to a property of the controller', () => {
       input.value = 'abc';
-      input.binding = { to: 'name' };
-      controller.bond(event);
+      ControllerClass.bond({ to: 'name' })(part);
       expect(controller.name).toBe('abc');
     });
 
     it('prevents default action if `prevent:true`', () => {
       input.value = 'abc';
-      input.binding = { to: ':name', prevent: true };
-      controller.bond(event);
+      ControllerClass.bond({ to: ':name', prevent: true })(part);
       expect(controller.model.toJSON()).toEqual({ name: 'abc' });
       expect(event.preventDefault).toHaveBeenCalled();
     });
 
     it('parses value if parsing function is provided as `parse` option', () => {
       input.value = '12';
-      input.binding = { to: ':name', parse: parseInt };
-      controller.bond(event);
+      ControllerClass.bond({ to: ':name', parse: parseInt })(part);
       expect(controller.model.toJSON()).toEqual({ name: 12 });
     });
 
-    it('throws a TypeError if no binding configuration is provided', () => {
-      expect(() => {
-        input.value = '12';
-        input.binding = undefined;
-        controller.bond(event);
-      }).toThrow('No binding configuration found.');
+    it('no-op if invalid binding configuration is provided', () => {
+      input.value = '12';
+      ControllerClass.bond({ to: '' })(part);
+      expect(part.setValue).toHaveBeenCalledWith(undefined);
     });
 
     it('sets a value from a specified property', () => {
-      input.binding = { to: 'isDisabled', property: 'disabled' };
-      controller.bond(event);
+      ControllerClass.bond({ to: 'isDisabled', property: 'disabled' })(part);
       expect(controller.isDisabled).toBe(false);
     });
 
     it('sets a value from a specified attribute', () => {
-      input.binding = { to: 'inputType', attribute: 'type' };
-      controller.bond(event);
+      ControllerClass.bond({ to: 'inputType', attribute: 'type' })(part);
       expect(controller.inputType).toBe('text');
     });
 
     it('sets a constant value', () => {
-      input.binding = { to: 'name', value: 'abc' };
-      controller.bond(event);
+      ControllerClass.bond({ to: 'name', value: 'abc' })(part);
       expect(controller.name).toBe('abc');
     });
   });
 
   describe('navigate', () => {
-    let navigationEvent;
+    let event;
+    let part;
 
     beforeEach(() => {
-      navigationEvent = {
-        currentTarget: undefined,
+      event = {
         preventDefault: jest.fn(),
       };
-      controller.connectedCallback();
+      part = {
+        element: {},
+        setValue: jest.fn((f) => (f ? f(event) : undefined)),
+      };
     });
 
     it('saves a URL into browser history', () => {
       const historyLength = globalThis.history.length;
-      navigationEvent.currentTarget = { href: '/path' };
-      controller.navigate(navigationEvent);
-      expect(navigationEvent.preventDefault).toHaveBeenCalled();
+      part.element.href = '/path';
+      ControllerClass.navigate()(part);
+      expect(event.preventDefault).toHaveBeenCalled();
       expect(globalThis.history.length).toBe(historyLength + 1);
-      controller.navigate(navigationEvent);
+      expect(globalThis.location.pathname).toBe('/path');
+      ControllerClass.navigate('/anotherpath')(part);
       expect(globalThis.history.length).toBe(historyLength + 2);
+      expect(globalThis.location.pathname).toBe('/anotherpath');
     });
 
     it('does not save if no URL is found', () => {
       const historyLength = globalThis.history.length;
-      navigationEvent.currentTarget = {
-        getAttribute() {},
-      };
-      controller.navigate(navigationEvent);
-      expect(navigationEvent.preventDefault).not.toHaveBeenCalled();
+      ControllerClass.navigate()(part);
+      expect(part.setValue).toHaveBeenCalledWith(undefined);
       expect(globalThis.history.length).toBe(historyLength);
     });
 
     it('triggers popstate event', () => {
       const callback = jest.fn();
       globalThis.addEventListener('popstate', callback);
-      navigationEvent.currentTarget = { href: '/path' };
-      controller.navigate(navigationEvent);
+      ControllerClass.navigate('/path')(part);
       expect(callback).toHaveBeenCalled();
     });
   });
@@ -152,14 +148,14 @@ describe('Controller', () => {
     });
   });
 
-  describe('dispose', () => {});
-
   describe('model', () => {
     it('sets a model', () => {
       const model = new Model();
       jest.spyOn(model, 'addEventListener');
       expect(controller.model).toBeUndefined();
       controller.model = model;
+      controller.model = model;
+      expect(model.addEventListener.mock.calls.length).toBe(1);
       expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
       expect(controller.model).toBe(model);
     });
@@ -214,7 +210,7 @@ describe('Controller', () => {
 
     it('removes an event listener from the global translator', () => {
       jest.spyOn(translator, 'removeEventListener');
-      controller.removeEventListener();
+      controller.disconnectedCallback();
       expect(translator.removeEventListener).toHaveBeenCalledWith(
         'language',
         controller.onLanguageChange,
@@ -224,31 +220,20 @@ describe('Controller', () => {
   });
 
   describe('translate', () => {
-    let container;
-
-    beforeEach(() => {
-      container = document.createElement('div');
+    it('translates a given message', () => {
+      translator.setLanguage('en');
+      expect(ControllerClass.translate('two')).toBe('two');
+      translator.setLanguage('es');
+      expect(ControllerClass.translate('two')).toBe('dos');
     });
+  });
 
-    it('translates a given key using the global translator', () => {
-      jest.spyOn(translator, 'translate');
-      render(
-        ControllerClass.html`<span>${ControllerClass.translate(
-          'key',
-          { a: 1 },
-          ControllerClass,
-        )}</span>`,
-        container,
-      );
-      expect(translator.translate).toHaveBeenCalledWith(
-        ControllerClass.translations,
-        'key',
-        {
-          a: 1,
-        },
-        'ControllerClass',
-      );
-      translator.translate.mockRestore();
+  describe('ts', () => {
+    it('translates a given message', () => {
+      translator.setLanguage('es');
+      const part = { setValue: jest.fn() };
+      ControllerClass.ts(ControllerClass, 'two')(part);
+      expect(part.setValue).toHaveBeenCalledWith('dos');
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "compago",
-  "version": "5.0.0-beta.10",
+  "version": "5.0.0-beta.12",
   "description": "A minimalist MVC framework for modern browsers.",
   "main": "index.js",
   "type": "module",
@@ -39,7 +39,8 @@
     "transform": {},
     "testEnvironment": "jsdom",
     "moduleNameMapper": {
-      "lit-element": "<rootDir>/test/lit-element-mock.js"
+      "lit-element": "<rootDir>/test/lit-element-mock.js",
+      "lit-html": "<rootDir>/test/lit-html-mock.js"
     },
     "collectCoverage": true,
     "collectCoverageFrom": [
@@ -70,7 +71,8 @@
     "trailingComma": "all"
   },
   "dependencies": {
-    "lit-element": "^2.3.1"
+    "lit-element": "^2.3.1",
+    "lit-html": "^1.1.1"
   },
   "eslintConfig": {
     "extends": [

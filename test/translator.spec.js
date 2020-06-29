@@ -186,7 +186,7 @@ describe('Translator', () => {
   describe('initialize', () => {
     it('creates and sets up a global translator', () => {
       const translator = Translator.initialize({ languages: ['en'] });
-      expect(globalThis[Symbol.for('compago-translator')]).toBe(translator);
+      expect(globalThis[Symbol.for('c-translator')]).toBe(translator);
     });
   });
 

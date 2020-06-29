@@ -1,8 +1,7 @@
 import { jest } from '@jest/globals';
-import { Controller } from '../index.js';
+import { Router } from '../index.js';
 
 describe('Router', () => {
-  let navigationEvent;
   let router;
 
   const routes = {
@@ -14,10 +13,6 @@ describe('Router', () => {
   beforeEach(() => {
     router = document.createElement('compago-router');
     router.routes = routes;
-    navigationEvent = {
-      target: undefined,
-      preventDefault: jest.fn(),
-    };
     router.connectedCallback();
   });
 
@@ -46,8 +41,7 @@ describe('Router', () => {
     it('emits `route` event if the url matches a route', () => {
       const callback = jest.fn();
       router.addEventListener('route', callback);
-      navigationEvent.currentTarget = { href: '/about' };
-      Controller.prototype.navigate(navigationEvent);
+      globalThis.history.replaceState({}, '', '/about');
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });
@@ -55,8 +49,7 @@ describe('Router', () => {
     it('sends route parameters with the `route` event', () => {
       const callback = jest.fn();
       router.addEventListener('route', callback, { handler: true });
-      navigationEvent.currentTarget = { href: '/user/arthur?a=b#c' };
-      Controller.prototype.navigate(navigationEvent);
+      globalThis.history.replaceState({}, '', '/user/arthur?a=b#c');
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({
@@ -73,12 +66,10 @@ describe('Router', () => {
       router.root = '/root';
       const callback = jest.fn();
       router.addEventListener('route', callback, { handler: true });
-      navigationEvent.currentTarget = { href: '/user/arthur?a=b#c' };
-      Controller.prototype.navigate(navigationEvent);
+      globalThis.history.replaceState({}, '', '/user/arthur?a=b#c');
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).not.toHaveBeenCalled();
-      navigationEvent.currentTarget = { href: '/root/user/arthur?a=b#c' };
-      Controller.prototype.navigate(navigationEvent);
+      globalThis.history.replaceState({}, '', '/root/user/arthur?a=b#c');
       globalThis.dispatchEvent(new PopStateEvent('popstate'));
       expect(callback).toHaveBeenCalled();
     });

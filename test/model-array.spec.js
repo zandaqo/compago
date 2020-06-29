@@ -43,7 +43,7 @@ describe('ModelArray', () => {
     it('sets models', () => {
       c.set([m1]);
       expect(c[0]).toBe(m1);
-      expect(m1[Symbol.for('c_collection')]).toBe(c);
+      expect(m1[Symbol.for('c-collection')]).toBe(c);
     });
 
     it('resets models', () => {
