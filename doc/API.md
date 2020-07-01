@@ -1,14 +1,14 @@
 ## Classes
 
 <dl>
-<dt><a href="#Controller">Controller</a> ⇐ <code>HTMLElement</code></dt>
+<dt><a href="#Controller">Controller</a> ⇐ <code>LitElement</code></dt>
 <dd><p>The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
 to re-render its View.</p>
 </dd>
 <dt><a href="#ModelArray">ModelArray</a> ⇐ <code>Array</code></dt>
-<dd><p>Manages an ordered set of models providing methods to create, sort, and dispose of the models.</p>
+<dd><p>Manages an ordered set of models providing methods to create, sort, and remove of the models.</p>
 </dd>
 <dt><a href="#Model">Model</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>The Model in MVC.
@@ -18,244 +18,156 @@ through storage controllers and notify subscribers through events when their dat
 <dt><a href="#RemoteStorage">RemoteStorage</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>Facilitates interaction with a REST server through the Fetch API.</p>
 </dd>
+<dt><a href="#Translator">Translator</a> ⇐ <code>EventTarget</code></dt>
+<dd></dd>
 </dl>
 
 ## Typedefs
 
 <dl>
-<dt><a href="#Handler">Handler</a> : <code>Object</code></dt>
+<dt><a href="#ControllerBond">ControllerBond</a> : <code>Object</code></dt>
+<dd></dd>
+<dt><a href="#Routes">Routes</a> : <code>Object.&lt;string, RegExp&gt;</code></dt>
+<dd></dd>
+<dt><a href="#Translations">Translations</a> : <code>Object.&lt;string, Object.&lt;string, (Object|string)&gt;&gt;</code></dt>
+<dd></dd>
+<dt><a href="#TranslatorOptions">TranslatorOptions</a></dt>
 <dd></dd>
 </dl>
 
 <a name="Controller"></a>
 
-## Controller ⇐ <code>HTMLElement</code>
+## Controller ⇐ <code>LitElement</code>
 The Controller in MVC.
 It manages its Model and View while handling user interactions. Controller handles user input
 through DOM events and updates its Model accordingly. It listens to updates on its Model
 to re-render its View.
 
 **Kind**: global class  
-**Extends**: <code>HTMLElement</code>  
+**Extends**: <code>LitElement</code>  
 
-* [Controller](#Controller) ⇐ <code>HTMLElement</code>
-    * [new Controller([options])](#new_Controller_new)
+* [Controller](#Controller) ⇐ <code>LitElement</code>
     * _instance_
-        * [.render()](#Controller+render) ⇒ [<code>Controller</code>](#Controller)
-        * [.addEventListener([name], [callback], [options])](#Controller+addEventListener) ⇒ <code>undefined</code>
-        * [.removeEventListener([name], [callback], [options])](#Controller+removeEventListener) ⇒ <code>undefined</code>
-        * [.navigate(fragment, [options])](#Controller+navigate) ⇒ <code>boolean</code>
-        * [.dispose([options])](#Controller+dispose) ⇒ <code>this</code>
-        * [.connectedCallback()](#Controller+connectedCallback) ⇒ <code>undefined</code>
-        * [.disconnectedCallback()](#Controller+disconnectedCallback) ⇒ <code>undefined</code>
-        * [.attributeChangedCallback(name, oldValue)](#Controller+attributeChangedCallback) ⇒ <code>undefined</code>
+        * [.model](#Controller+model) : [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray)
+        * [.routes](#Controller+routes) : [<code>Routes</code>](#Routes)
+        * [.connectedCallback()](#Controller+connectedCallback) ⇒ <code>void</code>
+        * [.disconnectedCallback()](#Controller+disconnectedCallback) ⇒ <code>void</code>
+        * [.onModelChange()](#Controller+onModelChange) ⇒ <code>void</code>
+        * [.route(name, params, query, hash)](#Controller+route) ⇒ <code>void</code>
+        * [.onLanguageChange()](#Controller+onLanguageChange) ⇒ <code>void</code>
     * _static_
-        * [.observedAttributes](#Controller.observedAttributes) : <code>Array.&lt;string&gt;</code>
-        * [.handlers](#Controller.handlers) : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
-        * [.view](#Controller.view) : <code>function</code>
-        * [.routes](#Controller.routes) : <code>Object.&lt;string, RegExp&gt;</code>
-        * [.root](#Controller.root) : <code>string</code>
-        * [.debounce(callback, wait)](#Controller.debounce) ⇒ <code>function</code>
+        * [.translator](#Controller.translator) : [<code>Translator</code>](#Translator)
+        * [.translations](#Controller.translations) : [<code>Translations</code>](#Translations)
+        * [.bond](#Controller.bond) ⇒ <code>void</code>
+        * [.navigate](#Controller.navigate) ⇒ <code>void</code>
+        * [.ts](#Controller.ts) ⇒ <code>void</code>
+        * [.translate(key, [interpolation])](#Controller.translate) ⇒ <code>string</code>
 
-<a name="new_Controller_new"></a>
+<a name="Controller+model"></a>
 
-### new Controller([options])
+### controller.model : [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray)
+**Kind**: instance property of [<code>Controller</code>](#Controller)  
+<a name="Controller+routes"></a>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| [options] | <code>Object</code> |  |
-| [options.model] | [<code>Model</code>](#Model) | the model of the controller |
-
-<a name="Controller+render"></a>
-
-### controller.render() ⇒ [<code>Controller</code>](#Controller)
-Renders the controller.
-
-By default, invokes `this.constructor.view`
-supplying the controller and returns the controller.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-**Returns**: [<code>Controller</code>](#Controller) - the controller  
-<a name="Controller+addEventListener"></a>
-
-### controller.addEventListener([name], [callback], [options]) ⇒ <code>undefined</code>
-Attaches an event handler to the controller.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [name] | <code>string</code> |  | the event name |
-| [callback] | <code>function</code> \| <code>string</code> |  | the handler function. Can be either a function                                      or a name of the controller's method |
-| [options] | <code>Object</code> |  |  |
-| [options.handler] | <code>boolean</code> | <code>false</code> | if true, the handler is managed by controller's event                                   dispatching system instead of being attached directly. |
-| [options.selector] | <code>string</code> |  | the CSS selector to handle events                                    on a specific child element |
-
-**Example**  
-```js
-controller.addEventListener('click', controller.onClick);
-// attaches `controller.onClick` as a handler for a `click` event directly
-
-controller.addEventListener('click', controller.onClick, { handler: true });
-// registers `controller.onClick` as a handler for a `click`
-// in controller's event dispatching system
-
-controller.addEventListener('click', controller.onButtonClick,
-                            { handler: true, selector: '#button' });
-// registers `controller.onButtonClick` as a handler for a `click`
-// event on the `#button` child element
-```
-<a name="Controller+removeEventListener"></a>
-
-### controller.removeEventListener([name], [callback], [options]) ⇒ <code>undefined</code>
-Detaches an event handler from the controller.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| [name] | <code>string</code> | the event name |
-| [callback] | <code>function</code> | the handler function |
-| [options] | <code>Object</code> |  |
-| [options.handler] | <code>string</code> | whether the handler is in                                   the controller's event dispatching system |
-| [options.selector] | <code>string</code> | the CSS selector |
-
-**Example**  
-```js
-controller.removeEventListener('click', controller.onClick);
-// removes `controller.onClick` as a handler for the `click` event
-
-controller.removeEventListener('click', controller.onButtonClick,
-                               { handler: true, selector: '#button'});
-// removes `controller.onButtonClick` as a handler
-// for the `click` events on `#button` child element
-// from the controller's event dispatching system
-```
-<a name="Controller+navigate"></a>
-
-### controller.navigate(fragment, [options]) ⇒ <code>boolean</code>
-Saves a fragment into the browser history.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| fragment | <code>string</code> |  | a properly URL-encoded fragment to place into the history |
-| [options] | <code>Object</code> |  |  |
-| [options.replace] | <code>boolean</code> | <code>false</code> | whether to change the current item in the history                                    instead of adding a new one |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid checking the fragment for routes |
-
-**Example**  
-```js
-controller.navigate('/users');
-// sets the current URL to '/users', pushes it into history, and checks the new URL for routes
-
-controller.navigate('/users', { replace: true });
-// replaces the current URL with '/users' and checks it for routes
-
-controller.navigate('/users', { silent: true });
-// does not check the new URL for routes
-```
-<a name="Controller+dispose"></a>
-
-### controller.dispose([options]) ⇒ <code>this</code>
-Prepares the controller to be disposed.
-
-Removes the controller from the DOM, detaches handlers,
-disposes the controller's model unless `save` option is provided,
-and removes all event listeners.
-
-**Kind**: instance method of [<code>Controller</code>](#Controller)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model of the controller |
-
+### controller.routes : [<code>Routes</code>](#Routes)
+**Kind**: instance property of [<code>Controller</code>](#Controller)  
 <a name="Controller+connectedCallback"></a>
 
-### controller.connectedCallback() ⇒ <code>undefined</code>
+### controller.connectedCallback() ⇒ <code>void</code>
 Invoked once the controller is attached to the DOM.
-By default, controller starts observing attributes of its model.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 <a name="Controller+disconnectedCallback"></a>
 
-### controller.disconnectedCallback() ⇒ <code>undefined</code>
+### controller.disconnectedCallback() ⇒ <code>void</code>
 Invoked once the controller is detached from the DOM.
-By default, disposes of the controller.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
-<a name="Controller+attributeChangedCallback"></a>
+<a name="Controller+onModelChange"></a>
 
-### controller.attributeChangedCallback(name, oldValue) ⇒ <code>undefined</code>
-Invoked when observed attributes of the controller are changed.
-By default, dispatches `attributes` event.
+### controller.onModelChange() ⇒ <code>void</code>
+Handles `change` events of the controller's model.
 
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
+<a name="Controller+route"></a>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | the name of the changed attribute |
-| oldValue | <code>\*</code> | previous value of the attribute |
+### controller.route(name, params, query, hash) ⇒ <code>void</code>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
 
-<a name="Controller.observedAttributes"></a>
+| Param | Type |
+| --- | --- |
+| name | <code>string</code> | 
+| params | <code>Object</code> | 
+| query | <code>string</code> | 
+| hash | <code>string</code> | 
 
-### Controller.observedAttributes : <code>Array.&lt;string&gt;</code>
-A getter that returns an array of attribute names that should be watched for changes.
-Names of the model attributes should start with `:`, to watch for all changes on the model
-use just `:`.
+<a name="Controller+onLanguageChange"></a>
+
+### controller.onLanguageChange() ⇒ <code>void</code>
+**Kind**: instance method of [<code>Controller</code>](#Controller)  
+<a name="Controller.translator"></a>
+
+### Controller.translator : [<code>Translator</code>](#Translator)
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.translations"></a>
+
+### Controller.translations : [<code>Translations</code>](#Translations)
+**Kind**: static property of [<code>Controller</code>](#Controller)  
+<a name="Controller.bond"></a>
+
+### Controller.bond ⇒ <code>void</code>
+Handles one-way binding to model or controller properties.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
-<a name="Controller.handlers"></a>
 
-### Controller.handlers : <code>Object.&lt;string, (function()\|String\|Handler)&gt;</code>
-A hash of event names and their handlers.
+| Param | Type |
+| --- | --- |
+| binding | [<code>ControllerBond</code>](#ControllerBond) | 
 
-**Kind**: static property of [<code>Controller</code>](#Controller)  
-<a name="Controller.view"></a>
+<a name="Controller.navigate"></a>
 
-### Controller.view : <code>function</code>
-The view or template function used in rendering the controller.
-
-**Kind**: static property of [<code>Controller</code>](#Controller)  
-<a name="Controller.routes"></a>
-
-### Controller.routes : <code>Object.&lt;string, RegExp&gt;</code>
-A hash of route names and their RegExp matchers.
+### Controller.navigate ⇒ <code>void</code>
+Saves a given URL (or the URL from href property of the element) into the browser history.
 
 **Kind**: static property of [<code>Controller</code>](#Controller)  
-<a name="Controller.root"></a>
 
-### Controller.root : <code>string</code>
-A custom root for the controller's router.
+| Param | Type |
+| --- | --- |
+| [href] | <code>string</code> | 
 
+<a name="Controller.ts"></a>
+
+### Controller.ts ⇒ <code>void</code>
 **Kind**: static property of [<code>Controller</code>](#Controller)  
-<a name="Controller.debounce"></a>
 
-### Controller.debounce(callback, wait) ⇒ <code>function</code>
-Ensures that a given function will only be invoked once in a given time interval.
+| Param | Type |
+| --- | --- |
+| ctor | [<code>Class.&lt;Controller&gt;</code>](#Controller) | 
+| key | <code>string</code> | 
+| [interpolation] | <code>\*</code> | 
 
+<a name="Controller.translate"></a>
+
+### Controller.translate(key, [interpolation]) ⇒ <code>string</code>
 **Kind**: static method of [<code>Controller</code>](#Controller)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| callback | <code>function</code> | a function |
-| wait | <code>number</code> | a time interval in milliseconds |
+| Param | Type |
+| --- | --- |
+| key | <code>string</code> | 
+| [interpolation] | <code>\*</code> | 
 
 <a name="ModelArray"></a>
 
 ## ModelArray ⇐ <code>Array</code>
-Manages an ordered set of models providing methods to create, sort, and dispose of the models.
+Manages an ordered set of models providing methods to create, sort, and remove of the models.
 
 **Kind**: global class  
 **Extends**: <code>Array</code>, <code>EventTarget</code>  
 
 * [ModelArray](#ModelArray) ⇐ <code>Array</code>
     * [new ModelArray([models], [options])](#new_ModelArray_new)
-    * [.set(models, [options])](#ModelArray+set) ⇒ <code>this</code>
-    * [.unset(models, [options])](#ModelArray+unset) ⇒ <code>this</code>
+    * [.set([models], [options])](#ModelArray+set) ⇒ <code>this</code>
+    * [.unset(models)](#ModelArray+unset) ⇒ <code>this</code>
     * [.push(...models)](#ModelArray+push) ⇒ <code>this</code>
     * [.pop()](#ModelArray+pop) ⇒ [<code>Model</code>](#Model)
     * [.unshift(...models)](#ModelArray+unshift) ⇒ <code>this</code>
@@ -264,11 +176,10 @@ Manages an ordered set of models providing methods to create, sort, and dispose 
     * [.reverse()](#ModelArray+reverse) ⇒ <code>this</code>
     * [.splice(start, [deleteCount], [...items])](#ModelArray+splice) ⇒ <code>Array</code>
     * [.get(id)](#ModelArray+get) ⇒ [<code>Model</code>](#Model) \| <code>undefined</code>
-    * [.where(attributes, [first])](#ModelArray+where) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
-    * [.read([options])](#ModelArray+read) ⇒ <code>Promise</code>
+    * [.where([attributes], [first])](#ModelArray+where) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
+    * [.read()](#ModelArray+read) ⇒ <code>Promise</code>
     * [.toJSON()](#ModelArray+toJSON) ⇒ <code>Array</code>
-    * [.sync(method, options)](#ModelArray+sync) ⇒ <code>Promise</code>
-    * [.dispose([options])](#ModelArray+dispose) ⇒ <code>this</code>
+    * [.sync(method)](#ModelArray+sync) ⇒ <code>Promise</code>
 
 <a name="new_ModelArray_new"></a>
 
@@ -276,36 +187,34 @@ Manages an ordered set of models providing methods to create, sort, and dispose 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| [models] | [<code>Array.&lt;Model&gt;</code>](#Model) | models to add to the array |
+| [models] | <code>Array.&lt;(Model\|object)&gt;</code> | models to add to the array |
 | [options] | <code>Object</code> |  |
 | [options.storage] | <code>Object</code> | the storage controller for the array |
-| [options.model] | <code>Object</code> | the class of models in the array |
-| [options.Comparator] | <code>function</code> \| <code>string</code> | a function or an attribute name                                                   that will be used to sort the array |
+| [options.model] | [<code>Model</code>](#Model) | the class of models in the array |
+| [options.comparator] | <code>function</code> \| <code>string</code> | a function or an attribute name                                                   that will be used to sort the array |
 
 <a name="ModelArray+set"></a>
 
-### modelArray.set(models, [options]) ⇒ <code>this</code>
+### modelArray.set([models], [options]) ⇒ <code>this</code>
 The general method to modify the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| models | <code>Array</code> \| <code>Object</code> |  | a model, a list of models or objects to be added                                to the array or updated if already present |
+| [models] | <code>Array</code> \| <code>Object</code> | <code>[]</code> | a model, a list of models or objects to be added                                to the array or updated if already present |
 | [options] | <code>Object</code> |  |  |
 | [options.at] | <code>number</code> |  | the position at which the model(s) should be placed |
-| [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid removing the models not present                                          in the supplied list |
-| [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing models |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.unsorted] | <code>boolean</code> | <code>false</code> | whether to avoid sorting the array |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
+| [options.keep] | <code>boolean</code> |  | whether to avoid removing the models not present                                          in the supplied list |
+| [options.skip] | <code>boolean</code> |  | whether to avoid updating existing models |
+| [options.unsorted] | <code>boolean</code> |  | whether to avoid sorting the array |
 
 **Example**  
 ```js
 let modelArray = new ModelArray([model0]);
 modelArray.set([model1, model2]);
 // resets the array models to `[model1, model2]` emitting `add` events on both models,
-// removes and disposes the existing `model0` which emits the `remove` event
+// removes the existing `model0` which emits the `remove` event
 
 modelArray.set(model3, { keep: true });
 // adds `model3` to the list of array models without removing the existing models
@@ -313,35 +222,25 @@ modelArray.set(model3, { keep: true });
 modelArray.set(model4, { keep: true, at: 0 });
 // adds `model4` at the beginning of the array
 
-modelArray.set([model2, model3], { save: true });
-// removes all models except `model2` and `model3` from the array without disposing
-// the removed models
-
 modelArray.set([model1, model4], { keep: true, unsorted: true });
 // avoids sorting the resulting list of models
 ```
 <a name="ModelArray+unset"></a>
 
-### modelArray.unset(models, [options]) ⇒ <code>this</code>
+### modelArray.unset(models) ⇒ <code>this</code>
 Removes a model or a list of models from the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| models | [<code>Model</code>](#Model) \| [<code>Array.&lt;Model&gt;</code>](#Model) |  | the model(s) to remove from the array |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
+| Param | Type | Description |
+| --- | --- | --- |
+| models | [<code>Model</code>](#Model) \| [<code>Array.&lt;Model&gt;</code>](#Model) | the model(s) to remove from the array |
 
 **Example**  
 ```js
 let modelArray = new ModelArray([model1, model2]);
 modelArray.unset(model1);
-// removes `model1` from the array emitting `remove` event and disposes it
-
-modelArray.unset(mode2, { save: true });
-// removes `model2` from the array but does not dispose it
+// removes `model1` from the array emitting `remove` event
 ```
 <a name="ModelArray+push"></a>
 
@@ -369,7 +268,7 @@ Removes a model from the end of the array.
 **Example**  
 ```js
 modelArray.pop();
-// removes the last model from the array, disposes and returns it
+// removes the last model from the array and returns it
 ```
 <a name="ModelArray+unshift"></a>
 
@@ -397,7 +296,7 @@ Removes a model from the beginning of the array.
 **Example**  
 ```js
 modelArray.shift();
-// removes the first model from the array, disposes and returns it
+// removes the first model from the array and returns it
 ```
 <a name="ModelArray+sort"></a>
 
@@ -406,12 +305,11 @@ Sorts the array.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> \| <code>function</code> |  |  |
-| [options.comparator] | <code>function</code> \| <code>string</code> |  | a comparator function or an attribute name                                                 for sorting |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `sort` event |
-| [options.descending] | <code>boolean</code> | <code>false</code> | whether to sort in descending order if the comparator is                                        an attribute name |
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> \| <code>function</code> |  |
+| [options.comparator] | <code>function</code> \| <code>string</code> | a comparator function or an attribute name                                                 for sorting |
+| [options.descending] | <code>boolean</code> | whether to sort in descending order if the comparator is                                        an attribute name |
 
 **Example**  
 ```js
@@ -427,9 +325,6 @@ modelArray.sort({ comparator: '_id' });
 
 modelArray.sort({ comparator: '_id', descending: true });
 // sorts according to `_id` field in descending order
-
-modelArray.sort({ comparator: (a,b) => a > b, silent: true });
-// sorts according to the provided comparator function without emitting `sort` event
 ```
 <a name="ModelArray+reverse"></a>
 
@@ -482,7 +377,7 @@ modelArray.get('M123');
 ```
 <a name="ModelArray+where"></a>
 
-### modelArray.where(attributes, [first]) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
+### modelArray.where([attributes], [first]) ⇒ [<code>Array.&lt;Model&gt;</code>](#Model)
 Returns models with matching attributes.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
@@ -490,8 +385,8 @@ Returns models with matching attributes.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| attributes | <code>Object</code> |  | a hash of attributes to match models against |
-| [first] | <code>boolean</code> | <code>false</code> | whether to return the first matching model |
+| [attributes] | <code>Object</code> | <code>{}</code> | a hash of attributes to match models against |
+| [first] | <code>boolean</code> |  | whether to return the first matching model |
 
 **Example**  
 ```js
@@ -504,16 +399,10 @@ modelArray.where({ day: 'monday' }, true);
 ```
 <a name="ModelArray+read"></a>
 
-### modelArray.read([options]) ⇒ <code>Promise</code>
+### modelArray.read() ⇒ <code>Promise</code>
 Updates the array with its stored version.
 
 **Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing events |
-
 **Example**  
 ```js
 modelArray.read()
@@ -531,7 +420,7 @@ Creates a copy of the array's models for JSON stringification.
 **Returns**: <code>Array</code> - an array of stringified models  
 <a name="ModelArray+sync"></a>
 
-### modelArray.sync(method, options) ⇒ <code>Promise</code>
+### modelArray.sync(method) ⇒ <code>Promise</code>
 The general method to synchronize the array.
 Proxies to the `sync` method of the storage if it's specified.
 
@@ -540,29 +429,7 @@ Proxies to the `sync` method of the storage if it's specified.
 | Param | Type | Description |
 | --- | --- | --- |
 | method | <code>string</code> | the internal method name. |
-| options | <code>Object</code> |  |
 
-<a name="ModelArray+dispose"></a>
-
-### modelArray.dispose([options]) ⇒ <code>this</code>
-Prepares the array to be disposed.
-
-**Kind**: instance method of [<code>ModelArray</code>](#ModelArray)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing `dispose` event |
-| [options.save] | <code>boolean</code> | <code>false</code> | whether to avoid disposing removed models |
-
-**Example**  
-```js
-modelArray.dispose();
-// disposes the array disposing all its models and emitting the `dispose` event
-
-modelArray.dispose({ save: true });
-// disposes the array without disposing its models
-```
 <a name="Model"></a>
 
 ## Model ⇐ <code>EventTarget</code>
@@ -578,15 +445,15 @@ through storage controllers and notify subscribers through events when their dat
     * _instance_
         * [.id](#Model+id) : <code>\*</code>
         * [.set([attributes])](#Model+set) ⇒ <code>this</code>
-        * [.assign(attributes)](#Model+assign) ⇒ <code>this</code>
+        * [.assign([attributes])](#Model+assign) ⇒ <code>this</code>
         * [.merge(source, [target])](#Model+merge) ⇒ <code>Object</code>
         * [.toJSON()](#Model+toJSON) ⇒ <code>Object</code>
         * [.read([options])](#Model+read) ⇒ <code>Promise</code>
         * [.write([options])](#Model+write) ⇒ <code>Promise</code>
         * [.erase([options])](#Model+erase) ⇒ <code>Promise</code>
         * [.sync(method, options)](#Model+sync) ⇒ <code>Promise</code>
-        * [.dispose([options])](#Model+dispose) ⇒ <code>this</code>
     * _static_
+        * [.storage](#Model.storage) : [<code>RemoteStorage</code>](#RemoteStorage)
         * [.idAttribute](#Model.idAttribute) : <code>string</code>
         * [.definePrivate(model, properties)](#Model.definePrivate) ⇒ <code>void</code>
 
@@ -599,7 +466,6 @@ through storage controllers and notify subscribers through events when their dat
 | [attributes] | <code>Object</code> | the attributes to be set on a newly created model |
 | [options] | <code>Object</code> |  |
 | [options.collection] | <code>Object</code> | the collection to which the model should belong |
-| [options.storage] | <code>Object</code> | the storage engine for the model |
 
 <a name="Model+id"></a>
 
@@ -629,14 +495,14 @@ model
 ```
 <a name="Model+assign"></a>
 
-### model.assign(attributes) ⇒ <code>this</code>
+### model.assign([attributes]) ⇒ <code>this</code>
 Assigns given attributes to the model.
 
 **Kind**: instance method of [<code>Model</code>](#Model)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| attributes | <code>Object</code> | the attributes to be assigned to the model |
+| [attributes] | <code>Object</code> | the attributes to be assigned to the model |
 
 <a name="Model+merge"></a>
 
@@ -668,8 +534,7 @@ Resets the model's state from the storage.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting events |
-| [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing attributes                                with the received ones |
+| [options.skip] | <code>boolean</code> |  | whether to avoid updating existing attributes                                with the received ones |
 | [options.method] | <code>string</code> | <code>&quot;assign&quot;</code> | the name of the method to update existing attributes |
 
 **Example**  
@@ -695,8 +560,7 @@ with the response object.
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting events |
-| [options.skip] | <code>boolean</code> | <code>false</code> | whether to avoid updating existing attributes                                 with the received ones |
+| [options.skip] | <code>boolean</code> |  | whether to avoid updating existing attributes                                 with the received ones |
 | [options.method] | <code>string</code> | <code>&quot;assign&quot;</code> | the name of the method to update existing attributes |
 
 **Example**  
@@ -718,11 +582,9 @@ Removes the model from the storage.
 
 **Kind**: instance method of [<code>Model</code>](#Model)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting events |
-| [options.keep] | <code>boolean</code> | <code>false</code> | whether to avoid disposing the model after erasing |
+| Param | Type |
+| --- | --- |
+| [options] | <code>Object</code> | 
 
 **Example**  
 ```js
@@ -743,24 +605,10 @@ Proxies to the `sync` method of the storage if it is specified.
 | method | <code>string</code> | the internal method name |
 | options | <code>Object</code> | the options to be sent to the `sync` method of the storage |
 
-<a name="Model+dispose"></a>
+<a name="Model.storage"></a>
 
-### model.dispose([options]) ⇒ <code>this</code>
-Prepares the model to be disposed by removing all listeners
-set up by the model or on the model.
-
-**Kind**: instance method of [<code>Model</code>](#Model)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing the `dispose` event |
-
-**Example**  
-```js
-model.dispose();
-// prepares the model for disposal
-```
+### Model.storage : [<code>RemoteStorage</code>](#RemoteStorage)
+**Kind**: static property of [<code>Model</code>](#Model)  
 <a name="Model.idAttribute"></a>
 
 ### Model.idAttribute : <code>string</code>
@@ -801,12 +649,11 @@ Facilitates interaction with a REST server through the Fetch API.
     * [new RemoteStorage([options])](#new_RemoteStorage_new)
     * _instance_
         * [.sync(method, model, options)](#RemoteStorage+sync) ⇒ <code>Promise</code>
-        * [.dispose([options])](#RemoteStorage+dispose) ⇒ <code>this</code>
         * [.serialize(data)](#RemoteStorage+serialize) ⇒ <code>string</code>
         * [.deserialize(response)](#RemoteStorage+deserialize) ⇒ <code>Promise</code> \| <code>void</code>
     * _static_
-        * [.methods](#RemoteStorage.methods)
-        * [.headers](#RemoteStorage.headers)
+        * [.methods](#RemoteStorage.methods) : <code>Object.&lt;string, string&gt;</code>
+        * [.headers](#RemoteStorage.headers) : <code>Object.&lt;string, string&gt;</code>
         * [.fetch(url, options)](#RemoteStorage.fetch) ⇒ <code>Promise</code>
         * [.isStored(model)](#RemoteStorage.isStored) ⇒ <code>boolean</code>
 
@@ -827,27 +674,12 @@ The general method for synchronization.
 
 **Kind**: instance method of [<code>RemoteStorage</code>](#RemoteStorage)  
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| method | <code>string</code> |  | a method name to execute.                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`. |
-| model | [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray) |  | a model or a collection to be synchronized |
-| options | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid firing any events |
-| [options.patch] | <code>boolean</code> | <code>false</code> | whether to send only changed attributes (if present)                                  using the `PATCH` method |
-| [options.url] | <code>string</code> |  | a specific url for the request,                               in case it's different from the default url of the storage |
-| [options.init] | <code>Object</code> |  | an options object for custom settings                                to use as the `init` parameter in calls to the global fetch() |
-
-<a name="RemoteStorage+dispose"></a>
-
-### remoteStorage.dispose([options]) ⇒ <code>this</code>
-Prepares the storage controller to be disposed.
-
-**Kind**: instance method of [<code>RemoteStorage</code>](#RemoteStorage)  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> |  |  |
-| [options.silent] | <code>boolean</code> | <code>false</code> | whether to avoid emitting the `dispose` event |
+| Param | Type | Description |
+| --- | --- | --- |
+| method | <code>string</code> | a method name to execute.                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`. |
+| model | [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray) | a model or a collection to be synchronized |
+| options | <code>Object</code> |  |
+| [options.patch] | <code>boolean</code> | whether to send only changed attributes (if present)                                  using the `PATCH` method |
 
 <a name="RemoteStorage+serialize"></a>
 
@@ -873,13 +705,13 @@ Deserializes a received response.
 
 <a name="RemoteStorage.methods"></a>
 
-### RemoteStorage.methods
+### RemoteStorage.methods : <code>Object.&lt;string, string&gt;</code>
 The map translating internal method names to their respective HTTP methods.
 
 **Kind**: static property of [<code>RemoteStorage</code>](#RemoteStorage)  
 <a name="RemoteStorage.headers"></a>
 
-### RemoteStorage.headers
+### RemoteStorage.headers : <code>Object.&lt;string, string&gt;</code>
 Default headers for all fetch requests.
 
 **Kind**: static property of [<code>RemoteStorage</code>](#RemoteStorage)  
@@ -907,17 +739,127 @@ Checks whether the model has been already persisted on the server.
 | --- | --- | --- |
 | model | [<code>Model</code>](#Model) | the model to be checked |
 
-<a name="Handler"></a>
+<a name="Translator"></a>
 
-## Handler : <code>Object</code>
+## Translator ⇐ <code>EventTarget</code>
+**Kind**: global class  
+**Extends**: <code>EventTarget</code>  
+
+* [Translator](#Translator) ⇐ <code>EventTarget</code>
+    * [new Translator(options)](#new_Translator_new)
+    * _instance_
+        * [.setLanguage(language)](#Translator+setLanguage) ⇒ <code>void</code>
+        * [.getLanguage(language)](#Translator+getLanguage) ⇒ <code>string</code>
+        * [.reportMissing(componentName, key, [rule])](#Translator+reportMissing) ⇒ <code>void</code>
+        * [.translate(translations, key, [interpolation], [componentName])](#Translator+translate) ⇒ <code>string</code>
+    * _static_
+        * [.initialize(options, symbol)](#Translator.initialize) ⇒ [<code>Translator</code>](#Translator)
+        * [.interpolate(text, interpolation)](#Translator.interpolate) ⇒ <code>string</code>
+
+<a name="new_Translator_new"></a>
+
+### new Translator(options)
+
+| Param | Type |
+| --- | --- |
+| options | [<code>TranslatorOptions</code>](#TranslatorOptions) | 
+
+<a name="Translator+setLanguage"></a>
+
+### translator.setLanguage(language) ⇒ <code>void</code>
+**Kind**: instance method of [<code>Translator</code>](#Translator)  
+
+| Param | Type |
+| --- | --- |
+| language | <code>string</code> | 
+
+<a name="Translator+getLanguage"></a>
+
+### translator.getLanguage(language) ⇒ <code>string</code>
+**Kind**: instance method of [<code>Translator</code>](#Translator)  
+
+| Param | Type |
+| --- | --- |
+| language | <code>string</code> | 
+
+<a name="Translator+reportMissing"></a>
+
+### translator.reportMissing(componentName, key, [rule]) ⇒ <code>void</code>
+Noop
+
+**Kind**: instance method of [<code>Translator</code>](#Translator)  
+
+| Param | Type |
+| --- | --- |
+| componentName | <code>string</code> | 
+| key | <code>string</code> | 
+| [rule] | <code>string</code> | 
+
+<a name="Translator+translate"></a>
+
+### translator.translate(translations, key, [interpolation], [componentName]) ⇒ <code>string</code>
+**Kind**: instance method of [<code>Translator</code>](#Translator)  
+
+| Param | Type |
+| --- | --- |
+| translations | [<code>Translations</code>](#Translations) | 
+| key | <code>string</code> | 
+| [interpolation] | <code>Object</code> \| <code>number</code> \| <code>Array</code> | 
+| [componentName] | <code>string</code> | 
+
+<a name="Translator.initialize"></a>
+
+### Translator.initialize(options, symbol) ⇒ [<code>Translator</code>](#Translator)
+**Kind**: static method of [<code>Translator</code>](#Translator)  
+
+| Param | Type |
+| --- | --- |
+| options | [<code>TranslatorOptions</code>](#TranslatorOptions) | 
+| symbol | <code>symbol</code> | 
+
+<a name="Translator.interpolate"></a>
+
+### Translator.interpolate(text, interpolation) ⇒ <code>string</code>
+**Kind**: static method of [<code>Translator</code>](#Translator)  
+
+| Param | Type |
+| --- | --- |
+| text | <code>string</code> | 
+| interpolation | <code>Object</code> | 
+
+<a name="ControllerBond"></a>
+
+## ControllerBond : <code>Object</code>
 **Kind**: global typedef  
 **Properties**
 
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| [handler] | <code>function</code> |  | the callback function to handle the event,                                not used if `bond` is present |
-| [debounce] | <code>number</code> |  | the debounce time for the handler |
-| [bond] | <code>string</code> \| <code>boolean</code> |  | name of the property to bond to,                                     or `true` to get the name from the bound element |
-| [value] | <code>string</code> | <code>&quot;&#x27;value&#x27;&quot;</code> | the name of the bound elements property                                    to use as a source of a value |
-| [parse] | <code>function</code> |  | the parse function to parse the bounded value                              before updating model or controller with it |
+| Name | Type |
+| --- | --- |
+| to | <code>string</code> | 
+| [parse] | <code>function</code> | 
+| [prevent] | <code>boolean</code> | 
+| [property] | <code>string</code> | 
+| [attribute] | <code>string</code> | 
+| [value] | <code>\*</code> | 
+
+<a name="Routes"></a>
+
+## Routes : <code>Object.&lt;string, RegExp&gt;</code>
+**Kind**: global typedef  
+<a name="Translations"></a>
+
+## Translations : <code>Object.&lt;string, Object.&lt;string, (Object\|string)&gt;&gt;</code>
+**Kind**: global typedef  
+<a name="TranslatorOptions"></a>
+
+## TranslatorOptions
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Default |
+| --- | --- | --- |
+| [language] | <code>string</code> |  | 
+| languages | <code>Array.&lt;string&gt;</code> |  | 
+| [translations] | [<code>Translations</code>](#Translations) |  | 
+| [globalPrefix] | <code>string</code> | <code>&quot;$&quot;</code> | 
 

@@ -14,7 +14,7 @@
     "test": "jest",
     "lint": "eslint lib/*.js test/*.js",
     "coverage:report": "cat ./coverage/lcov.info | codecov",
-    "doc:api": "jsdoc2md --configure jsdoc.json > doc/API.md"
+    "doc:api": "jsdoc2md lib/*.js > doc/API.md"
   },
   "directories": {
     "lib": "lib",
@@ -117,8 +117,6 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
     "jest": "^26.1.0",
-    "jsdoc-plugin-false-booleans": "^1.0.0",
-    "jsdoc-plugin-named-defaults": "^1.1.1",
-    "jsdoc-to-markdown": "^5.0.3"
+    "jsdoc-to-markdown": "^6.0.1"
   }
 }
