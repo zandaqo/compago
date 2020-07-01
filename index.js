@@ -3,5 +3,4 @@ export { default as Model } from './lib/model.js';
 export { default as ModelArray } from './lib/model-array.js';
 export { default as RemoteStorage } from './lib/remote-storage.js';
 export { default as Controller } from './lib/controller.js';
-export { default as Router } from './lib/router.js';
 export { default as Translator } from './lib/translator.js';

@@ -18,6 +18,176 @@ describe('Controller', () => {
     controller = document.createElement('c-controller');
   });
 
+  describe('connectedCallback', () => {
+    it('subscribes to model events if model is present', () => {});
+
+    it('subscribes to language change event if global translator is set', () => {
+      jest.spyOn(translator, 'addEventListener');
+      controller.connectedCallback();
+      expect(translator.addEventListener).toHaveBeenCalledWith(
+        'language',
+        controller.onLanguageChange,
+      );
+      translator.addEventListener.mockRestore();
+    });
+  });
+
+  describe('disconnectedCallback', () => {
+    it('removes its model', () => {
+      const model = new Model();
+      controller.model = model;
+      jest.spyOn(model, 'removeEventListener');
+      controller.connectedCallback();
+      controller.disconnectedCallback();
+      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+    });
+
+    it('removes its routes', () => {
+      controller.routes = {};
+      expect(controller.routes).toBeDefined();
+      controller.disconnectedCallback();
+      expect(controller.routes).toBeUndefined();
+    });
+
+    it('removes an event listener from the global translator', () => {
+      jest.spyOn(translator, 'removeEventListener');
+      controller.disconnectedCallback();
+      expect(translator.removeEventListener).toHaveBeenCalledWith(
+        'language',
+        controller.onLanguageChange,
+      );
+      translator.removeEventListener.mockRestore();
+    });
+  });
+
+  describe('model', () => {
+    it('sets a model', () => {
+      const model = new Model();
+      jest.spyOn(model, 'addEventListener');
+      expect(controller.model).toBeUndefined();
+      controller.model = model;
+      controller.model = model;
+      expect(model.addEventListener.mock.calls.length).toBe(1);
+      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBe(model);
+    });
+
+    it('replaces an existing model', () => {
+      const oldModel = new Model();
+      controller.model = oldModel;
+      expect(controller.model).toBe(oldModel);
+      const model = new Model();
+      jest.spyOn(model, 'addEventListener');
+      jest.spyOn(oldModel, 'removeEventListener');
+      controller.model = model;
+      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(oldModel.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBe(model);
+    });
+
+    it('removes an existing model', () => {
+      const model = new Model();
+      controller.model = model;
+      expect(controller.model).toBe(model);
+      jest.spyOn(model, 'removeEventListener');
+      controller.model = undefined;
+      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
+      expect(controller.model).toBeUndefined();
+    });
+  });
+
+  describe('onModelChange', () => {
+    it('requests updating the component', async () => {
+      controller.requestUpdate = jest.fn();
+      await controller.onModelChange();
+      expect(controller.requestUpdate).toHaveBeenCalled();
+    });
+  });
+
+  describe('routes', () => {
+    const routes = {
+      home: /^\/$/,
+      about: /^\/about$/,
+      user: /^\/user\/(?<name>[^/]+)$/,
+    };
+
+    it('subscribes to popstate events if routes are set in the controller', () => {
+      jest.spyOn(globalThis, 'addEventListener');
+      controller.routes = routes;
+      controller.routes = routes;
+      expect(globalThis.addEventListener).toHaveBeenCalledWith('popstate', controller.onPopstate);
+      expect(globalThis.addEventListener.mock.calls.length).toBe(1);
+      globalThis.addEventListener.mockRestore();
+    });
+
+    it('removes event listener for `popstate` event when routes are removed', () => {
+      jest.spyOn(globalThis, 'removeEventListener');
+      controller.routes = {};
+      controller.routes = undefined;
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        'popstate',
+        controller.onPopstate,
+      );
+      globalThis.removeEventListener.mockRestore();
+    });
+
+    it('emits `route` event if the url matches a route', () => {
+      controller.routes = routes;
+      const callback = jest.fn();
+      controller.addEventListener('route', callback);
+      globalThis.history.replaceState({}, '', '/about');
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      expect(callback).toHaveBeenCalled();
+    });
+
+    it('sends route parameters with the `route` event', () => {
+      controller.routes = routes;
+      const callback = jest.fn();
+      controller.addEventListener('route', callback, { handler: true });
+      globalThis.history.replaceState({}, '', '/user/arthur?a=b#c');
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      expect(callback).toHaveBeenCalled();
+      expect(callback.mock.calls[0][0].detail).toMatchObject({
+        route: 'user',
+        params: {
+          name: 'arthur',
+        },
+        query: '?a=b',
+        hash: '#c',
+      });
+    });
+
+    it('handles custom roots while checking the url', () => {
+      controller.rootPath = '/root';
+      controller.routes = routes;
+      const callback = jest.fn();
+      controller.addEventListener('route', callback, { handler: true });
+      globalThis.history.replaceState({}, '', '/user/arthur?a=b#c');
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      expect(callback).not.toHaveBeenCalled();
+      globalThis.history.replaceState({}, '', '/root/user/arthur?a=b#c');
+      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      expect(callback).toHaveBeenCalled();
+    });
+  });
+
+  describe('onLanguageChange', () => {
+    it('requests updating the component', async () => {
+      controller.requestUpdate = jest.fn();
+      await controller.onLanguageChange();
+      expect(controller.requestUpdate).toHaveBeenCalled();
+    });
+  });
+
+  describe('translate', () => {
+    it('translates a given message', () => {
+      translator.setLanguage('en');
+      expect(ControllerClass.translate('two')).toBe('two');
+      translator.setLanguage('es');
+      expect(ControllerClass.translate('two')).toBe('dos');
+    });
+  });
+
   describe('bond', () => {
     let input;
     let event;
@@ -129,102 +299,6 @@ describe('Controller', () => {
       globalThis.addEventListener('popstate', callback);
       ControllerClass.navigate('/path')(part);
       expect(callback).toHaveBeenCalled();
-    });
-  });
-
-  describe('onModelChange', () => {
-    it('requests updating the component', async () => {
-      controller.requestUpdate = jest.fn();
-      await controller.onModelChange();
-      expect(controller.requestUpdate).toHaveBeenCalled();
-    });
-  });
-
-  describe('onLanguageChange', () => {
-    it('requests updating the component', async () => {
-      controller.requestUpdate = jest.fn();
-      await controller.onLanguageChange();
-      expect(controller.requestUpdate).toHaveBeenCalled();
-    });
-  });
-
-  describe('model', () => {
-    it('sets a model', () => {
-      const model = new Model();
-      jest.spyOn(model, 'addEventListener');
-      expect(controller.model).toBeUndefined();
-      controller.model = model;
-      controller.model = model;
-      expect(model.addEventListener.mock.calls.length).toBe(1);
-      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-      expect(controller.model).toBe(model);
-    });
-
-    it('replaces an existing model', () => {
-      const oldModel = new Model();
-      controller.model = oldModel;
-      expect(controller.model).toBe(oldModel);
-      const model = new Model();
-      jest.spyOn(model, 'addEventListener');
-      jest.spyOn(oldModel, 'removeEventListener');
-      controller.model = model;
-      expect(model.addEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-      expect(oldModel.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-      expect(controller.model).toBe(model);
-    });
-
-    it('removes an existing model', () => {
-      const model = new Model();
-      controller.model = model;
-      expect(controller.model).toBe(model);
-      jest.spyOn(model, 'removeEventListener');
-      controller.model = undefined;
-      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-      expect(controller.model).toBeUndefined();
-    });
-  });
-
-  describe('connectedCallback', () => {
-    it('subscribes to model events if model is present', () => {});
-
-    it('subscribes to language change event if global translator is set', () => {
-      jest.spyOn(translator, 'addEventListener');
-      controller.connectedCallback();
-      expect(translator.addEventListener).toHaveBeenCalledWith(
-        'language',
-        controller.onLanguageChange,
-      );
-      translator.addEventListener.mockRestore();
-    });
-  });
-
-  describe('disconnectedCallback', () => {
-    it('removes an event listener from its model', () => {
-      const model = new Model();
-      controller.model = model;
-      jest.spyOn(model, 'removeEventListener');
-      controller.connectedCallback();
-      controller.disconnectedCallback();
-      expect(model.removeEventListener).toHaveBeenCalledWith('change', controller.onModelChange);
-    });
-
-    it('removes an event listener from the global translator', () => {
-      jest.spyOn(translator, 'removeEventListener');
-      controller.disconnectedCallback();
-      expect(translator.removeEventListener).toHaveBeenCalledWith(
-        'language',
-        controller.onLanguageChange,
-      );
-      translator.removeEventListener.mockRestore();
-    });
-  });
-
-  describe('translate', () => {
-    it('translates a given message', () => {
-      translator.setLanguage('en');
-      expect(ControllerClass.translate('two')).toBe('two');
-      translator.setLanguage('es');
-      expect(ControllerClass.translate('two')).toBe('dos');
     });
   });
 

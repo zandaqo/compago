@@ -54,8 +54,14 @@ interface ControllerBond {
   value?: any;
 }
 
+interface Routes {
+  [propName: string]: RegExp;
+}
+
 export declare class Controller extends LitElement {
   model?: Model | ModelArray;
+  rootPath?: string;
+  routes?: Routes;
   static translations: object;
   static bond: (binding: ControllerBond) => (part: Part) => void;
   static navigate: (href?: string) => (part: Part) => void;
@@ -64,21 +70,13 @@ export declare class Controller extends LitElement {
     key: string,
     interpolation?: TranslatorInterpolation,
   ) => (part: Part) => void;
+
   onModelChange(event: Event): void;
   onLanguageChange(event: Event): void;
+  route(name: string, params: object, query: string, hash: string): void;
+  private onPopstate(event: Event): void;
   static get translator(): Translator;
   static translate(key: string, interpolation?: TranslatorInterpolation);
-}
-
-interface Routes {
-  [propName: string]: RegExp;
-}
-
-export declare class Router extends HTMLElement {
-  root: string;
-  routes?: Routes;
-  private currentPath: string;
-  private onPopstate(): void;
 }
 
 type Comparator = (a: any, b: any) => -1 | 0 | 1;
