@@ -43,7 +43,7 @@ describe('ModelArray', () => {
     it('sets models', () => {
       c.set([m1]);
       expect(c[0]).toBe(m1);
-      expect(m1[Symbol.for('c-collection')]).toBe(c);
+      expect(m1[Symbol.for('c-array')]).toBe(c);
     });
 
     it('resets models', () => {
@@ -377,7 +377,6 @@ describe('ModelArray', () => {
       const storage = {
         sync: jest.fn().mockReturnValue(Promise.resolve()),
       };
-      const options = {};
       const nc = new ModelArray(undefined, { storage });
       return nc.sync('read').then(() => {
         expect(storage.sync).toHaveBeenCalledWith('read', nc);

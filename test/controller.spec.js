@@ -152,7 +152,7 @@ describe('Controller', () => {
         params: {
           name: 'arthur',
         },
-        query: '?a=b',
+        query: new URLSearchParams('?a=b'),
         hash: '#c',
       });
     });

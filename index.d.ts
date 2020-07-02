@@ -69,7 +69,7 @@ export declare class Controller extends LitElement {
 
   onModelChange(event: Event): void;
   onLanguageChange(event: Event): void;
-  route(name: string, params: object, query: string, hash: string): void;
+  route(name: string, params: object, query: URLSearchParams, hash: string): void;
   private onPopstate(event: Event): void;
   static get translator(): Translator;
   static translate(key: string, interpolation?: TranslatorInterpolation);

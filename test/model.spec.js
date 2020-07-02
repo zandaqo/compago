@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { Model } from '../index.js';
 
-const collectionSymbol = Symbol.for('c-collection');
+const collectionSymbol = Symbol.for('c-array');
 
 describe('Model', () => {
   let model;
