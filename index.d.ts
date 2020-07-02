@@ -10,10 +10,6 @@ interface Constructor<T> {
 
 export declare function Listener<T>(Base?: Constructor<T>): Constructor<T & EventTarget>;
 
-interface ModelOptions {
-  collection?: ModelArray;
-}
-
 interface ModelReadWriteOptions {
   skip?: boolean;
   method?: string;
@@ -31,7 +27,7 @@ export declare class Model extends EventTarget {
   static storage: RemoteStorage;
   private static proxyHandler: ModelProxyHandler;
 
-  constructor(attributes?: object, options?: ModelOptions);
+  constructor(attributes?: object);
   set(attributes: object): this;
   assign(attributes: object): this;
   merge(source: object, target: object): object;

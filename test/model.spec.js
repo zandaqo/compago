@@ -16,10 +16,8 @@ describe('Model', () => {
 
   describe('constructor', () => {
     it('creates a model', () => {
-      const collection = {};
-      const m = new Model(undefined, { collection });
+      const m = new Model();
       expect(m instanceof Model).toBe(true);
-      expect(m[collectionSymbol]).toBe(collection);
       expect(m.toJSON()).toEqual({});
     });
   });
