@@ -75,6 +75,9 @@
     "lit-html": "^1.2.1"
   },
   "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": 11
+    },
     "extends": [
       "airbnb-base",
       "prettier"
