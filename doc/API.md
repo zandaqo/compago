@@ -3,17 +3,16 @@
 <dl>
 <dt><a href="#Controller">Controller</a> ⇐ <code>LitElement</code></dt>
 <dd><p>The Controller in MVC.
-It manages its Model and View while handling user interactions. Controller handles user input
-through DOM events and updates its Model accordingly. It listens to updates on its Model
-to re-render its View.</p>
+Controller handles user input through DOM events and updates its Model accordingly.</p>
 </dd>
 <dt><a href="#ModelArray">ModelArray</a> ⇐ <code>Array</code></dt>
 <dd><p>Manages an ordered set of models providing methods to create, sort, and remove of the models.</p>
 </dd>
 <dt><a href="#Model">Model</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>The Model in MVC.
-It manages data and business logic. Models handle synchronization with a persistence layer
-through storage controllers and notify subscribers through events when their data is changed.</p>
+Implemented as a proxy based observable on top of EventTarget, i.e. it monitors changes to attributes (including
+nested objects and arrays) and emits events with relevant data when a change occurs.
+Models also handle synchronization with a persistence layer through given storage controllers.</p>
 </dd>
 <dt><a href="#RemoteStorage">RemoteStorage</a> ⇐ <code>EventTarget</code></dt>
 <dd><p>Facilitates interaction with a REST server through the Fetch API.</p>
@@ -39,9 +38,7 @@ through storage controllers and notify subscribers through events when their dat
 
 ## Controller ⇐ <code>LitElement</code>
 The Controller in MVC.
-It manages its Model and View while handling user interactions. Controller handles user input
-through DOM events and updates its Model accordingly. It listens to updates on its Model
-to re-render its View.
+Controller handles user input through DOM events and updates its Model accordingly.
 
 **Kind**: global class  
 **Extends**: <code>LitElement</code>  
@@ -66,10 +63,14 @@ to re-render its View.
 <a name="Controller+model"></a>
 
 ### controller.model : [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray)
+The controller's model.
+
 **Kind**: instance property of [<code>Controller</code>](#Controller)  
 <a name="Controller+routes"></a>
 
 ### controller.routes : [<code>Routes</code>](#Routes)
+The routes defined on the controller.
+
 **Kind**: instance property of [<code>Controller</code>](#Controller)  
 <a name="Controller+connectedCallback"></a>
 
@@ -92,22 +93,28 @@ Handles `change` events of the controller's model.
 <a name="Controller+route"></a>
 
 ### controller.route(name, params, query, hash) ⇒ <code>void</code>
+Invoked when a route is visited. By default emits a `route` event.
+
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 
-| Param | Type |
-| --- | --- |
-| name | <code>string</code> | 
-| params | <code>Object</code> | 
-| query | <code>string</code> | 
-| hash | <code>string</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | name of the route as defined in `Controller#routes` |
+| params | <code>Object</code> |  |
+| query | <code>URLSearchParams</code> |  |
+| hash | <code>string</code> |  |
 
 <a name="Controller+onLanguageChange"></a>
 
 ### controller.onLanguageChange() ⇒ <code>void</code>
+Invoked when the translator changes the current language emitting a `language` event.
+
 **Kind**: instance method of [<code>Controller</code>](#Controller)  
 <a name="Controller.translator"></a>
 
 ### Controller.translator : [<code>Translator</code>](#Translator)
+The translator instance used by the controller.
+
 **Kind**: static property of [<code>Controller</code>](#Controller)  
 <a name="Controller.translations"></a>
 
@@ -149,6 +156,9 @@ Saves a given URL (or the URL from href property of the element) into the browse
 <a name="Controller.translate"></a>
 
 ### Controller.translate(key, [interpolation]) ⇒ <code>string</code>
+Translates a given key using the controller's translations in addition to global translations.
+Proxies to `Translator#translate` method.
+
 **Kind**: static method of [<code>Controller</code>](#Controller)  
 
 | Param | Type |
@@ -434,14 +444,15 @@ Proxies to the `sync` method of the storage if it's specified.
 
 ## Model ⇐ <code>EventTarget</code>
 The Model in MVC.
-It manages data and business logic. Models handle synchronization with a persistence layer
-through storage controllers and notify subscribers through events when their data is changed.
+Implemented as a proxy based observable on top of EventTarget, i.e. it monitors changes to attributes (including
+nested objects and arrays) and emits events with relevant data when a change occurs.
+Models also handle synchronization with a persistence layer through given storage controllers.
 
 **Kind**: global class  
 **Extends**: <code>EventTarget</code>  
 
 * [Model](#Model) ⇐ <code>EventTarget</code>
-    * [new Model([attributes], [options])](#new_Model_new)
+    * [new Model([attributes])](#new_Model_new)
     * _instance_
         * [.id](#Model+id) : <code>\*</code>
         * [.set([attributes])](#Model+set) ⇒ <code>this</code>
@@ -459,13 +470,11 @@ through storage controllers and notify subscribers through events when their dat
 
 <a name="new_Model_new"></a>
 
-### new Model([attributes], [options])
+### new Model([attributes])
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [attributes] | <code>Object</code> | the attributes to be set on a newly created model |
-| [options] | <code>Object</code> |  |
-| [options.collection] | <code>Object</code> | the collection to which the model should belong |
 
 <a name="Model+id"></a>
 
@@ -486,12 +495,10 @@ Resets all attributes on the model with given attributes.
 
 **Example**  
 ```js
-model.set();
-// all attributes are removed from the model
-
+const model = new Model({ name: 'Arthur' });
+//=> { name: 'Arthur' }
 model.set({ foo: bar });
-model
-//=>{ foo: bar }
+//=> { foo: bar }
 ```
 <a name="Model+assign"></a>
 
@@ -504,11 +511,17 @@ Assigns given attributes to the model.
 | --- | --- | --- |
 | [attributes] | <code>Object</code> | the attributes to be assigned to the model |
 
+**Example**  
+```js
+const model = new Model({ name: 'Arthur' });
+//=> { name: 'Arthur' }
+model.assign({ foo: bar });
+//=> { name: 'Arthur', foo: bar }
+```
 <a name="Model+merge"></a>
 
 ### model.merge(source, [target]) ⇒ <code>Object</code>
-Merges two objects. If no target object provided, merges given source object to the model's
-attributes.
+Merges two objects. If no target object provided, merges a given source object with the model.
 
 **Kind**: instance method of [<code>Model</code>](#Model)  
 **Returns**: <code>Object</code> - the target object  
@@ -518,6 +531,12 @@ attributes.
 | source | <code>Object</code> |  | the source object to be merged with the target object. |
 | [target] | <code>Object</code> | <code>this</code> | the target object to be merged, uses model's attributes by                                    default |
 
+**Example**  
+```js
+const model = new Model({ person: { name: 'Arthur' } });
+model.merge({ person: { surname: 'Dent' } });
+//=> { person: { name: 'Arthur', surname: 'Dent' } }
+```
 <a name="Model+toJSON"></a>
 
 ### model.toJSON() ⇒ <code>Object</code>
@@ -677,7 +696,7 @@ The general method for synchronization.
 | Param | Type | Description |
 | --- | --- | --- |
 | method | <code>string</code> | a method name to execute.                   Internal method names are mapped to HTTP methods in `RemoteStorage.methods`. |
-| model | [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray) | a model or a collection to be synchronized |
+| model | [<code>Model</code>](#Model) \| [<code>ModelArray</code>](#ModelArray) | a model or an array of models to be synchronized |
 | options | <code>Object</code> |  |
 | [options.patch] | <code>boolean</code> | whether to send only changed attributes (if present)                                  using the `PATCH` method |
 
