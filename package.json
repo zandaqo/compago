@@ -1,6 +1,6 @@
 {
   "name": "compago",
-  "version": "5.0.0-beta.15",
+  "version": "5.0.0-beta.16",
   "description": "A minimalist MVC framework for modern browsers.",
   "main": "index.js",
   "type": "module",
@@ -55,10 +55,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 95,
+        "branches": 90,
         "functions": 100,
         "lines": 100,
-        "statements": 100
+        "statements": 99
       }
     },
     "roots": [

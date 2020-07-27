@@ -43,7 +43,8 @@ export declare class Model extends EventTarget {
 
 interface ControllerBond {
   to: string;
-  parse?: Function;
+  parse?: (content: any) => any;
+  validate?: (element: HTMLElement, content: any) => boolean;
   prevent?: boolean;
   property?: string;
   attribute?: string;

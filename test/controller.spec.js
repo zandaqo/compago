@@ -259,6 +259,20 @@ describe('Controller', () => {
       ControllerClass.bond({ to: 'name', value: 'abc' })(part);
       expect(controller.name).toBe('abc');
     });
+
+    it('validates input before parsing if validation function is provided', () => {
+      ControllerClass.bond({
+        to: 'name',
+        value: 'abc',
+        validate: (element, content) => typeof content === 'string',
+      })(part);
+      expect(controller.name).toBe('abc');
+    });
+
+    it('does not set value if validation function is provided and returns a falsy value', () => {
+      ControllerClass.bond({ to: 'name', value: 'abc', validate: () => false })(part);
+      expect(controller.name).toBeUndefined();
+    });
   });
 
   describe('navigate', () => {

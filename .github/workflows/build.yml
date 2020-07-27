@@ -12,4 +12,6 @@ jobs:
       - name: Install Packages
         run: npm install
       - name: Test
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
         run: npm test
