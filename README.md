@@ -11,6 +11,3 @@ simple routing, localization and internationalization capabilities.
 ```
 npm i compago
 ```
-
-## See Also
- * [API Documentation](https://github.com/zandaqo/compago/blob/master/doc/API.md)

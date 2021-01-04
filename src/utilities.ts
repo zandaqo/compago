@@ -1,6 +1,11 @@
-/* eslint no-plusplus: 0 */
-/* eslint prefer-destructuring: 0 */
-/* eslint no-self-compare: 0 */
+export function isBound(f: Function): boolean {
+  return f.name.startsWith('bound ');
+}
+
+export function isObservableObject(value: any): boolean {
+  const type = Object.prototype.toString.call(value);
+  return type === '[object Object]' || type === '[object Array]';
+}
 
 /**
  * Checks two values for 'deep' equality.
@@ -8,12 +13,11 @@
  * Adopted from [fast-deep-equal]{@link https://github.com/epoberezkin/fast-deep-equal/}
  * written by Evgeny Poberezkin
  *
- * @private
- * @param {*} a
- * @param {*} b
- * @returns {boolean}
+ * @param a
+ * @param b
+ * @returns
  */
-export default function isEqual(a, b) {
+export function isEqual(a: any, b: any): boolean {
   if (a === b) return true;
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
