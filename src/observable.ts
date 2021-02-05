@@ -103,7 +103,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     previous?: any,
     elements?: any,
   ): void {
-    observable.dispatchEvent(new ChangeEvent({ path, type, previous, elements }));
+    observable.dispatchEvent(ChangeEvent.create({ path, type, previous, elements }));
   }
 
   /**

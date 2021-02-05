@@ -5,14 +5,13 @@ interface IMissingTranslationEvent {
 }
 
 export class MissingTranslationEvent extends CustomEvent<IMissingTranslationEvent> {
-  static readonly eventName = 'missing-translation';
-  constructor(detail: IMissingTranslationEvent) {
-    super(MissingTranslationEvent.eventName, { detail, bubbles: true, composed: true });
+  static create(detail: IMissingTranslationEvent) {
+    return new this('missing-translation', { detail, bubbles: true, composed: true });
   }
 }
 
 declare global {
-  interface ElementEventMap {
+  interface HTMLElementEventMap {
     'missing-translation': MissingTranslationEvent;
   }
 }

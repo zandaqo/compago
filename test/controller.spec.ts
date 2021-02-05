@@ -1,6 +1,6 @@
-import { Controller } from '../src/controller';
-import { Observable } from '../src/observable';
-import { Translator } from '../src/translator';
+import { Controller } from '../src';
+import { Observable } from '../src';
+import { Translator } from '../src';
 
 class ControllerClass extends Controller {}
 ControllerClass.translations = { en: { two: 'two' }, es: { two: 'dos' } };

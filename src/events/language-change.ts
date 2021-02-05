@@ -3,14 +3,13 @@ interface ILanguageChangeEvent {
 }
 
 export class LanguageChangeEvent extends CustomEvent<ILanguageChangeEvent> {
-  static readonly eventName = 'language-change';
-  constructor(detail: ILanguageChangeEvent) {
-    super(LanguageChangeEvent.eventName, { detail, bubbles: true, composed: true });
+  static create(detail: ILanguageChangeEvent) {
+    return new this('language-change', { detail, bubbles: true, composed: true });
   }
 }
 
 declare global {
-  interface ElementEventMap {
+  interface HTMLElementEventMap {
     'language-change': LanguageChangeEvent;
   }
 }

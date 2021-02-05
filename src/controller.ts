@@ -12,6 +12,8 @@ interface IRoutes {
   [route: string]: RegExp;
 }
 
+export type ControllerType<T> = new () => Controller<T>;
+
 export class Controller<T = any> extends LitElement {
   rootPath?: string;
   [sObservable]?: Observable<T>;
@@ -99,11 +101,11 @@ export class Controller<T = any> extends LitElement {
    */
   route(
     name: string,
-    params: Record<string, string> | undefined,
-    query: URLSearchParams | undefined,
-    hash: string,
-  ) {
-    this.dispatchEvent(new RouteEvent({ route: name, params, query, hash }));
+    params: Record<string, string>,
+    query?: URLSearchParams,
+    hash?: string,
+  ): void {
+    this.dispatchEvent(RouteEvent.create({ route: name, params, query, hash }));
   }
 
   /**
@@ -124,7 +126,7 @@ export class Controller<T = any> extends LitElement {
       const route = routes[name];
       const match = route.exec(path);
       if (!match) continue;
-      const params = match.groups;
+      const params = match.groups || {};
       const hash = decodeURIComponent(location.hash);
       const query = location.search ? new URLSearchParams(location.search) : undefined;
       this.route(name, params, query, hash);

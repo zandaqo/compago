@@ -30,12 +30,34 @@ export class RESTRepository<T extends Object> implements IRepository<T> {
     return Result.ok(value);
   }
 
+  create(value: T): Promise<Result<any>> {
+    return this.save(value);
+  }
+
   async read(id: string): Promise<Result<any>> {
     const result = await (this.constructor as typeof RESTRepository).fetch(
       `${this.url}/${id}`,
     );
     if (!result.ok) return result;
     return Result.ok(this.deserialize(result.value));
+  }
+
+  update(_: any, updates: any): Promise<Result<any>> {
+    return this.save(updates);
+  }
+
+  async delete(id: string): Promise<Result<any>> {
+    return (this.constructor as typeof RESTRepository).fetch(`${this.url}/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  serialize(entity: T): string {
+    return JSON.stringify(entity);
+  }
+
+  deserialize(value: any): T {
+    return new this.EntityClass(value);
   }
 
   async save(value: T): Promise<Result<any>> {
@@ -50,25 +72,6 @@ export class RESTRepository<T extends Object> implements IRepository<T> {
       method,
       body: this.serialize(value),
     });
-  }
-
-  async delete(value: T): Promise<Result<any>> {
-    const exists = await this.exists(value);
-    if (!exists) return Result.ok();
-    return (this.constructor as typeof RESTRepository).fetch(
-      `${this.url}/${(value as any)[this.idProperty]}`,
-      {
-        method: 'DELETE',
-      },
-    );
-  }
-
-  serialize(entity: T): string {
-    return JSON.stringify(entity);
-  }
-
-  deserialize(value: any): T {
-    return new this.EntityClass(value);
   }
 
   static async fetch(url: string, init: Partial<RequestInit> = {}): Promise<Result<any>> {

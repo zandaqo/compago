@@ -1,6 +1,6 @@
 import { directive, EventPart } from 'lit-html';
 
-export const navigate = directive((href: string) => (part: EventPart) => {
+export const navigate = directive((href?: string) => (part: EventPart) => {
   const path = href || (part.element as any).href;
   part.setValue(
     path

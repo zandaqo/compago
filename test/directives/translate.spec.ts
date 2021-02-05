@@ -4,7 +4,7 @@ import { Controller } from '../../src/controller';
 
 describe('translate', () => {
   it('calls a translator', () => {
-    class C extends Controller {}
+    class C extends Controller<{ a: number }> {}
     C.translate = jest.fn();
     const interpolation = {};
     translate(C, 'apple', interpolation)(new NodePart({} as RenderOptions));

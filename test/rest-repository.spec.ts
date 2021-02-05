@@ -108,18 +108,17 @@ describe('RESTRepository', () => {
 
   describe('delete', () => {
     it('removes an existing entity', async () => {
-      const request = { _id: 'a', a: 1 };
       jest.spyOn(RESTRepository, 'fetch').mockReturnValue(Promise.resolve(Result.ok()));
-      await repository.delete(request);
+      await repository.delete('a');
       expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a', {
         method: 'DELETE',
       });
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
-    it('returns if the entity has not been persisted', async () => {
+    xit('returns if the entity has not been persisted', async () => {
       const request = { a: 1 };
       jest.spyOn(RESTRepository, 'fetch').mockReturnValue(Promise.resolve(Result.ok()));
-      await repository.delete(request);
+      await repository.delete(request.a.toString());
       expect(RESTRepository.fetch).not.toHaveBeenCalled();
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });

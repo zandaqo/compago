@@ -1,19 +1,18 @@
 interface IRouteEvent {
   route: string;
-  params?: Record<string, string>;
+  params: Record<string, string>;
   query?: URLSearchParams;
-  hash: string;
+  hash?: string;
 }
 
 export class RouteEvent extends CustomEvent<IRouteEvent> {
-  static readonly eventName = 'route';
-  constructor(detail: IRouteEvent) {
-    super(RouteEvent.eventName, { detail, bubbles: true, composed: true });
+  static create(detail: IRouteEvent) {
+    return new this('route', { detail, bubbles: true, composed: true });
   }
 }
 
 declare global {
-  interface ElementEventMap {
+  interface HTMLElementEventMap {
     route: RouteEvent;
   }
 }

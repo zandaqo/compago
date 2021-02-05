@@ -14,14 +14,13 @@ interface IChangeEvent {
 }
 
 export class ChangeEvent extends CustomEvent<IChangeEvent> {
-  static readonly eventName = 'change';
-  constructor(detail: IChangeEvent) {
-    super(ChangeEvent.eventName, { detail, bubbles: true, composed: true });
+  static create(detail: IChangeEvent) {
+    return new this('change', { detail, bubbles: true, composed: true });
   }
 }
 
 declare global {
-  interface ElementEventMap {
+  interface HTMLElementEventMap {
     change: ChangeEvent;
   }
 }
