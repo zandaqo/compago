@@ -1,12 +1,12 @@
-interface IRouteEvent {
+type RouteEventDetail = {
   route: string;
   params: Record<string, string>;
   query?: URLSearchParams;
   hash?: string;
-}
+};
 
-export class RouteEvent extends CustomEvent<IRouteEvent> {
-  static create(detail: IRouteEvent) {
+export class RouteEvent extends CustomEvent<RouteEventDetail> {
+  static create(detail: RouteEventDetail) {
     return new this('route', { detail, bubbles: true, composed: true });
   }
 }

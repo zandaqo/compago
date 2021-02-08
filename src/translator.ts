@@ -5,27 +5,53 @@ type PluralTranslation = Partial<Record<Intl.LDMLPluralRule, string>>;
 
 export const sTranslator = Symbol.for('c-translator');
 
-interface ITranslation {
-  [key: string]:
-    | string
-    | Intl.DateTimeFormat
-    | Intl.NumberFormat
-    | Intl.RelativeTimeFormat
-    | PluralTranslation;
-}
+export type Translations = {
+  [language: string]: {
+    [key: string]:
+      | string
+      | Intl.DateTimeFormat
+      | Intl.NumberFormat
+      | Intl.RelativeTimeFormat
+      | PluralTranslation;
+  };
+};
 
-export interface ITranslations {
-  [language: string]: ITranslation;
-}
-
-interface ITranslatorOptions {
+type TranslatorOptions = {
   language?: string;
   languages: Array<string>;
-  translations: ITranslations;
+  translations: Translations;
   globalPrefix?: string;
-}
+};
 
 const { PluralRules, RelativeTimeFormat } = globalThis.Intl;
+
+interface TranslatorEventMap {
+  'language-change': LanguageChangeEvent;
+  'missing-translation': MissingTranslationEvent;
+}
+
+export interface Translator {
+  addEventListener<K extends keyof TranslatorEventMap>(
+    type: K,
+    listener: (this: Translator, ev: TranslatorEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  removeEventListener<K extends keyof TranslatorEventMap>(
+    type: K,
+    listener: (this: Translator, ev: TranslatorEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+}
 
 /**
  *
@@ -34,7 +60,7 @@ export class Translator extends EventTarget {
   language: string;
   globalPrefix: string;
   languages: Array<string>;
-  translations: ITranslations;
+  translations: Translations;
   pluralRules: Intl.PluralRules;
 
   /**
@@ -45,7 +71,7 @@ export class Translator extends EventTarget {
     languages,
     translations = {},
     globalPrefix = '$',
-  }: ITranslatorOptions) {
+  }: TranslatorOptions) {
     super();
     this.languages = languages;
     this.translations = translations;
@@ -106,7 +132,7 @@ export class Translator extends EventTarget {
    * @returns string
    */
   translate(
-    translations: ITranslations,
+    translations: Translations,
     key: string,
     interpolation?: any,
     component?: string,
@@ -159,7 +185,7 @@ export class Translator extends EventTarget {
    * @param symbol
    * @returns
    */
-  static initialize(options: ITranslatorOptions, symbol = sTranslator): Translator {
+  static initialize(options: TranslatorOptions, symbol = sTranslator): Translator {
     const translator = new Translator(options);
     (globalThis as any)[symbol] = translator;
     return translator;

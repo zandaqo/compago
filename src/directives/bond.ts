@@ -1,6 +1,6 @@
 import { directive, EventPart } from 'lit-html';
 
-interface IControllerBond {
+type ControllerBond = {
   to: string;
   parse?: Function;
   validate?: (element: Element, content: any) => boolean;
@@ -8,9 +8,9 @@ interface IControllerBond {
   property?: string;
   attribute?: string;
   value?: any;
-}
+};
 
-export const bond = directive((binding: IControllerBond) => (part: EventPart) => {
+export const bond = directive((binding: ControllerBond) => (part: EventPart) => {
   const { to, parse, prevent, property = 'value', attribute, value, validate } = binding;
   let path = to;
   let recipient = part.eventContext;

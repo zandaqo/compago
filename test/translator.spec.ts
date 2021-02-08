@@ -1,4 +1,4 @@
-import { Translator } from '../src/translator';
+import { Translator } from '../src';
 
 describe('Translator', () => {
   describe('constructor', () => {
@@ -38,7 +38,7 @@ describe('Translator', () => {
       expect(translator.pluralRules).toEqual(new Intl.PluralRules('de-DE'));
     });
 
-    it('emits `language` event if language has changed', () => {
+    it('emits `language-change` event if language has changed', () => {
       const translator = new Translator({ languages: ['en', 'en-GB'], translations: {} });
       translator.dispatchEvent = jest.fn();
       translator.setLanguage('en');

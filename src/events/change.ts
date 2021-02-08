@@ -6,21 +6,15 @@ export enum ChangeType {
   Sort = 'SORT',
 }
 
-interface IChangeEvent {
+type ChangeEventDetail = {
   path: string;
   type: ChangeType;
   previous?: any;
   elements?: any;
-}
+};
 
-export class ChangeEvent extends CustomEvent<IChangeEvent> {
-  static create(detail: IChangeEvent) {
+export class ChangeEvent extends CustomEvent<ChangeEventDetail> {
+  static create(detail: ChangeEventDetail) {
     return new this('change', { detail, bubbles: true, composed: true });
-  }
-}
-
-declare global {
-  interface HTMLElementEventMap {
-    change: ChangeEvent;
   }
 }

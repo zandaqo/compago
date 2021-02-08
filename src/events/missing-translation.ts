@@ -1,17 +1,11 @@
-interface IMissingTranslationEvent {
+type MissingTranslationEventDetail = {
   component: string;
   key: string;
   rule?: string;
-}
+};
 
-export class MissingTranslationEvent extends CustomEvent<IMissingTranslationEvent> {
-  static create(detail: IMissingTranslationEvent) {
+export class MissingTranslationEvent extends CustomEvent<MissingTranslationEventDetail> {
+  static create(detail: MissingTranslationEventDetail) {
     return new this('missing-translation', { detail, bubbles: true, composed: true });
-  }
-}
-
-declare global {
-  interface HTMLElementEventMap {
-    'missing-translation': MissingTranslationEvent;
   }
 }

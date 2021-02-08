@@ -1,16 +1,17 @@
 import { LitElement } from 'lit-element';
-import { ITranslations, Translator, sTranslator } from './translator';
+import { Translations, Translator, sTranslator } from './translator';
 import { sObservable, Observable } from './observable';
 import { RouteEvent } from './events/route';
 import { isBound } from './utilities';
+import { ChangeEvent } from './events/change';
 
 const sCurrentPath = Symbol.for('c-current-path');
 
 const sRoutes = Symbol.for('c-routes');
 
-interface IRoutes {
+type Routes = {
   [route: string]: RegExp;
-}
+};
 
 export type ControllerType<T> = new () => Controller<T>;
 
@@ -18,8 +19,8 @@ export class Controller<T = any> extends LitElement {
   rootPath?: string;
   [sObservable]?: Observable<T>;
   [sCurrentPath]?: string;
-  [sRoutes]?: IRoutes;
-  static translations?: ITranslations;
+  [sRoutes]?: Routes;
+  static translations?: Translations;
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -66,18 +67,18 @@ export class Controller<T = any> extends LitElement {
   /**
    * Handles `change` events of the component's model.
    */
-  async onModelChange() {
-    await this.requestUpdate();
+  onModelChange(_: ChangeEvent): void {
+    this.requestUpdate();
   }
 
   /**
    * The routes defined on the component.
    */
-  get routes(): IRoutes | undefined {
+  get routes(): Routes | undefined {
     return this[sRoutes];
   }
 
-  set routes(routes: IRoutes | undefined) {
+  set routes(routes: Routes | undefined) {
     const oldRoutes = this.routes;
     if (oldRoutes === routes) return;
     this[sCurrentPath] = '';

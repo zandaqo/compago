@@ -14,6 +14,33 @@ const watchedArrayMethods = new Set([
   'sort',
 ]);
 
+interface ObservableEventMap {
+  change: ChangeEvent;
+}
+
+export interface _Observable {
+  addEventListener<K extends keyof ObservableEventMap>(
+    type: K,
+    listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  removeEventListener<K extends keyof ObservableEventMap>(
+    type: K,
+    listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+}
+
 export class _Observable<T extends Object = Object> extends EventTarget {
   static readonly handler: ProxyHandler<any> = {
     set: _Observable.setTrap,
