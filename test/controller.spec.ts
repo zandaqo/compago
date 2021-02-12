@@ -1,4 +1,4 @@
-import { Controller } from '../src';
+import { ChangeEvent, Controller } from '../src';
 import { Observable } from '../src';
 import { Translator } from '../src';
 
@@ -126,7 +126,7 @@ describe('Controller', () => {
   describe('onModelChange', () => {
     it('requests updating the component', async () => {
       controller.requestUpdate = jest.fn();
-      await controller.onModelChange();
+      await controller.onModelChange({} as ChangeEvent);
       expect(controller.requestUpdate).toHaveBeenCalled();
     });
   });

@@ -16,13 +16,16 @@ describe('RESTRepository', () => {
 
   describe('exists', () => {
     it('checks if an entity was persisted', async () => {
-      expect(await repository.exists({ _id: 1 })).toBe(true);
-      expect(await repository.exists({ _id: null })).toBe(false);
-      expect(await repository.exists({ _id: undefined })).toBe(false);
-      expect(await repository.exists({ _id: false })).toBe(true);
+      expect(await repository.exists({ _id: 1 })).toEqual({ ok: true, value: true });
+      expect(await repository.exists({ _id: null })).toEqual({ ok: true, value: false });
+      expect(await repository.exists({ _id: undefined })).toEqual({
+        ok: true,
+        value: false,
+      });
+      expect(await repository.exists({ _id: false })).toEqual({ ok: true, value: true });
       const idRepo = new RESTRepository(Object, '', 'id');
-      expect(await idRepo.exists({ _id: 1 })).toBe(false);
-      expect(await idRepo.exists({ id: 1 })).toBe(true);
+      expect(await idRepo.exists({ _id: 1 })).toEqual({ ok: true, value: false });
+      expect(await idRepo.exists({ id: 1 })).toEqual({ ok: true, value: true });
     });
   });
 
@@ -46,7 +49,7 @@ describe('RESTRepository', () => {
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
     it('proxies failed response when fetch fails', async () => {
-      const error = {};
+      const error = new TypeError();
       jest
         .spyOn(RESTRepository, 'fetch')
         .mockReturnValue(Promise.resolve(Result.fail(error)));
@@ -71,7 +74,7 @@ describe('RESTRepository', () => {
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
     it('proxies failed response when fetch fails', async () => {
-      const error = {};
+      const error = new TypeError();
       jest
         .spyOn(RESTRepository, 'fetch')
         .mockReturnValue(Promise.resolve(Result.fail(error)));
@@ -86,7 +89,9 @@ describe('RESTRepository', () => {
   describe('save', () => {
     it('persists a new entity if it does not exist', async () => {
       const request = { a: 1 };
-      jest.spyOn(RESTRepository, 'fetch').mockReturnValue(Promise.resolve(Result.ok()));
+      jest
+        .spyOn(RESTRepository, 'fetch')
+        .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.save(request);
       expect(RESTRepository.fetch).toHaveBeenCalledWith('/things', {
         method: 'POST',
@@ -96,7 +101,9 @@ describe('RESTRepository', () => {
     });
     it('updates an existing entity', async () => {
       const request = { _id: 'a', a: 1 };
-      jest.spyOn(RESTRepository, 'fetch').mockReturnValue(Promise.resolve(Result.ok()));
+      jest
+        .spyOn(RESTRepository, 'fetch')
+        .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.save(request);
       expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a', {
         method: 'PUT',
@@ -108,7 +115,9 @@ describe('RESTRepository', () => {
 
   describe('delete', () => {
     it('removes an existing entity', async () => {
-      jest.spyOn(RESTRepository, 'fetch').mockReturnValue(Promise.resolve(Result.ok()));
+      jest
+        .spyOn(RESTRepository, 'fetch')
+        .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.delete('a');
       expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a', {
         method: 'DELETE',
@@ -117,7 +126,9 @@ describe('RESTRepository', () => {
     });
     xit('returns if the entity has not been persisted', async () => {
       const request = { a: 1 };
-      jest.spyOn(RESTRepository, 'fetch').mockReturnValue(Promise.resolve(Result.ok()));
+      jest
+        .spyOn(RESTRepository, 'fetch')
+        .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.delete(request.a.toString());
       expect(RESTRepository.fetch).not.toHaveBeenCalled();
       (RESTRepository.fetch as jest.Mock).mockRestore();
