@@ -13,24 +13,44 @@ export class RESTRepository<T extends Object> implements Repository<T> {
   constructor(
     private EntityClass: { new (...args: any[]): T },
     private url: string,
-    private idProperty: string = '_id',
+    private idProperty = '_id',
   ) {}
 
   exists(value: T): Promise<Result<boolean, undefined>> {
     return Promise.resolve(Result.ok((value as any)[this.idProperty] != null));
   }
 
-  async get(
+  async query<U>(
     search?: Record<string, string>,
-    path: string = '',
-  ): Promise<Result<Array<T>, Response | TypeError>> {
+    path = '',
+  ): Promise<Result<U, undefined | Response | TypeError>> {
     let { url } = this;
     if (path) url += path;
     if (search) url += `?${new globalThis.URLSearchParams(search).toString()}`;
-    const result = await RESTRepository.fetch(url);
+    const result = await RESTRepository.fetch<U>(url);
     if (!result.ok) return result;
-    const value = (result.value as Array<any>).map((i) => this.deserialize(i));
-    return Result.ok(value);
+    if (result.value === undefined) return Result.fail(undefined);
+    return result as Result<U, undefined>;
+  }
+
+  async command<U>(
+    body: unknown,
+    path = '',
+  ): Promise<Result<U | undefined, Response | TypeError>> {
+    let { url } = this;
+    if (path) url += path;
+    return await RESTRepository.fetch<U>(url, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async get(
+    search?: Record<string, string>,
+  ): Promise<Result<Array<T>, undefined | Response | TypeError>> {
+    const result = await this.query<Array<any>>(search);
+    if (!result.ok) return result;
+    return Result.ok(result.value.map((i) => this.deserialize(i)));
   }
 
   create(value: T) {
@@ -75,10 +95,10 @@ export class RESTRepository<T extends Object> implements Repository<T> {
     });
   }
 
-  static async fetch(
+  static async fetch<T>(
     url: string,
     init: Partial<RequestInit> = {},
-  ): Promise<Result<unknown, Response | TypeError>> {
+  ): Promise<Result<T | undefined, Response | TypeError>> {
     try {
       const response = await globalThis.fetch(url, { ...this.init, ...init });
       if (response.ok || response.status === 304) {

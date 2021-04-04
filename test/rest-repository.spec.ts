@@ -29,13 +29,43 @@ describe('RESTRepository', () => {
     });
   });
 
+  describe('query', () => {
+    it('queries an url with optional search parameters', async () => {
+      jest
+        .spyOn(RESTRepository, 'fetch')
+        .mockReturnValue(Promise.resolve(Result.ok([{ a: 1 }])));
+      const result = await repository.query<{ a: number }>({ a: '1', b: '1' }, '/abc');
+      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/abc?a=1&b=1');
+      expect(result.ok).toBe(true);
+      expect(result.value).toEqual([{ a: 1 }]);
+      (RESTRepository.fetch as jest.Mock).mockRestore();
+    });
+  });
+
+  describe('command', () => {
+    it('', async () => {
+      jest
+        .spyOn(RESTRepository, 'fetch')
+        .mockReturnValue(Promise.resolve(Result.ok([{ a: 1 }])));
+      const body = { a: '1', b: '1' };
+      const result = await repository.command<{ a: number }>(body, '/abc');
+      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/abc', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      expect(result.ok).toBe(true);
+      expect(result.value).toEqual([{ a: 1 }]);
+      (RESTRepository.fetch as jest.Mock).mockRestore();
+    });
+  });
+
   describe('get', () => {
     it('queries REST endpoint with optional search parameters', async () => {
       jest
         .spyOn(RESTRepository, 'fetch')
         .mockReturnValue(Promise.resolve(Result.ok([{}])));
-      const result = await repository.get({ a: '1', b: '1' }, '/abc');
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/abc?a=1&b=1');
+      const result = await repository.get({ a: '1', b: '1' });
+      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things?a=1&b=1');
       expect(result.ok).toBe(true);
       expect(result.value).toEqual([{}]);
       (RESTRepository.fetch as jest.Mock).mockRestore();
