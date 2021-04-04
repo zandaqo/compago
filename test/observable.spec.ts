@@ -293,8 +293,7 @@ describe('Observable', () => {
       observable.addEventListener('change', spy);
       observable.array.push(4, 5, 6);
       observable.array.unshift(0);
-      const calls = spy.mock.calls;
-      expect(calls).toEqual([
+      expect(spy.mock.calls).toEqual([
         [
           expect.objectContaining({
             type: 'change',
@@ -318,13 +317,42 @@ describe('Observable', () => {
       ]);
     });
 
+    it('reacts to changes in objects nested in arrays', () => {
+      observable.array = [];
+      observable.addEventListener('change', spy);
+      observable.array.push({ a: 1 });
+      observable.array[0].a = 2;
+      expect(spy.mock.calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              path: ':array',
+              type: 'ADD',
+              previous: undefined,
+              elements: [{ a: 2 }],
+            },
+          }),
+        ],
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              path: ':array:0:a',
+              type: 'SET',
+              previous: 1,
+            },
+          }),
+        ],
+      ]);
+    });
+
     it('reacts to removing elements from nested arrays', () => {
       observable.array = [1, 2, 3];
       observable.addEventListener('change', spy);
       observable.array.pop();
       observable.array.shift();
-      const calls = spy.mock.calls;
-      expect(calls).toEqual([
+      expect(spy.mock.calls).toEqual([
         [
           expect.objectContaining({
             type: 'change',
@@ -352,8 +380,7 @@ describe('Observable', () => {
       observable.array = [1, 2, 3];
       observable.addEventListener('change', spy);
       observable.array.splice(1, 1, 4, 5);
-      const calls = spy.mock.calls;
-      expect(calls).toEqual([
+      expect(spy.mock.calls).toEqual([
         [
           expect.objectContaining({
             type: 'change',
@@ -381,8 +408,7 @@ describe('Observable', () => {
       observable.array = [1, 2, 3];
       observable.addEventListener('change', spy);
       observable.array.splice(1, 1);
-      const calls = spy.mock.calls;
-      expect(calls).toEqual([
+      expect(spy.mock.calls).toEqual([
         [
           expect.objectContaining({
             type: 'change',

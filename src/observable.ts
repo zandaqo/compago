@@ -172,19 +172,32 @@ export class _Observable<T extends Object = Object> extends EventTarget {
       }
     }
 
-    Object.keys(target).forEach((key) => {
+    this.setProxies(target, path, observable, processed);
+    return proxy;
+  }
+
+  private static setProxies(
+    target: any,
+    path: string,
+    observable: _Observable,
+    processed: Array<any>,
+  ): void {
+    const keys = Object.keys(target);
+    for (const key of keys) {
       if (isObservableObject(target[key]) && !processed.includes(target[key])) {
         processed.push(target[key]);
         target[key] = this.getProxy(target[key], `${path}:${key}`, observable, processed);
       }
-    });
-    return proxy;
+    }
   }
 
-  private static arrayGetTrap(target: any, property: PropertyKey): any {
+  private static arrayGetTrap(target: any, property: PropertyKey, receiver: any): any {
     if (typeof property === 'string' && watchedArrayMethods.has(property)) {
       return (...args: any[]) => {
         const value = target[property](...args);
+        _Observable.setProxies(target, receiver[sPath], receiver[sObservable], [
+          receiver,
+        ]);
         switch (property) {
           case 'push':
           case 'unshift':
