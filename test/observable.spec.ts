@@ -377,6 +377,25 @@ describe('Observable', () => {
       ]);
     });
 
+    it('reacts to using splice without add elements', () => {
+      observable.array = [1, 2, 3];
+      observable.addEventListener('change', spy);
+      observable.array.splice(1, 1);
+      const calls = spy.mock.calls;
+      expect(calls).toEqual([
+        [
+          expect.objectContaining({
+            type: 'change',
+            detail: {
+              path: ':array',
+              type: 'REMOVE',
+              elements: [2],
+            },
+          }),
+        ],
+      ]);
+    });
+
     it('reacts to sorting nested arrays', () => {
       observable.array = [1, 2, 3];
       observable.addEventListener('change', spy);

@@ -214,13 +214,15 @@ export class _Observable<T extends Object = Object> extends EventTarget {
               undefined,
               value,
             );
-            _Observable.emitChange(
-              target[sObservable],
-              target[sPath],
-              ChangeType.Add,
-              undefined,
-              args.slice(2),
-            );
+            if (args.length > 2) {
+              _Observable.emitChange(
+                target[sObservable],
+                target[sPath],
+                ChangeType.Add,
+                undefined,
+                args.slice(2),
+              );
+            }
             break;
           case 'sort':
             _Observable.emitChange(target[sObservable], target[sPath], ChangeType.Sort);
