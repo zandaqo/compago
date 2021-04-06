@@ -1,5 +1,11 @@
-.idea
-node_modules
-coverage
-dist
-doc
+*
+!src
+!test
+!.github
+!.gitignore
+!.npmignore
+!LICENSE
+!README.md
+!package.json
+!package-lock.json
+!tsconfig.json

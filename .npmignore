@@ -1,0 +1,7 @@
+.github
+.idea
+coverage
+doc
+src
+test
+tsconfig.json

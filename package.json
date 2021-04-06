@@ -1,8 +1,8 @@
 {
   "name": "compago",
-  "version": "5.0.0-beta.22",
+  "version": "5.0.0-beta.23",
   "description": "A minimalist MVC framework for modern browsers.",
-  "main": "dist/index.js",
+  "main": "index.js",
   "type": "module",
   "keywords": [
     "mvc",
@@ -16,15 +16,6 @@
     "build": "tsc",
     "doc": "typedoc --out doc src/index.ts"
   },
-  "directories": {
-    "lib": "src",
-    "doc": "doc",
-    "test": "test"
-  },
-  "files": [
-    "/src/",
-    "/dist/"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/zandaqo/compago.git"
