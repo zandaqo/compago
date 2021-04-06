@@ -173,9 +173,10 @@ describe('Controller', () => {
     it('sends route parameters with the `route` event', () => {
       controller.routes = routes;
       const callback = jest.fn();
+      const state = { a: 1 };
       controller.addEventListener('route', callback);
-      globalThis.history.replaceState({}, '', '/user/arthur?a=b#c');
-      globalThis.dispatchEvent(new PopStateEvent('popstate'));
+      globalThis.history.replaceState(state, '', '/user/arthur?a=b#c');
+      globalThis.dispatchEvent(new PopStateEvent('popstate', { state }));
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls[0][0].detail).toMatchObject({
         route: 'user',
@@ -184,6 +185,7 @@ describe('Controller', () => {
         },
         query: new URLSearchParams('?a=b'),
         hash: '#c',
+        state,
       });
     });
 

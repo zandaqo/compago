@@ -3,6 +3,7 @@ type RouteEventDetail = {
   params: Record<string, string>;
   query?: URLSearchParams;
   hash?: string;
+  state?: any;
 };
 
 export class RouteEvent extends CustomEvent<RouteEventDetail> {

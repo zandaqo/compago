@@ -13,8 +13,6 @@ type Routes = {
   [route: string]: RegExp;
 };
 
-export type ControllerType<T> = new () => Controller<T>;
-
 export class Controller<T = any> extends LitElement {
   rootPath?: string;
   [sObservable]?: Observable<T>;
@@ -98,6 +96,7 @@ export class Controller<T = any> extends LitElement {
    * @param params
    * @param query
    * @param hash
+   * @param state
    * @emits RouteEvent
    */
   route(
@@ -105,15 +104,16 @@ export class Controller<T = any> extends LitElement {
     params: Record<string, string>,
     query?: URLSearchParams,
     hash?: string,
+    state?: any,
   ): void {
-    this.dispatchEvent(RouteEvent.create({ route: name, params, query, hash }));
+    this.dispatchEvent(RouteEvent.create({ route: name, params, query, hash, state }));
   }
 
   /**
    * Checks the current URL against routes and invokes `Component#route`
    * if an appropriate route is found.
    */
-  onPopstate(): void {
+  onPopstate(event: PopStateEvent): void {
     const { rootPath: root = '', [sRoutes]: routes = {} } = this;
     const { location } = globalThis;
     let path = decodeURIComponent(location.pathname);
@@ -130,7 +130,7 @@ export class Controller<T = any> extends LitElement {
       const params = match.groups || {};
       const hash = decodeURIComponent(location.hash);
       const query = location.search ? new URLSearchParams(location.search) : undefined;
-      this.route(name, params, query, hash);
+      this.route(name, params, query, hash, event.state);
       return;
     }
   }
