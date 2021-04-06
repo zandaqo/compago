@@ -12,7 +12,6 @@
   ],
   "scripts": {
     "test": "jest",
-    "coverage:report": "cat ./coverage/lcov.info | codecov",
     "build": "tsc",
     "doc": "typedoc --out doc src/index.ts"
   },
@@ -49,8 +48,6 @@
     "collectCoverageFrom": [
       "**/src/**",
       "!**/node_modules/**",
-      "!src/index.ts",
-      "!src/utilities.ts",
       "!**/__snapshots__/**",
       "!**/__fixtures__/**"
     ],
@@ -68,7 +65,6 @@
     }
   },
   "prettier": {
-    "printWidth": 90,
     "singleQuote": true,
     "trailingComma": "all"
   },

@@ -6,6 +6,10 @@ type MissingTranslationEventDetail = {
 
 export class MissingTranslationEvent extends CustomEvent<MissingTranslationEventDetail> {
   static create(detail: MissingTranslationEventDetail) {
-    return new this('missing-translation', { detail, bubbles: true, composed: true });
+    return new this('missing-translation', {
+      detail,
+      bubbles: true,
+      composed: true,
+    });
   }
 }

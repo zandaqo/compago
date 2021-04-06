@@ -148,7 +148,9 @@ describe('Component', () => {
         'popstate',
         component.onPopstate,
       );
-      expect((globalThis.addEventListener as jest.Mock).mock.calls.length).toBe(1);
+      expect((globalThis.addEventListener as jest.Mock).mock.calls.length).toBe(
+        1,
+      );
       (globalThis.addEventListener as jest.Mock).mockRestore();
     });
 

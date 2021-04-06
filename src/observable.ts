@@ -132,7 +132,9 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     previous?: any,
     elements?: any,
   ): void {
-    observable.dispatchEvent(ChangeEvent.create({ path, type, previous, elements }));
+    observable.dispatchEvent(
+      ChangeEvent.create({ path, type, previous, elements }),
+    );
   }
 
   /**
@@ -188,12 +190,21 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     for (const key of keys) {
       if (isObservableObject(target[key]) && !processed.includes(target[key])) {
         processed.push(target[key]);
-        target[key] = this.getProxy(target[key], `${path}:${key}`, observable, processed);
+        target[key] = this.getProxy(
+          target[key],
+          `${path}:${key}`,
+          observable,
+          processed,
+        );
       }
     }
   }
 
-  private static arrayGetTrap(target: any, property: PropertyKey, receiver: any): any {
+  private static arrayGetTrap(
+    target: any,
+    property: PropertyKey,
+    receiver: any,
+  ): any {
     if (typeof property === 'string' && watchedArrayMethods.has(property)) {
       return (...args: any[]) => {
         const value = target[property](...args);
@@ -240,7 +251,11 @@ export class _Observable<T extends Object = Object> extends EventTarget {
             }
             break;
           case 'sort':
-            _Observable.emitChange(target[sObservable], target[sPath], ChangeType.Sort);
+            _Observable.emitChange(
+              target[sObservable],
+              target[sPath],
+              ChangeType.Sort,
+            );
             break;
         }
         return value;
@@ -277,7 +292,10 @@ export class _Observable<T extends Object = Object> extends EventTarget {
 
   private static deletePropertyTrap(target: any, property: PropertyKey) {
     if (!Reflect.has(target, property)) return true;
-    if (typeof property === 'symbol' || !target.propertyIsEnumerable(property)) {
+    if (
+      typeof property === 'symbol' ||
+      !target.propertyIsEnumerable(property)
+    ) {
       delete target[property];
       return true;
     }
@@ -286,11 +304,18 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     const previous = target[property];
     const propertyPath = `${path}:${property}`;
     delete target[property];
-    _Observable.emitChange(observable, propertyPath, ChangeType.Delete, previous);
+    _Observable.emitChange(
+      observable,
+      propertyPath,
+      ChangeType.Delete,
+      previous,
+    );
     return true;
   }
 }
 
 export type Observable<K> = _Observable<K> & K;
 
-export const Observable = _Observable as { new <T>(data: T): _Observable<T> & T };
+export const Observable = _Observable as {
+  new <T>(data: T): _Observable<T> & T;
+};

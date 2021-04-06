@@ -10,15 +10,10 @@
     "skipLibCheck": true,
     "outDir": "./",
     "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitThis": true,
     "lib": [
       "es2020",
       "dom"

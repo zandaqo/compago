@@ -53,7 +53,10 @@ describe('Observable', () => {
     });
 
     it('handles setters', () => {
-      class ObservableSetters extends Observable<{ answer?: number; _id?: number }> {
+      class ObservableSetters extends Observable<{
+        answer?: number;
+        _id?: number;
+      }> {
         set setAnswer(value: number) {
           this.answer = value;
         }

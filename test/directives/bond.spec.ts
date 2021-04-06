@@ -19,7 +19,9 @@ describe('bond', () => {
     input.setAttribute('type', 'text');
     event = { preventDefault: jest.fn() };
     part = new EventPart(input, 'input', component);
-    part.setValue = jest.fn((f: (event: any) => {}) => (f ? f(event) : undefined));
+    part.setValue = jest.fn((f: (event: any) => {}) =>
+      f ? f(event) : undefined,
+    );
   });
 
   it('handles one way binding between DOM elements and the model', () => {

@@ -32,14 +32,20 @@ describe('Translator', () => {
 
   describe('setLanguage', () => {
     it('changes the current language to a given language', () => {
-      const translator = new Translator({ languages: ['en'], translations: {} });
+      const translator = new Translator({
+        languages: ['en'],
+        translations: {},
+      });
       translator.setLanguage('de-DE');
       expect(translator.language).toBe('de-DE');
       expect(translator.pluralRules).toEqual(new Intl.PluralRules('de-DE'));
     });
 
     it('emits `language-change` event if language has changed', () => {
-      const translator = new Translator({ languages: ['en', 'en-GB'], translations: {} });
+      const translator = new Translator({
+        languages: ['en', 'en-GB'],
+        translations: {},
+      });
       translator.dispatchEvent = jest.fn();
       translator.setLanguage('en');
       expect(translator.dispatchEvent).not.toHaveBeenCalled();
@@ -68,7 +74,10 @@ describe('Translator', () => {
     });
 
     it('uses user language if no language provided', () => {
-      const translator = new Translator({ languages: ['de', 'en'], translations: {} });
+      const translator = new Translator({
+        languages: ['de', 'en'],
+        translations: {},
+      });
       expect(translator.getLanguage()).toBe('en');
     });
   });
@@ -134,11 +143,15 @@ describe('Translator', () => {
         'Hello, a!',
       );
       translator.setLanguage('es');
-      expect(translator.translate(translations, 'hello', { name: 'a' })).toBe('Hola, a!');
+      expect(translator.translate(translations, 'hello', { name: 'a' })).toBe(
+        'Hola, a!',
+      );
     });
 
     it('handles plurals', () => {
-      expect(translator.translate(translations, 'lemons', { count: 0 })).toBe('0 lemons');
+      expect(translator.translate(translations, 'lemons', { count: 0 })).toBe(
+        '0 lemons',
+      );
       expect(translator.translate(translations, 'lemons', { count: 1 })).toBe(
         'One lemon',
       );
@@ -149,7 +162,9 @@ describe('Translator', () => {
       expect(translator.translate(translations, 'lemons', { count: 0 })).toBe(
         '0 limónes',
       );
-      expect(translator.translate(translations, 'lemons', { count: 1 })).toBe('Un limón');
+      expect(translator.translate(translations, 'lemons', { count: 1 })).toBe(
+        'Un limón',
+      );
       expect(translator.translate(translations, 'lemons', { count: 10 })).toBe(
         '10 limónes',
       );
@@ -157,8 +172,14 @@ describe('Translator', () => {
 
     it('reports if translation is missing for a plural rule', () => {
       jest.spyOn(translator, 'reportMissing');
-      expect(translator.translate(translations, 'apples', { count: 10 })).toBe('');
-      expect(translator.reportMissing).toHaveBeenCalledWith(undefined, 'apples', 'other');
+      expect(translator.translate(translations, 'apples', { count: 10 })).toBe(
+        '',
+      );
+      expect(translator.reportMissing).toHaveBeenCalledWith(
+        undefined,
+        'apples',
+        'other',
+      );
       (translator.reportMissing as jest.Mock).mockRestore();
     });
 
@@ -179,7 +200,9 @@ describe('Translator', () => {
     });
 
     it('formats dates', () => {
-      expect(translator.translate(translations, 'date', new Date(0))).toBe('1970 A');
+      expect(translator.translate(translations, 'date', new Date(0))).toBe(
+        '1970 A',
+      );
       translator.setLanguage('es');
       expect(translator.translate(translations, 'date', new Date(0))).toBe(
         '70 después de Cristo',
@@ -197,7 +220,9 @@ describe('Translator', () => {
     });
 
     it('formats relative time', () => {
-      expect(translator.translate(translations, 'ago', [2, 'day'])).toBe('in 2 days');
+      expect(translator.translate(translations, 'ago', [2, 'day'])).toBe(
+        'in 2 days',
+      );
       translator.setLanguage('es');
       expect(translator.translate(translations, 'ago', [2, 'day'])).toBe(
         'dentro de 2 días',
@@ -209,7 +234,10 @@ describe('Translator', () => {
 
   describe('initialize', () => {
     it('creates and sets up a global translator', () => {
-      const translator = Translator.initialize({ languages: ['en'], translations: {} });
+      const translator = Translator.initialize({
+        languages: ['en'],
+        translations: {},
+      });
       expect((globalThis as any)[Symbol.for('c-translator')]).toBe(translator);
     });
   });

@@ -121,7 +121,9 @@ export class Translator extends EventTarget {
     key: string,
     rule?: string,
   ): void {
-    this.dispatchEvent(MissingTranslationEvent.create({ component, key, rule }));
+    this.dispatchEvent(
+      MissingTranslationEvent.create({ component, key, rule }),
+    );
   }
 
   /**
@@ -147,7 +149,9 @@ export class Translator extends EventTarget {
     if (translation) {
       if (!interpolation) return translation as string;
       if (typeof interpolation.count === 'number') {
-        const rule: Intl.LDMLPluralRule = this.pluralRules.select(interpolation.count);
+        const rule: Intl.LDMLPluralRule = this.pluralRules.select(
+          interpolation.count,
+        );
         const pluralTranslation =
           (translation as PluralTranslation)[rule] ||
           (translation as PluralTranslation).other;
@@ -185,7 +189,10 @@ export class Translator extends EventTarget {
    * @param symbol
    * @returns
    */
-  static initialize(options: TranslatorOptions, symbol = sTranslator): Translator {
+  static initialize(
+    options: TranslatorOptions,
+    symbol = sTranslator,
+  ): Translator {
     const translator = new Translator(options);
     (globalThis as any)[symbol] = translator;
     return translator;

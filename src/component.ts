@@ -10,15 +10,11 @@ const sCurrentPath = Symbol.for('c-current-path');
 const sObservable = Symbol.for('c-observable');
 const sRoutes = Symbol.for('c-routes');
 
-type Routes = {
-  [route: string]: RegExp;
-};
-
 export class Component<T = unknown> extends LitElement {
   rootPath?: string;
   [sObservable]?: Observable<T>;
   [sCurrentPath]?: string;
-  [sRoutes]?: Routes;
+  [sRoutes]?: Record<string, RegExp>;
   static translations?: Translations;
 
   /**
@@ -46,11 +42,11 @@ export class Component<T = unknown> extends LitElement {
   /**
    * The routes defined on the component.
    */
-  get routes(): Routes | undefined {
+  get routes() {
     return this[sRoutes];
   }
 
-  set routes(routes: Routes | undefined) {
+  set routes(routes) {
     const oldRoutes = this.routes;
     if (oldRoutes === routes) return;
     this[sCurrentPath] = '';
@@ -58,7 +54,8 @@ export class Component<T = unknown> extends LitElement {
     if (!routes) {
       globalThis.removeEventListener('popstate', this.onPopstate);
     } else {
-      if (!isBound(this.onPopstate)) this.onPopstate = this.onPopstate.bind(this);
+      if (!isBound(this.onPopstate))
+        this.onPopstate = this.onPopstate.bind(this);
       globalThis.addEventListener('popstate', this.onPopstate);
     }
   }
@@ -114,7 +111,9 @@ export class Component<T = unknown> extends LitElement {
     hash?: string,
     state?: any,
   ): void {
-    this.dispatchEvent(RouteEvent.create({ route: name, params, query, hash, state }));
+    this.dispatchEvent(
+      RouteEvent.create({ route: name, params, query, hash, state }),
+    );
   }
 
   /**
@@ -137,7 +136,9 @@ export class Component<T = unknown> extends LitElement {
       if (!match) continue;
       const params = match.groups || {};
       const hash = decodeURIComponent(location.hash);
-      const query = location.search ? new URLSearchParams(location.search) : undefined;
+      const query = location.search
+        ? new URLSearchParams(location.search)
+        : undefined;
       this.route(name, params, query, hash, event.state);
       return;
     }

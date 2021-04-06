@@ -16,15 +16,27 @@ describe('RESTRepository', () => {
 
   describe('exists', () => {
     it('checks if an entity was persisted', async () => {
-      expect(await repository.exists({ _id: 1 })).toEqual({ ok: true, value: true });
-      expect(await repository.exists({ _id: null })).toEqual({ ok: true, value: false });
+      expect(await repository.exists({ _id: 1 })).toEqual({
+        ok: true,
+        value: true,
+      });
+      expect(await repository.exists({ _id: null })).toEqual({
+        ok: true,
+        value: false,
+      });
       expect(await repository.exists({ _id: undefined })).toEqual({
         ok: true,
         value: false,
       });
-      expect(await repository.exists({ _id: false })).toEqual({ ok: true, value: true });
+      expect(await repository.exists({ _id: false })).toEqual({
+        ok: true,
+        value: true,
+      });
       const idRepo = new RESTRepository(Object, '', 'id');
-      expect(await idRepo.exists({ _id: 1 })).toEqual({ ok: true, value: false });
+      expect(await idRepo.exists({ _id: 1 })).toEqual({
+        ok: true,
+        value: false,
+      });
       expect(await idRepo.exists({ id: 1 })).toEqual({ ok: true, value: true });
     });
   });
@@ -34,7 +46,10 @@ describe('RESTRepository', () => {
       jest
         .spyOn(RESTRepository, 'fetch')
         .mockReturnValue(Promise.resolve(Result.ok([{ a: 1 }])));
-      const result = await repository.query<{ a: number }>({ a: '1', b: '1' }, '/abc');
+      const result = await repository.query<{ a: number }>(
+        { a: '1', b: '1' },
+        '/abc',
+      );
       expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/abc?a=1&b=1');
       expect(result.ok).toBe(true);
       expect(result.value).toEqual([{ a: 1 }]);

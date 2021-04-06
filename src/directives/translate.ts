@@ -5,7 +5,9 @@ type TranslatableComponent = {
 };
 
 export const translate = directive(
-  (ctor: TranslatableComponent, key: string, interpolation?: any) => (part: NodePart) => {
+  (ctor: TranslatableComponent, key: string, interpolation?: any) => (
+    part: NodePart,
+  ) => {
     part.setValue(ctor.translate(key, interpolation));
   },
 );

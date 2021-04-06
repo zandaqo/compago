@@ -11,7 +11,15 @@ type ComponentBond = {
 };
 
 export const bond = directive((binding: ComponentBond) => (part: EventPart) => {
-  const { to, parse, prevent, property = 'value', attribute, value, validate } = binding;
+  const {
+    to,
+    parse,
+    prevent,
+    property = 'value',
+    attribute,
+    value,
+    validate,
+  } = binding;
   let path = to;
   let recipient = part.eventContext;
   if (path[0] === ':') {
@@ -36,7 +44,11 @@ export const bond = directive((binding: ComponentBond) => (part: EventPart) => {
             : attribute != null
             ? part.element.getAttribute(attribute)
             : (part.element as any)[property];
-          if (typeof validate === 'function' && !validate(part.element, content)) return;
+          if (
+            typeof validate === 'function' &&
+            !validate(part.element, content)
+          )
+            return;
           if (typeof parse === 'function') content = parse(content);
           (recipient as any)[path] = content;
         },
