@@ -1,12 +1,13 @@
 import { LitElement } from 'lit-element';
-import { Translations, Translator, sTranslator } from './translator';
-import { sObservable, Observable } from './observable';
+import type { Translations, Translator } from './translator';
+import type { Observable } from './observable';
 import { RouteEvent } from './events/route';
 import { isBound } from './utilities';
 import { ChangeEvent } from './events/change';
 
+const sTranslator = Symbol.for('c-translator');
 const sCurrentPath = Symbol.for('c-current-path');
-
+const sObservable = Symbol.for('c-observable');
 const sRoutes = Symbol.for('c-routes');
 
 type Routes = {

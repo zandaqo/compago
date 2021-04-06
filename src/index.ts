@@ -9,4 +9,5 @@ export { Observable } from './observable';
 export { Component } from './component';
 export { Translator } from './translator';
 export { Result } from './result';
+export { Repository } from './repository';
 export { RESTRepository } from './rest-repository';

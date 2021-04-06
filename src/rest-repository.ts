@@ -1,4 +1,4 @@
-import { Repository } from './repository';
+import type { Repository } from './repository';
 import { Result } from './result';
 
 export class RESTRepository<T extends Object> implements Repository<T> {

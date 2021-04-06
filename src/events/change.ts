@@ -1,10 +1,12 @@
-export enum ChangeType {
-  Set = 'SET',
-  Delete = 'DELETE',
-  Add = 'ADD',
-  Remove = 'REMOVE',
-  Sort = 'SORT',
-}
+export const ChangeType = {
+  Set: 'SET',
+  Delete: 'DELETE',
+  Add: 'ADD',
+  Remove: 'REMOVE',
+  Sort: 'SORT',
+} as const;
+
+export type ChangeType = typeof ChangeType[keyof typeof ChangeType];
 
 type ChangeEventDetail = {
   path: string;

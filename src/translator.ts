@@ -3,7 +3,7 @@ import { MissingTranslationEvent } from './events/missing-translation';
 
 type PluralTranslation = Partial<Record<Intl.LDMLPluralRule, string>>;
 
-export const sTranslator = Symbol.for('c-translator');
+const sTranslator = Symbol.for('c-translator');
 
 export type Translations = {
   [language: string]: {

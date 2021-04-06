@@ -1,4 +1,4 @@
-import { Result } from './result';
+import type { Result } from './result';
 
 export interface Repository<T extends Object> {
   exists(value: T): Promise<Result<boolean, unknown>>;

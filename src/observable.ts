@@ -3,7 +3,7 @@ import { isEqual, isObservableObject } from './utilities';
 
 const sPath = Symbol.for('c-path');
 
-export const sObservable = Symbol.for('c-observable');
+const sObservable = Symbol.for('c-observable');
 
 const watchedArrayMethods = new Set([
   'push',
