@@ -1,6 +1,6 @@
 import { directive, EventPart } from 'lit-html';
 
-type ControllerBond = {
+type ComponentBond = {
   to: string;
   parse?: Function;
   validate?: (element: Element, content: any) => boolean;
@@ -10,7 +10,7 @@ type ControllerBond = {
   value?: any;
 };
 
-export const bond = directive((binding: ControllerBond) => (part: EventPart) => {
+export const bond = directive((binding: ComponentBond) => (part: EventPart) => {
   const { to, parse, prevent, property = 'value', attribute, value, validate } = binding;
   let path = to;
   let recipient = part.eventContext;

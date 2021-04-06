@@ -13,32 +13,12 @@ type Routes = {
   [route: string]: RegExp;
 };
 
-export class Controller<T = any> extends LitElement {
+export class Component<T = unknown> extends LitElement {
   rootPath?: string;
   [sObservable]?: Observable<T>;
   [sCurrentPath]?: string;
   [sRoutes]?: Routes;
   static translations?: Translations;
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    const { translator } = this.constructor as typeof Controller;
-    if (translator) {
-      if (!isBound(this.onLanguageChange))
-        this.onLanguageChange = this.onLanguageChange.bind(this);
-      translator.addEventListener('language-change', this.onLanguageChange);
-    }
-  }
-
-  disconnectedCallback(): void {
-    const { translator } = this.constructor as typeof Controller;
-    if (translator) {
-      translator.removeEventListener('language-change', this.onLanguageChange);
-    }
-    if (this.model) this.model = undefined;
-    if (this.routes) this.routes = undefined;
-    super.disconnectedCallback();
-  }
 
   /**
    * The component's model
@@ -63,13 +43,6 @@ export class Controller<T = any> extends LitElement {
   }
 
   /**
-   * Handles `change` events of the component's model.
-   */
-  onModelChange(_: ChangeEvent): void {
-    this.requestUpdate();
-  }
-
-  /**
    * The routes defined on the component.
    */
   get routes(): Routes | undefined {
@@ -87,6 +60,40 @@ export class Controller<T = any> extends LitElement {
       if (!isBound(this.onPopstate)) this.onPopstate = this.onPopstate.bind(this);
       globalThis.addEventListener('popstate', this.onPopstate);
     }
+  }
+
+  /**
+   * The translator instance used by the component.
+   */
+  static get translator(): Translator | undefined {
+    return (globalThis as any)[sTranslator];
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    const { translator } = this.constructor as typeof Component;
+    if (translator) {
+      if (!isBound(this.onLanguageChange))
+        this.onLanguageChange = this.onLanguageChange.bind(this);
+      translator.addEventListener('language-change', this.onLanguageChange);
+    }
+  }
+
+  disconnectedCallback(): void {
+    const { translator } = this.constructor as typeof Component;
+    if (translator) {
+      translator.removeEventListener('language-change', this.onLanguageChange);
+    }
+    if (this.model) this.model = undefined;
+    if (this.routes) this.routes = undefined;
+    super.disconnectedCallback();
+  }
+
+  /**
+   * Handles `change` events of the component's model.
+   */
+  onModelChange(_: ChangeEvent): void {
+    this.requestUpdate();
   }
 
   /**
@@ -140,13 +147,6 @@ export class Controller<T = any> extends LitElement {
    */
   async onLanguageChange(): Promise<void> {
     await this.requestUpdate();
-  }
-
-  /**
-   * The translator instance used by the component.
-   */
-  static get translator(): Translator | undefined {
-    return (globalThis as any)[sTranslator];
   }
 
   /**

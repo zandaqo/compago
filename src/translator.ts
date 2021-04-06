@@ -57,11 +57,11 @@ export interface Translator {
  *
  */
 export class Translator extends EventTarget {
-  language: string;
   globalPrefix: string;
+  language: string;
   languages: Array<string>;
-  translations: Translations;
   pluralRules: Intl.PluralRules;
+  translations: Translations;
 
   /**
    * @param options

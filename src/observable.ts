@@ -1,5 +1,5 @@
 import { ChangeEvent, ChangeType } from './events/change';
-import { isObservableObject, isEqual } from './utilities';
+import { isEqual, isObservableObject } from './utilities';
 
 const sPath = Symbol.for('c-path');
 
@@ -24,16 +24,19 @@ export interface _Observable {
     listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions,
   ): void;
+
   addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ): void;
+
   removeEventListener<K extends keyof ObservableEventMap>(
     type: K,
     listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions,
   ): void;
+
   removeEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
@@ -42,13 +45,12 @@ export interface _Observable {
 }
 
 export class _Observable<T extends Object = Object> extends EventTarget {
-  static readonly handler: ProxyHandler<any> = {
+  static readonly arrayHandler: ProxyHandler<any> = {
+    get: _Observable.arrayGetTrap,
     set: _Observable.setTrap,
     deleteProperty: _Observable.deletePropertyTrap,
   };
-
-  static readonly arrayHandler: ProxyHandler<any> = {
-    get: _Observable.arrayGetTrap,
+  static readonly handler: ProxyHandler<any> = {
     set: _Observable.setTrap,
     deleteProperty: _Observable.deletePropertyTrap,
   };
