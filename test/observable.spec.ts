@@ -1,4 +1,5 @@
 import { Observable } from '../src/observable';
+import { jest } from '@jest/globals';
 
 interface IData {
   answer: number;
@@ -14,7 +15,7 @@ class DataObservable extends Observable<IData> {}
 
 describe('Observable', () => {
   let observable: DataObservable;
-  let spy: jest.Mock;
+  let spy: jest.MockedFunction<any>;
 
   beforeEach(() => {
     observable = new DataObservable({

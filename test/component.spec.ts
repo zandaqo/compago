@@ -1,6 +1,7 @@
 import { ChangeEvent, Component } from '../src';
 import { Observable } from '../src';
 import { Translator } from '../src';
+import { jest } from '@jest/globals';
 
 class ComponentClass extends Component<any> {}
 ComponentClass.translations = { en: { two: 'two' }, es: { two: 'dos' } };
@@ -182,7 +183,7 @@ describe('Component', () => {
       globalThis.history.replaceState(state, '', '/user/arthur?a=b#c');
       globalThis.dispatchEvent(new PopStateEvent('popstate', { state }));
       expect(callback).toHaveBeenCalled();
-      expect(callback.mock.calls[0][0].detail).toMatchObject({
+      expect((callback.mock.calls[0][0] as any).detail).toMatchObject({
         route: 'user',
         params: {
           name: 'arthur',

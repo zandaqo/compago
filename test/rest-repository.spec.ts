@@ -1,5 +1,6 @@
 import { RESTRepository } from '../src/rest-repository';
 import { Result } from '../src/result';
+import { jest } from '@jest/globals';
 
 describe('RESTRepository', () => {
   let repository: RESTRepository<Object>;

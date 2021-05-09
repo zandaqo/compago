@@ -1,20 +1,44 @@
-import { directive, EventPart } from 'lit-html';
+import {
+  directive,
+  Directive,
+  EventPart,
+  PartInfo,
+  PartType,
+} from 'lit-html/directive.js';
 
-export const navigate = directive(
-  (href?: string, state: any = {}) => (part: EventPart) => {
-    const path = href || (part.element as any).href;
-    part.setValue(
-      path
-        ? (event) => {
-            event.preventDefault();
-            globalThis.history.pushState(
-              state,
-              globalThis.document.title,
-              path,
-            );
-            globalThis.dispatchEvent(new PopStateEvent('popstate', { state }));
-          }
-        : undefined,
-    );
-  },
-);
+class Navigate extends Directive {
+  path: string | undefined;
+  state: unknown;
+  constructor(partInfo: PartInfo) {
+    super(partInfo);
+    if (partInfo.type !== PartType.EVENT) {
+      throw new Error('navigate only supports event expressions');
+    }
+    this.handler = this.handler.bind(this);
+  }
+
+  update(
+    part: EventPart,
+    [href, state]: [string | undefined, unknown],
+  ): unknown {
+    this.path = href;
+    this.state = state;
+    if (!href) {
+      this.path = part.element.getAttribute('href')!;
+    }
+    return this.render();
+  }
+
+  // @ts-ignore
+  render(path?: string, state?: unknown): unknown {
+    return this.handler;
+  }
+
+  handler(event: Event): void {
+    event.preventDefault();
+    window.history.pushState(this.state, globalThis.document.title, this.path);
+    window.dispatchEvent(new PopStateEvent('popstate', { state: this.state }));
+  }
+}
+
+export const navigate = directive(Navigate);
