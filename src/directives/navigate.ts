@@ -4,7 +4,7 @@ import {
   EventPart,
   PartInfo,
   PartType,
-} from 'lit-html/directive.js';
+} from "lit-html/directive.js";
 
 class Navigate extends Directive {
   path: string | undefined;
@@ -12,19 +12,19 @@ class Navigate extends Directive {
   constructor(partInfo: PartInfo) {
     super(partInfo);
     if (partInfo.type !== PartType.EVENT) {
-      throw new Error('navigate only supports event expressions');
+      throw new Error("navigate only supports event expressions");
     }
     this.handler = this.handler.bind(this);
   }
 
   update(
     part: EventPart,
-    [href, state]: [string | undefined, unknown],
+    [href, state]: [string | undefined, unknown]
   ): unknown {
     this.path = href;
     this.state = state;
     if (!href) {
-      this.path = part.element.getAttribute('href')!;
+      this.path = part.element.getAttribute("href")!;
     }
     return this.render();
   }
@@ -37,7 +37,7 @@ class Navigate extends Directive {
   handler(event: Event): void {
     event.preventDefault();
     window.history.pushState(this.state, globalThis.document.title, this.path);
-    window.dispatchEvent(new PopStateEvent('popstate', { state: this.state }));
+    window.dispatchEvent(new PopStateEvent("popstate", { state: this.state }));
   }
 }
 

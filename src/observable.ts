@@ -1,17 +1,17 @@
-import { ChangeEvent, ChangeType } from './events/change';
-import { isEqual, isObservableObject } from './utilities';
+import { ChangeEvent, ChangeType } from "./events/change";
+import { isEqual, isObservableObject } from "./utilities";
 
-const sPath = Symbol.for('c-path');
+const sPath = Symbol.for("c-path");
 
-const sObservable = Symbol.for('c-observable');
+const sObservable = Symbol.for("c-observable");
 
 const watchedArrayMethods = new Set([
-  'push',
-  'pop',
-  'unshift',
-  'shift',
-  'splice',
-  'sort',
+  "push",
+  "pop",
+  "unshift",
+  "shift",
+  "splice",
+  "sort",
 ]);
 
 interface ObservableEventMap {
@@ -22,25 +22,25 @@ export interface _Observable {
   addEventListener<K extends keyof ObservableEventMap>(
     type: K,
     listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
 
   addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
 
   removeEventListener<K extends keyof ObservableEventMap>(
     type: K,
     listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
 
   removeEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
 }
 
@@ -60,20 +60,20 @@ export class _Observable<T extends Object = Object> extends EventTarget {
    */
   constructor(properties: T) {
     super();
-    Reflect.defineProperty(this, 'addEventListener', {
+    Reflect.defineProperty(this, "addEventListener", {
       value: this.addEventListener.bind(this),
       writable: true,
     });
-    Reflect.defineProperty(this, 'removeEventListener', {
+    Reflect.defineProperty(this, "removeEventListener", {
       value: this.removeEventListener.bind(this),
       writable: true,
     });
-    Reflect.defineProperty(this, 'dispatchEvent', {
+    Reflect.defineProperty(this, "dispatchEvent", {
       value: this.dispatchEvent.bind(this),
       writable: true,
     });
     this.assign(properties);
-    return _Observable.getProxy(this, '', this, [this]);
+    return _Observable.getProxy(this, "", this, [this]);
   }
 
   /**
@@ -130,10 +130,10 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     path: string,
     type: ChangeType,
     previous?: any,
-    elements?: any,
+    elements?: any
   ): void {
     observable.dispatchEvent(
-      ChangeEvent.create({ path, type, previous, elements }),
+      ChangeEvent.create({ path, type, previous, elements })
     );
   }
 
@@ -149,7 +149,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     path: string,
     observable: _Observable,
-    processed: Array<any>,
+    processed: Array<any>
   ) {
     let proxy;
     // if the target already has a proxy
@@ -184,7 +184,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     path: string,
     observable: _Observable,
-    processed: Array<any>,
+    processed: Array<any>
   ): void {
     const keys = Object.keys(target);
     for (const key of keys) {
@@ -194,7 +194,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
           target[key],
           `${path}:${key}`,
           observable,
-          processed,
+          processed
         );
       }
     }
@@ -203,42 +203,42 @@ export class _Observable<T extends Object = Object> extends EventTarget {
   private static arrayGetTrap(
     target: any,
     property: PropertyKey,
-    receiver: any,
+    receiver: any
   ): any {
-    if (typeof property === 'string' && watchedArrayMethods.has(property)) {
+    if (typeof property === "string" && watchedArrayMethods.has(property)) {
       return (...args: any[]) => {
         const value = target[property](...args);
         _Observable.setProxies(target, receiver[sPath], receiver[sObservable], [
           receiver,
         ]);
         switch (property) {
-          case 'push':
-          case 'unshift':
+          case "push":
+          case "unshift":
             _Observable.emitChange(
               target[sObservable],
               target[sPath],
               ChangeType.Add,
               undefined,
-              args,
+              args
             );
             break;
-          case 'shift':
-          case 'pop':
+          case "shift":
+          case "pop":
             _Observable.emitChange(
               target[sObservable],
               target[sPath],
               ChangeType.Remove,
               undefined,
-              value,
+              value
             );
             break;
-          case 'splice':
+          case "splice":
             _Observable.emitChange(
               target[sObservable],
               target[sPath],
               ChangeType.Remove,
               undefined,
-              value,
+              value
             );
             if (args.length > 2) {
               _Observable.emitChange(
@@ -246,15 +246,15 @@ export class _Observable<T extends Object = Object> extends EventTarget {
                 target[sPath],
                 ChangeType.Add,
                 undefined,
-                args.slice(2),
+                args.slice(2)
               );
             }
             break;
-          case 'sort':
+          case "sort":
             _Observable.emitChange(
               target[sObservable],
               target[sPath],
-              ChangeType.Sort,
+              ChangeType.Sort
             );
             break;
         }
@@ -268,11 +268,11 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     property: PropertyKey,
     value: any,
-    receiver: any,
+    receiver: any
   ): boolean {
     // do not track symbols or non-enumerable properties
     if (
-      typeof property === 'symbol' ||
+      typeof property === "symbol" ||
       (Reflect.has(target, property) && !target.propertyIsEnumerable(property))
     ) {
       Reflect.set(target, property, value, receiver);
@@ -293,7 +293,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
   private static deletePropertyTrap(target: any, property: PropertyKey) {
     if (!Reflect.has(target, property)) return true;
     if (
-      typeof property === 'symbol' ||
+      typeof property === "symbol" ||
       !target.propertyIsEnumerable(property)
     ) {
       delete target[property];
@@ -308,7 +308,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
       observable,
       propertyPath,
       ChangeType.Delete,
-      previous,
+      previous
     );
     return true;
   }

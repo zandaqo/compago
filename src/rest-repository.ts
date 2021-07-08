@@ -1,19 +1,18 @@
-import type { Repository } from './repository';
-import { Result } from './result';
+import type { Repository } from "./repository";
+import { Result } from "./result";
 
-export class RESTRepository<T extends Object> implements Repository<T> {
+export class RESTRepository<T extends object> implements Repository<T> {
   static init: Partial<RequestInit> = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
+      "Content-Type": "application/json",
     },
   };
 
   constructor(
     private EntityClass: { new (...args: any[]): T },
     private url: string,
-    private idProperty = '_id',
+    private idProperty = "_id",
   ) {}
 
   exists(value: T): Promise<Result<boolean, undefined>> {
@@ -22,7 +21,7 @@ export class RESTRepository<T extends Object> implements Repository<T> {
 
   async query<U>(
     search?: Record<string, string>,
-    path = '',
+    path = "",
   ): Promise<Result<U, undefined | Response | TypeError>> {
     let { url } = this;
     if (path) url += path;
@@ -35,12 +34,12 @@ export class RESTRepository<T extends Object> implements Repository<T> {
 
   async command<U>(
     body: unknown,
-    path = '',
+    path = "",
   ): Promise<Result<U | undefined, Response | TypeError>> {
     let { url } = this;
     if (path) url += path;
     return await RESTRepository.fetch<U>(url, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(body),
     });
   }
@@ -48,9 +47,9 @@ export class RESTRepository<T extends Object> implements Repository<T> {
   async get(
     search?: Record<string, string>,
   ): Promise<Result<Array<T>, undefined | Response | TypeError>> {
-    const result = await this.query<Array<any>>(search);
+    const result = await this.query<Array<T>>(search);
     if (!result.ok) return result;
-    return Result.ok(result.value.map((i) => this.deserialize(i)));
+    return Result.ok(this.deserializeMany(result.value));
   }
 
   create(value: T) {
@@ -63,35 +62,39 @@ export class RESTRepository<T extends Object> implements Repository<T> {
     return Result.ok(this.deserialize(result.value));
   }
 
-  update(_: any, updates: any) {
+  update(_: unknown, updates: any) {
     return this.save(updates);
   }
 
   async delete(id: string) {
     return RESTRepository.fetch(`${this.url}/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
-  serialize(entity: T): string {
+  serialize(entity: T): unknown {
     return JSON.stringify(entity);
   }
 
-  deserialize(value: any): T {
+  deserialize(value: unknown): T {
     return new this.EntityClass(value);
+  }
+
+  deserializeMany(value: unknown): Array<T> {
+    return (value as Array<unknown>).map((i) => this.deserialize(i));
   }
 
   async save(value: T) {
     let { url } = this;
-    let method = 'POST';
+    let method = "POST";
     const exists = await this.exists(value);
     if (exists.value) {
-      method = 'PUT';
+      method = "PUT";
       url += `/${(value as any)[this.idProperty]}`;
     }
     return RESTRepository.fetch(url, {
       method,
-      body: this.serialize(value),
+      body: this.serialize(value) as string,
     });
   }
 
@@ -102,11 +105,14 @@ export class RESTRepository<T extends Object> implements Repository<T> {
     try {
       const response = await globalThis.fetch(url, { ...this.init, ...init });
       if (response.ok || response.status === 304) {
-        const contentType = response.headers.get('Content-Type');
-        if (!contentType || contentType.indexOf('application/json') === -1)
-          return Result.ok(undefined);
-        const body = await response.json();
-        return Result.ok(body);
+        const contentType = response.headers.get("Content-Type");
+        if (contentType) {
+          const body: T = contentType.includes("application/json")
+            ? await response.json()
+            : await response.arrayBuffer();
+          return Result.ok(body);
+        }
+        return Result.ok(undefined);
       } else {
         return Result.fail(response);
       }

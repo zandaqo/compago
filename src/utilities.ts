@@ -1,10 +1,10 @@
 export function isBound(f: Function): boolean {
-  return f.name.startsWith('bound ');
+  return f.name.startsWith("bound ");
 }
 
 export function isObservableObject(value: any): boolean {
   const type = Object.prototype.toString.call(value);
-  return type === '[object Object]' || type === '[object Array]';
+  return type === "[object Object]" || type === "[object Array]";
 }
 
 /**
@@ -20,7 +20,7 @@ export function isObservableObject(value: any): boolean {
 export function isEqual(a: any, b: any): boolean {
   if (a === b) return true;
 
-  if (a && b && typeof a === 'object' && typeof b === 'object') {
+  if (a && b && typeof a === "object" && typeof b === "object") {
     const arrA = Array.isArray(a);
     const arrB = Array.isArray(b);
     let i;

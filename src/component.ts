@@ -1,14 +1,14 @@
-import { LitElement } from 'lit-element';
-import type { Translations, Translator } from './translator';
-import type { Observable } from './observable';
-import { RouteEvent } from './events/route';
-import { isBound } from './utilities';
-import { ChangeEvent } from './events/change';
+import { LitElement } from "lit-element";
+import type { Translations, Translator } from "./translator";
+import type { Observable } from "./observable";
+import { RouteEvent } from "./events/route";
+import { isBound } from "./utilities";
+import { ChangeEvent } from "./events/change";
 
-const sTranslator = Symbol.for('c-translator');
-const sCurrentPath = Symbol.for('c-current-path');
-const sObservable = Symbol.for('c-observable');
-const sRoutes = Symbol.for('c-routes');
+const sTranslator = Symbol.for("c-translator");
+const sCurrentPath = Symbol.for("c-current-path");
+const sObservable = Symbol.for("c-observable");
+const sRoutes = Symbol.for("c-routes");
 
 export class Component<T = unknown> extends LitElement {
   rootPath?: string;
@@ -28,12 +28,12 @@ export class Component<T = unknown> extends LitElement {
     const oldModel = this.model;
     if (oldModel === model) return;
     if (oldModel) {
-      oldModel.removeEventListener('change', this.onModelChange);
+      oldModel.removeEventListener("change", this.onModelChange);
     }
     if (model) {
       if (!isBound(this.onModelChange))
         this.onModelChange = this.onModelChange.bind(this);
-      model.addEventListener('change', this.onModelChange);
+      model.addEventListener("change", this.onModelChange);
       this.requestUpdate();
     }
     this[sObservable] = model;
@@ -49,14 +49,14 @@ export class Component<T = unknown> extends LitElement {
   set routes(routes) {
     const oldRoutes = this.routes;
     if (oldRoutes === routes) return;
-    this[sCurrentPath] = '';
+    this[sCurrentPath] = "";
     this[sRoutes] = routes;
     if (!routes) {
-      globalThis.removeEventListener('popstate', this.onPopstate);
+      globalThis.removeEventListener("popstate", this.onPopstate);
     } else {
       if (!isBound(this.onPopstate))
         this.onPopstate = this.onPopstate.bind(this);
-      globalThis.addEventListener('popstate', this.onPopstate);
+      globalThis.addEventListener("popstate", this.onPopstate);
     }
   }
 
@@ -73,14 +73,14 @@ export class Component<T = unknown> extends LitElement {
     if (translator) {
       if (!isBound(this.onLanguageChange))
         this.onLanguageChange = this.onLanguageChange.bind(this);
-      translator.addEventListener('language-change', this.onLanguageChange);
+      translator.addEventListener("language-change", this.onLanguageChange);
     }
   }
 
   disconnectedCallback(): void {
     const { translator } = this.constructor as typeof Component;
     if (translator) {
-      translator.removeEventListener('language-change', this.onLanguageChange);
+      translator.removeEventListener("language-change", this.onLanguageChange);
     }
     if (this.model) this.model = undefined;
     if (this.routes) this.routes = undefined;
@@ -109,10 +109,10 @@ export class Component<T = unknown> extends LitElement {
     params: Record<string, string>,
     query?: URLSearchParams,
     hash?: string,
-    state?: any,
+    state?: any
   ): void {
     this.dispatchEvent(
-      RouteEvent.create({ route: name, params, query, hash, state }),
+      RouteEvent.create({ route: name, params, query, hash, state })
     );
   }
 
@@ -121,7 +121,7 @@ export class Component<T = unknown> extends LitElement {
    * if an appropriate route is found.
    */
   onPopstate(event: PopStateEvent): void {
-    const { rootPath: root = '', [sRoutes]: routes = {} } = this;
+    const { rootPath: root = "", [sRoutes]: routes = {} } = this;
     const { location } = globalThis;
     let path = decodeURIComponent(location.pathname);
     if (path === this[sCurrentPath]) return;

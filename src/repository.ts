@@ -1,6 +1,6 @@
-import type { Result } from './result';
+import type { Result } from "./result";
 
-export interface Repository<T extends Object> {
+export interface Repository<T extends object> {
   exists(value: T): Promise<Result<boolean, unknown>>;
   get(...args: Array<unknown>): Promise<Result<Array<T>, unknown>>;
   create(value: T): Promise<Result<unknown, unknown>>;

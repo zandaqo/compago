@@ -1,22 +1,22 @@
-import { RESTRepository } from '../src/rest-repository';
-import { Result } from '../src/result';
-import { jest } from '@jest/globals';
+import { RESTRepository } from "../src/rest-repository";
+import { Result } from "../src/result";
+import { jest } from "@jest/globals";
 
-describe('RESTRepository', () => {
+describe("RESTRepository", () => {
   let repository: RESTRepository<Object>;
 
   beforeEach(() => {
-    repository = new RESTRepository(Object, '/things');
+    repository = new RESTRepository(Object, "/things");
   });
 
-  describe('constructor', () => {
-    it('creates and instant of repository', () => {
+  describe("constructor", () => {
+    it("creates and instant of repository", () => {
       expect(repository instanceof RESTRepository).toBe(true);
     });
   });
 
-  describe('exists', () => {
-    it('checks if an entity was persisted', async () => {
+  describe("exists", () => {
+    it("checks if an entity was persisted", async () => {
       expect(await repository.exists({ _id: 1 })).toEqual({
         ok: true,
         value: true,
@@ -33,7 +33,7 @@ describe('RESTRepository', () => {
         ok: true,
         value: true,
       });
-      const idRepo = new RESTRepository(Object, '', 'id');
+      const idRepo = new RESTRepository(Object, "", "id");
       expect(await idRepo.exists({ _id: 1 })).toEqual({
         ok: true,
         value: false,
@@ -42,31 +42,31 @@ describe('RESTRepository', () => {
     });
   });
 
-  describe('query', () => {
-    it('queries an url with optional search parameters', async () => {
+  describe("query", () => {
+    it("queries an url with optional search parameters", async () => {
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok([{ a: 1 }])));
       const result = await repository.query<{ a: number }>(
-        { a: '1', b: '1' },
-        '/abc',
+        { a: "1", b: "1" },
+        "/abc"
       );
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/abc?a=1&b=1');
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/abc?a=1&b=1");
       expect(result.ok).toBe(true);
       expect(result.value).toEqual([{ a: 1 }]);
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
   });
 
-  describe('command', () => {
-    it('', async () => {
+  describe("command", () => {
+    it("", async () => {
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok([{ a: 1 }])));
-      const body = { a: '1', b: '1' };
-      const result = await repository.command<{ a: number }>(body, '/abc');
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/abc', {
-        method: 'POST',
+      const body = { a: "1", b: "1" };
+      const result = await repository.command<{ a: number }>(body, "/abc");
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/abc", {
+        method: "POST",
         body: JSON.stringify(body),
       });
       expect(result.ok).toBe(true);
@@ -75,105 +75,105 @@ describe('RESTRepository', () => {
     });
   });
 
-  describe('get', () => {
-    it('queries REST endpoint with optional search parameters', async () => {
+  describe("get", () => {
+    it("queries REST endpoint with optional search parameters", async () => {
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok([{}])));
-      const result = await repository.get({ a: '1', b: '1' });
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things?a=1&b=1');
+      const result = await repository.get({ a: "1", b: "1" });
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things?a=1&b=1");
       expect(result.ok).toBe(true);
       expect(result.value).toEqual([{}]);
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
-    it('queries an endpoint without search parameters', async () => {
+    it("queries an endpoint without search parameters", async () => {
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok([{}])));
       await repository.get();
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things');
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things");
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
-    it('proxies failed response when fetch fails', async () => {
+    it("proxies failed response when fetch fails", async () => {
       const error = new TypeError();
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.fail(error)));
       const result = await repository.get();
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things');
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things");
       expect(result.ok).toBe(false);
       expect(result.value).toBe(error);
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
   });
 
-  describe('read', () => {
-    it('fetches entity from endpoint by id', async () => {
-      const entity = { _id: 'a' };
+  describe("read", () => {
+    it("fetches entity from endpoint by id", async () => {
+      const entity = { _id: "a" };
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok(entity)));
-      const result = await repository.read('a');
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a');
+      const result = await repository.read("a");
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/a");
       expect(result.ok).toBe(true);
       expect(result.value).toEqual(entity);
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
-    it('proxies failed response when fetch fails', async () => {
+    it("proxies failed response when fetch fails", async () => {
       const error = new TypeError();
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.fail(error)));
-      const result = await repository.read('a');
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a');
+      const result = await repository.read("a");
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/a");
       expect(result.ok).toBe(false);
       expect(result.value).toBe(error);
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
   });
 
-  describe('save', () => {
-    it('persists a new entity if it does not exist', async () => {
+  describe("save", () => {
+    it("persists a new entity if it does not exist", async () => {
       const request = { a: 1 };
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.save(request);
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things', {
-        method: 'POST',
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things", {
+        method: "POST",
         body: JSON.stringify(request),
       });
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
-    it('updates an existing entity', async () => {
-      const request = { _id: 'a', a: 1 };
+    it("updates an existing entity", async () => {
+      const request = { _id: "a", a: 1 };
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.save(request);
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a', {
-        method: 'PUT',
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/a", {
+        method: "PUT",
         body: JSON.stringify(request),
       });
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
   });
 
-  describe('delete', () => {
-    it('removes an existing entity', async () => {
+  describe("delete", () => {
+    it("removes an existing entity", async () => {
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok(undefined)));
-      await repository.delete('a');
-      expect(RESTRepository.fetch).toHaveBeenCalledWith('/things/a', {
-        method: 'DELETE',
+      await repository.delete("a");
+      expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/a", {
+        method: "DELETE",
       });
       (RESTRepository.fetch as jest.Mock).mockRestore();
     });
-    xit('returns if the entity has not been persisted', async () => {
+    xit("returns if the entity has not been persisted", async () => {
       const request = { a: 1 };
       jest
-        .spyOn(RESTRepository, 'fetch')
+        .spyOn(RESTRepository, "fetch")
         .mockReturnValue(Promise.resolve(Result.ok(undefined)));
       await repository.delete(request.a.toString());
       expect(RESTRepository.fetch).not.toHaveBeenCalled();
@@ -181,7 +181,7 @@ describe('RESTRepository', () => {
     });
   });
 
-  describe('fetch', () => {
+  describe("fetch", () => {
     let response: any;
     let nativeFetch: typeof globalThis.fetch;
 
@@ -194,57 +194,57 @@ describe('RESTRepository', () => {
       globalThis.fetch = nativeFetch;
     });
 
-    it('calls Fetch API supplying default headers', async () => {
+    it("calls Fetch API supplying default headers", async () => {
       response = {
         ok: true,
         status: 204,
         headers: new Map([]),
       };
-      const result = await RESTRepository.fetch('');
+      const result = await RESTRepository.fetch("");
       expect(result.ok).toBe(true);
       expect(result.value).toBeUndefined();
-      expect(globalThis.fetch).toHaveBeenCalledWith('', RESTRepository.init);
+      expect(globalThis.fetch).toHaveBeenCalledWith("", RESTRepository.init);
     });
 
-    it('handles redirected response', async () => {
+    it("handles redirected response", async () => {
       response = {
         ok: false,
         status: 304,
         headers: new Map([]),
       };
-      const result = await RESTRepository.fetch('');
+      const result = await RESTRepository.fetch("");
       expect(result.ok).toBe(true);
       expect(result.value).toBeUndefined();
     });
 
-    it('handles json response', async () => {
+    it("handles json response", async () => {
       response = {
         ok: true,
         status: 200,
-        headers: new Map([['Content-Type', 'application/json']]),
+        headers: new Map([["Content-Type", "application/json"]]),
         json: () => Promise.resolve({ a: 1 }),
       };
-      const result = await RESTRepository.fetch('');
+      const result = await RESTRepository.fetch("");
       expect(result.ok).toBe(true);
       expect(result.value).toEqual({ a: 1 });
     });
 
-    it('returns Fetch API response if request fails', async () => {
+    it("returns Fetch API response if request fails", async () => {
       response = {
         ok: false,
         status: 404,
-        headers: new Map([['Content-Type', 'application/json']]),
+        headers: new Map([["Content-Type", "application/json"]]),
       };
-      const result = await RESTRepository.fetch('');
+      const result = await RESTRepository.fetch("");
       expect(result.ok).toBe(false);
       expect(result.value).toEqual(response);
     });
 
-    it('returns error if Fetch API promise fails', async () => {
-      globalThis.fetch = jest.fn(() => Promise.reject('error'));
-      const result = await RESTRepository.fetch('');
+    it("returns error if Fetch API promise fails", async () => {
+      globalThis.fetch = jest.fn(() => Promise.reject("error"));
+      const result = await RESTRepository.fetch("");
       expect(result.ok).toBe(false);
-      expect(result.value).toEqual('error');
+      expect(result.value).toEqual("error");
     });
   });
 });

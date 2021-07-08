@@ -1,10 +1,10 @@
 import {
-  directive,
   Directive,
+  directive,
   EventPart,
   PartInfo,
   PartType,
-} from 'lit-html/directive.js';
+} from "lit-html/directive.js";
 
 type ComponentBond = {
   to: string;
@@ -25,7 +25,7 @@ class Bond extends Directive {
   constructor(partInfo: PartInfo) {
     super(partInfo);
     if (partInfo.type !== PartType.EVENT) {
-      throw new Error('navigate only supports event expressions');
+      throw new Error("navigate only supports event expressions");
     }
     this.handler = this.handler.bind(this);
   }
@@ -33,12 +33,12 @@ class Bond extends Directive {
     const { to } = options;
     let path = to;
     let recipient = part.legacyPart.eventContext;
-    if (path[0] === ':') {
+    if (path[0] === ":") {
       recipient = (recipient as any)!.model;
       path = path.slice(1);
     }
-    if (path.includes('.')) {
-      const chunks = path.split('.');
+    if (path.includes(".")) {
+      const chunks = path.split(".");
       path = chunks[chunks.length - 1];
       for (let i = 0; i < chunks.length - 1; i += 1) {
         recipient = (recipient as any)[chunks[i]];
@@ -58,21 +58,22 @@ class Bond extends Directive {
     const {
       parse,
       prevent,
-      property = 'value',
+      property = "value",
       attribute,
       value,
       validate,
     } = this.options!;
 
     if (prevent) event.preventDefault();
-    let content = Reflect.has(this.options!, 'value')
+    let content = Reflect.has(this.options!, "value")
       ? value
       : attribute != null
       ? this.element!.getAttribute(attribute)
       : (this.element as any)[property];
-    if (typeof validate === 'function' && !validate(this.element!, content))
+    if (typeof validate === "function" && !validate(this.element!, content)) {
       return;
-    if (typeof parse === 'function') content = parse(content);
+    }
+    if (typeof parse === "function") content = parse(content);
     (this.recipient as any)[this.path!] = content;
   }
 }
