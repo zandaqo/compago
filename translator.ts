@@ -1,5 +1,5 @@
-import { LanguageChangeEvent } from "./events/language-change";
-import { MissingTranslationEvent } from "./events/missing-translation";
+import { LanguageChangeEvent } from "./language-change-event";
+import { MissingTranslationEvent } from "./missing-translation-event";
 
 type PluralTranslation = Partial<Record<Intl.LDMLPluralRule, string>>;
 
@@ -34,28 +34,26 @@ export interface Translator {
   addEventListener<K extends keyof TranslatorEventMap>(
     type: K,
     listener: (this: Translator, ev: TranslatorEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener<K extends keyof TranslatorEventMap>(
     type: K,
     listener: (this: Translator, ev: TranslatorEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
 }
 
-/**
- *
- */
+/**/
 export class Translator extends EventTarget {
   globalPrefix: string;
   language: string;
@@ -119,10 +117,10 @@ export class Translator extends EventTarget {
   reportMissing(
     component: string = this.constructor.name,
     key: string,
-    rule?: string
+    rule?: string,
   ): void {
     this.dispatchEvent(
-      MissingTranslationEvent.create({ component, key, rule })
+      MissingTranslationEvent.create({ component, key, rule }),
     );
   }
 
@@ -137,7 +135,7 @@ export class Translator extends EventTarget {
     translations: Translations,
     key: string,
     interpolation?: any,
-    component?: string
+    component?: string,
   ): string {
     const { language, globalPrefix } = this;
     // use global store if prefix found
@@ -150,15 +148,14 @@ export class Translator extends EventTarget {
       if (!interpolation) return translation as string;
       if (typeof interpolation.count === "number") {
         const rule: Intl.LDMLPluralRule = this.pluralRules.select(
-          interpolation.count
+          interpolation.count,
         );
-        const pluralTranslation =
-          (translation as PluralTranslation)[rule] ||
+        const pluralTranslation = (translation as PluralTranslation)[rule] ||
           (translation as PluralTranslation).other;
         if (typeof pluralTranslation !== "undefined") {
           return (this.constructor as typeof Translator).interpolate(
             pluralTranslation,
-            interpolation
+            interpolation,
           );
         } else {
           this.reportMissing(component, key, rule);
@@ -168,7 +165,7 @@ export class Translator extends EventTarget {
       if (typeof translation === "string") {
         return (this.constructor as typeof Translator).interpolate(
           translation,
-          interpolation
+          interpolation,
         );
       }
       if (Reflect.has(translation, "format")) {
@@ -176,7 +173,7 @@ export class Translator extends EventTarget {
           return translation.format(interpolation[0], interpolation[1]);
         }
         return (translation as Intl.DateTimeFormat | Intl.NumberFormat).format(
-          interpolation
+          interpolation,
         );
       }
     }
@@ -191,7 +188,7 @@ export class Translator extends EventTarget {
    */
   static initialize(
     options: TranslatorOptions,
-    symbol = sTranslator
+    symbol = sTranslator,
   ): Translator {
     const translator = new Translator(options);
     (globalThis as any)[symbol] = translator;
@@ -204,8 +201,10 @@ export class Translator extends EventTarget {
    * @returns {string}
    */
   static interpolate(text: string, interpolation: any): string {
-    return text.replace(/{{(\w+)}}/gi, (_, param) =>
-      Reflect.has(interpolation, param) ? interpolation[param] : ""
+    return text.replace(
+      /{{(\w+)}}/gi,
+      (_, param) =>
+        Reflect.has(interpolation, param) ? interpolation[param] : "",
     );
   }
 }

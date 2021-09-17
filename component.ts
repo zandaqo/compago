@@ -1,9 +1,9 @@
-import { LitElement } from "lit-element";
+import { LitElement } from "lit";
 import type { Translations, Translator } from "./translator";
 import type { Observable } from "./observable";
-import { RouteEvent } from "./events/route";
+import { RouteEvent } from "./route-event";
 import { isBound } from "./utilities";
-import { ChangeEvent } from "./events/change";
+import { ChangeEvent } from "./change-event";
 
 const sTranslator = Symbol.for("c-translator");
 const sCurrentPath = Symbol.for("c-current-path");
@@ -31,8 +31,9 @@ export class Component<T = unknown> extends LitElement {
       oldModel.removeEventListener("change", this.onModelChange);
     }
     if (model) {
-      if (!isBound(this.onModelChange))
+      if (!isBound(this.onModelChange)) {
         this.onModelChange = this.onModelChange.bind(this);
+      }
       model.addEventListener("change", this.onModelChange);
       this.requestUpdate();
     }
@@ -54,8 +55,9 @@ export class Component<T = unknown> extends LitElement {
     if (!routes) {
       globalThis.removeEventListener("popstate", this.onPopstate);
     } else {
-      if (!isBound(this.onPopstate))
+      if (!isBound(this.onPopstate)) {
         this.onPopstate = this.onPopstate.bind(this);
+      }
       globalThis.addEventListener("popstate", this.onPopstate);
     }
   }
@@ -71,8 +73,9 @@ export class Component<T = unknown> extends LitElement {
     super.connectedCallback();
     const { translator } = this.constructor as typeof Component;
     if (translator) {
-      if (!isBound(this.onLanguageChange))
+      if (!isBound(this.onLanguageChange)) {
         this.onLanguageChange = this.onLanguageChange.bind(this);
+      }
       translator.addEventListener("language-change", this.onLanguageChange);
     }
   }
@@ -109,10 +112,10 @@ export class Component<T = unknown> extends LitElement {
     params: Record<string, string>,
     query?: URLSearchParams,
     hash?: string,
-    state?: any
+    state?: any,
   ): void {
     this.dispatchEvent(
-      RouteEvent.create({ route: name, params, query, hash, state })
+      RouteEvent.create({ route: name, params, query, hash, state }),
     );
   }
 

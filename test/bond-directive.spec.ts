@@ -1,7 +1,7 @@
-import { bond } from "../../src/directives/bond";
-import { Component } from "../../src/component";
-import { Observable } from "../../src/observable";
-import { html, render } from "lit-html";
+import { bond } from "../bond-directive";
+import { Component } from "../component";
+import { Observable } from "../observable";
+import { html, render } from "lit";
 
 class ComponentClass extends Component {}
 window.customElements.define("c-b-component", ComponentClass);
@@ -17,10 +17,10 @@ describe("bond", () => {
   it("handles one way binding between DOM elements and the model", () => {
     render(
       html`<input type="text" @input=${bond({ to: ":name" })} />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.value = "abc";
     input.dispatchEvent(new Event("input"));
     expect(component.model!.toJSON()).toEqual({ name: "abc" });
@@ -31,10 +31,10 @@ describe("bond", () => {
     (component.model as any).name = {};
     render(
       html`<input type="text" @input=${bond({ to: ":name.first" })} />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.value = "abc";
     input.dispatchEvent(new Event("input"));
     expect(component.model.toJSON()).toEqual({ name: { first: "abc" } });
@@ -43,10 +43,10 @@ describe("bond", () => {
   it("binds to a property of the component", () => {
     render(
       html`<input type="text" @input=${bond({ to: "name" })} />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.value = "abc";
     input.dispatchEvent(new Event("input"));
     expect((component as any).name).toBe("abc");
@@ -60,10 +60,10 @@ describe("bond", () => {
         type="text"
         @input=${bond({ to: ":name", parse: parseInt })}
       />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.value = "12";
     input.dispatchEvent(new Event("input"));
     expect(component.model!.toJSON()).toEqual({ name: 12 });
@@ -71,7 +71,7 @@ describe("bond", () => {
 
   xit("no-op if invalid binding configuration is provided", () => {
     render(html`<input type="text" @input=${bond({ to: "" })} />`, component);
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.value = "12";
   });
 
@@ -82,10 +82,10 @@ describe("bond", () => {
         @input=${bond({ to: "isDisabled", property: "disabled" })}
         disabled
       />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.dispatchEvent(new Event("input"));
     expect((component as any).isDisabled).toBe(true);
   });
@@ -97,10 +97,10 @@ describe("bond", () => {
         @input=${bond({ to: "inputType", attribute: "type" })}
         disabled
       />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.dispatchEvent(new Event("input"));
     expect((component as any).inputType).toBe("text");
   });
@@ -112,10 +112,10 @@ describe("bond", () => {
         @input=${bond({ to: "name", value: "abc" })}
         disabled
       />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.dispatchEvent(new Event("input"));
     expect((component as any).name).toBe("abc");
   });
@@ -133,10 +133,10 @@ describe("bond", () => {
       }
         disabled
       />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.dispatchEvent(new Event("input"));
     expect((component as any).name).toBe("abc");
   });
@@ -148,10 +148,10 @@ describe("bond", () => {
         @input=${bond({ to: "name", value: "abc", validate: () => false })}
         disabled
       />`,
-      component.shadowRoot!,
-      { eventContext: component },
+      component,
+      { host: component },
     );
-    const input = component.shadowRoot!.querySelector("input")!;
+    const input = component.querySelector("input")!;
     input.dispatchEvent(new Event("input"));
     expect((component as any).name).toBeUndefined();
   });

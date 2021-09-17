@@ -11,8 +11,6 @@
     "frontend"
   ],
   "files": [
-    "directives",
-    "events",
     "*.js",
     "*.d.ts",
     "*.js.map"
@@ -55,19 +53,13 @@
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "**/src/**",
-      "!**/node_modules/**",
-      "!**/__snapshots__/**",
-      "!**/__fixtures__/**"
+      "*.ts",
+      "!**/node_modules/**"
     ],
     "coverageDirectory": "<rootDir>/coverage",
     "coverageReporters": [
       "lcov"
     ]
-  },
-  "dependencies": {
-    "lit-element": "^2.5.1",
-    "lit-html": "^1.4.1"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
@@ -75,5 +67,8 @@
     "ts-jest": "^27.0.3",
     "typedoc": "^0.20.36",
     "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "lit": "^2.0.0-rc.4"
   }
 }

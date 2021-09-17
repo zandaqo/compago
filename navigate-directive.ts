@@ -4,7 +4,7 @@ import {
   EventPart,
   PartInfo,
   PartType,
-} from "lit-html/directive.js";
+} from "lit/directive.js";
 
 class Navigate extends Directive {
   path: string | undefined;

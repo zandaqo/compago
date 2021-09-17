@@ -16,6 +16,6 @@
     "noFallthroughCasesInSwitch": true,
     "lib": ["es2020", "dom"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["*.ts"],
   "exclude": []
 }

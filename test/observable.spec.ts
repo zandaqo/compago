@@ -1,4 +1,4 @@
-import { Observable } from "../src/observable";
+import { Observable } from "../observable";
 import { jest } from "@jest/globals";
 
 interface IData {
@@ -206,7 +206,7 @@ describe("Observable", () => {
             type: "SET",
             previous: undefined,
           },
-        })
+        }),
       );
     });
 

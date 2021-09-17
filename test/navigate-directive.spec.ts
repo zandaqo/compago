@@ -1,5 +1,5 @@
-import { html, render } from "lit-html";
-import { navigate } from "../../src/directives/navigate";
+import { html, render } from "lit";
+import { navigate } from "../navigate-directive";
 
 describe("navigate", () => {
   let container: HTMLElement;
@@ -39,7 +39,7 @@ describe("navigate", () => {
     const state = { a: 1 };
     render(
       html`<a href="/path" @click=${navigate(undefined, state)}></a>`,
-      container
+      container,
     );
     const element = container.querySelector("a")!;
     element.click();

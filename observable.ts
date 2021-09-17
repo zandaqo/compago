@@ -1,4 +1,4 @@
-import { ChangeEvent, ChangeType } from "./events/change";
+import { ChangeEvent, ChangeType } from "./change-event";
 import { isEqual, isObservableObject } from "./utilities";
 
 const sPath = Symbol.for("c-path");
@@ -22,25 +22,25 @@ export interface _Observable {
   addEventListener<K extends keyof ObservableEventMap>(
     type: K,
     listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
 
   addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
 
   removeEventListener<K extends keyof ObservableEventMap>(
     type: K,
     listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
 
   removeEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions,
   ): void;
 }
 
@@ -107,10 +107,9 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     Object.keys(source).forEach((key) => {
       const current = source[key];
       const existing = target[key];
-      target[key] =
-        isObservableObject(existing) && isObservableObject(current)
-          ? this.merge(current, existing)
-          : (target[key] = current);
+      target[key] = isObservableObject(existing) && isObservableObject(current)
+        ? this.merge(current, existing)
+        : (target[key] = current);
     });
     return target;
   }
@@ -130,10 +129,10 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     path: string,
     type: ChangeType,
     previous?: any,
-    elements?: any
+    elements?: any,
   ): void {
     observable.dispatchEvent(
-      ChangeEvent.create({ path, type, previous, elements })
+      ChangeEvent.create({ path, type, previous, elements }),
     );
   }
 
@@ -149,7 +148,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     path: string,
     observable: _Observable,
-    processed: Array<any>
+    processed: Array<any>,
   ) {
     let proxy;
     // if the target already has a proxy
@@ -184,7 +183,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     path: string,
     observable: _Observable,
-    processed: Array<any>
+    processed: Array<any>,
   ): void {
     const keys = Object.keys(target);
     for (const key of keys) {
@@ -194,7 +193,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
           target[key],
           `${path}:${key}`,
           observable,
-          processed
+          processed,
         );
       }
     }
@@ -203,7 +202,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
   private static arrayGetTrap(
     target: any,
     property: PropertyKey,
-    receiver: any
+    receiver: any,
   ): any {
     if (typeof property === "string" && watchedArrayMethods.has(property)) {
       return (...args: any[]) => {
@@ -219,7 +218,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
               target[sPath],
               ChangeType.Add,
               undefined,
-              args
+              args,
             );
             break;
           case "shift":
@@ -229,7 +228,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
               target[sPath],
               ChangeType.Remove,
               undefined,
-              value
+              value,
             );
             break;
           case "splice":
@@ -238,7 +237,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
               target[sPath],
               ChangeType.Remove,
               undefined,
-              value
+              value,
             );
             if (args.length > 2) {
               _Observable.emitChange(
@@ -246,7 +245,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
                 target[sPath],
                 ChangeType.Add,
                 undefined,
-                args.slice(2)
+                args.slice(2),
               );
             }
             break;
@@ -254,7 +253,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
             _Observable.emitChange(
               target[sObservable],
               target[sPath],
-              ChangeType.Sort
+              ChangeType.Sort,
             );
             break;
         }
@@ -268,7 +267,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     property: PropertyKey,
     value: any,
-    receiver: any
+    receiver: any,
   ): boolean {
     // do not track symbols or non-enumerable properties
     if (
@@ -308,7 +307,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
       observable,
       propertyPath,
       ChangeType.Delete,
-      previous
+      previous,
     );
     return true;
   }

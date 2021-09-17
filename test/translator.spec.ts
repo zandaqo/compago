@@ -1,4 +1,4 @@
-import { Translator } from "../src";
+import { Translator } from "../";
 import { jest } from "@jest/globals";
 
 describe("Translator", () => {
@@ -16,7 +16,7 @@ describe("Translator", () => {
       expect(translator.language).toBe("en");
       expect(translator.pluralRules instanceof Intl.PluralRules).toBe(true);
       expect(translator.pluralRules.resolvedOptions()).toEqual(
-        new Intl.PluralRules("en").resolvedOptions()
+        new Intl.PluralRules("en").resolvedOptions(),
       );
       expect(translator.globalPrefix).toBe("$");
     });
@@ -141,45 +141,45 @@ describe("Translator", () => {
 
     it("uses interpolation", () => {
       expect(translator.translate(translations, "hello", { name: "a" })).toBe(
-        "Hello, a!"
+        "Hello, a!",
       );
       translator.setLanguage("es");
       expect(translator.translate(translations, "hello", { name: "a" })).toBe(
-        "Hola, a!"
+        "Hola, a!",
       );
     });
 
     it("handles plurals", () => {
       expect(translator.translate(translations, "lemons", { count: 0 })).toBe(
-        "0 lemons"
+        "0 lemons",
       );
       expect(translator.translate(translations, "lemons", { count: 1 })).toBe(
-        "One lemon"
+        "One lemon",
       );
       expect(translator.translate(translations, "lemons", { count: 10 })).toBe(
-        "10 lemons"
+        "10 lemons",
       );
       translator.setLanguage("es");
       expect(translator.translate(translations, "lemons", { count: 0 })).toBe(
-        "0 limónes"
+        "0 limónes",
       );
       expect(translator.translate(translations, "lemons", { count: 1 })).toBe(
-        "Un limón"
+        "Un limón",
       );
       expect(translator.translate(translations, "lemons", { count: 10 })).toBe(
-        "10 limónes"
+        "10 limónes",
       );
     });
 
     it("reports if translation is missing for a plural rule", () => {
       jest.spyOn(translator, "reportMissing");
       expect(translator.translate(translations, "apples", { count: 10 })).toBe(
-        ""
+        "",
       );
       expect(translator.reportMissing).toHaveBeenCalledWith(
         undefined,
         "apples",
-        "other"
+        "other",
       );
       (translator.reportMissing as jest.Mock).mockRestore();
     });
@@ -202,31 +202,31 @@ describe("Translator", () => {
 
     it("formats dates", () => {
       expect(translator.translate(translations, "date", new Date(0))).toBe(
-        "1970 A"
+        "1970 A",
       );
       translator.setLanguage("es");
       expect(translator.translate(translations, "date", new Date(0))).toBe(
-        "70 después de Cristo"
+        "70 después de Cristo",
       );
     });
 
     it("formats numbers", () => {
       expect(translator.translate(translations, "amount", 1000000.999)).toBe(
-        "1,000,000.999"
+        "1,000,000.999",
       );
       translator.setLanguage("es");
       expect(translator.translate(translations, "amount", 1000000.999)).toBe(
-        "1.000.000,999"
+        "1.000.000,999",
       );
     });
 
     it("formats relative time", () => {
       expect(translator.translate(translations, "ago", [2, "day"])).toBe(
-        "in 2 days"
+        "in 2 days",
       );
       translator.setLanguage("es");
       expect(translator.translate(translations, "ago", [2, "day"])).toBe(
-        "dentro de 2 días"
+        "dentro de 2 días",
       );
     });
   });

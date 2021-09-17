@@ -4,7 +4,7 @@ import {
   EventPart,
   PartInfo,
   PartType,
-} from "lit-html/directive.js";
+} from "lit/directive.js";
 
 type ComponentBond = {
   to: string;
@@ -32,7 +32,7 @@ class Bond extends Directive {
   update(part: EventPart, [options]: [ComponentBond]): unknown {
     const { to } = options;
     let path = to;
-    let recipient = part.legacyPart.eventContext;
+    let recipient = part.options?.host;
     if (path[0] === ":") {
       recipient = (recipient as any)!.model;
       path = path.slice(1);

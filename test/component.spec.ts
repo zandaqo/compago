@@ -1,6 +1,6 @@
-import { ChangeEvent, Component } from "../src";
-import { Observable } from "../src";
-import { Translator } from "../src";
+import { ChangeEvent, Component } from "../";
+import { Observable } from "../";
+import { Translator } from "../";
 import { jest } from "@jest/globals";
 
 class ComponentClass extends Component<any> {}
@@ -33,7 +33,7 @@ describe("Component", () => {
       component.connectedCallback();
       expect(translator.addEventListener).toHaveBeenCalledWith(
         "language-change",
-        component.onLanguageChange
+        component.onLanguageChange,
       );
       (translator.addEventListener as jest.Mock).mockRestore();
     });
@@ -48,7 +48,7 @@ describe("Component", () => {
       component.disconnectedCallback();
       expect(model.removeEventListener).toHaveBeenCalledWith(
         "change",
-        component.onModelChange
+        component.onModelChange,
       );
     });
 
@@ -64,7 +64,7 @@ describe("Component", () => {
       component.disconnectedCallback();
       expect(translator.removeEventListener).toHaveBeenCalledWith(
         "language-change",
-        component.onLanguageChange
+        component.onLanguageChange,
       );
       (translator.removeEventListener as jest.Mock).mockRestore();
     });
@@ -80,7 +80,7 @@ describe("Component", () => {
       expect((model.addEventListener as jest.Mock).mock.calls.length).toBe(1);
       expect(model.addEventListener).toHaveBeenCalledWith(
         "change",
-        component.onModelChange
+        component.onModelChange,
       );
       expect(component.model).toBe(model);
     });
@@ -95,11 +95,11 @@ describe("Component", () => {
       component.model = model;
       expect(model.addEventListener).toHaveBeenCalledWith(
         "change",
-        component.onModelChange
+        component.onModelChange,
       );
       expect(oldModel.removeEventListener).toHaveBeenCalledWith(
         "change",
-        component.onModelChange
+        component.onModelChange,
       );
       expect(component.model).toBe(model);
     });
@@ -112,7 +112,7 @@ describe("Component", () => {
       component.model = undefined;
       expect(model.removeEventListener).toHaveBeenCalledWith(
         "change",
-        component.onModelChange
+        component.onModelChange,
       );
       expect(component.model).toBeUndefined();
     });
@@ -147,10 +147,10 @@ describe("Component", () => {
       component.routes = routes;
       expect(globalThis.addEventListener).toHaveBeenCalledWith(
         "popstate",
-        component.onPopstate
+        component.onPopstate,
       );
       expect((globalThis.addEventListener as jest.Mock).mock.calls.length).toBe(
-        1
+        1,
       );
       (globalThis.addEventListener as jest.Mock).mockRestore();
     });
@@ -161,7 +161,7 @@ describe("Component", () => {
       component.routes = undefined;
       expect(globalThis.removeEventListener).toHaveBeenCalledWith(
         "popstate",
-        component.onPopstate
+        component.onPopstate,
       );
       (globalThis.removeEventListener as jest.Mock).mockRestore();
     });

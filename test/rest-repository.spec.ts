@@ -1,5 +1,5 @@
-import { RESTRepository } from "../src/rest-repository";
-import { Result } from "../src/result";
+import { RESTRepository } from "../rest-repository";
+import { Result } from "../result";
 import { jest } from "@jest/globals";
 
 describe("RESTRepository", () => {
@@ -49,7 +49,7 @@ describe("RESTRepository", () => {
         .mockReturnValue(Promise.resolve(Result.ok([{ a: 1 }])));
       const result = await repository.query<{ a: number }>(
         { a: "1", b: "1" },
-        "/abc"
+        "/abc",
       );
       expect(RESTRepository.fetch).toHaveBeenCalledWith("/things/abc?a=1&b=1");
       expect(result.ok).toBe(true);
