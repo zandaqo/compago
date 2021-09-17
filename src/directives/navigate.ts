@@ -1,6 +1,6 @@
 import {
-  directive,
   Directive,
+  directive,
   EventPart,
   PartInfo,
   PartType,
@@ -19,7 +19,7 @@ class Navigate extends Directive {
 
   update(
     part: EventPart,
-    [href, state]: [string | undefined, unknown]
+    [href, state]: [string | undefined, unknown],
   ): unknown {
     this.path = href;
     this.state = state;
@@ -29,8 +29,7 @@ class Navigate extends Directive {
     return this.render();
   }
 
-  // @ts-ignore
-  render(path?: string, state?: unknown): unknown {
+  render(_path?: string, _state?: unknown): unknown {
     return this.handler;
   }
 
