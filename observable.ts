@@ -122,21 +122,6 @@ export class _Observable<T extends Object = Object> extends EventTarget {
   }
 
   /**
-   * Emits appropriate `change` events when a given property is changed.
-   */
-  private static emitChange(
-    observable: _Observable,
-    path: string,
-    type: ChangeType,
-    previous?: any,
-    elements?: any,
-  ): void {
-    observable.dispatchEvent(
-      ChangeEvent.create({ path, type, previous, elements }),
-    );
-  }
-
-  /**
    * Sets up Proxy objects on an observable to monitor changes.
    * @param target the target object to watch for the new Proxy
    * @param path the string path to the object in the observable
@@ -213,47 +198,44 @@ export class _Observable<T extends Object = Object> extends EventTarget {
         switch (property) {
           case "push":
           case "unshift":
-            _Observable.emitChange(
-              target[sObservable],
-              target[sPath],
-              ChangeType.Add,
-              undefined,
-              args,
+            target[sObservable].dispatchEvent(
+              new ChangeEvent(target[sPath], ChangeType.Add, undefined, args),
             );
             break;
           case "shift":
           case "pop":
-            _Observable.emitChange(
-              target[sObservable],
-              target[sPath],
-              ChangeType.Remove,
-              undefined,
-              value,
+            target[sObservable].dispatchEvent(
+              new ChangeEvent(
+                target[sPath],
+                ChangeType.Remove,
+                undefined,
+                value,
+              ),
             );
             break;
           case "splice":
-            _Observable.emitChange(
-              target[sObservable],
-              target[sPath],
-              ChangeType.Remove,
-              undefined,
-              value,
+            target[sObservable].dispatchEvent(
+              new ChangeEvent(
+                target[sPath],
+                ChangeType.Remove,
+                undefined,
+                value,
+              ),
             );
             if (args.length > 2) {
-              _Observable.emitChange(
-                target[sObservable],
-                target[sPath],
-                ChangeType.Add,
-                undefined,
-                args.slice(2),
+              target[sObservable].dispatchEvent(
+                new ChangeEvent(
+                  target[sPath],
+                  ChangeType.Add,
+                  undefined,
+                  args.slice(2),
+                ),
               );
             }
             break;
           case "sort":
-            _Observable.emitChange(
-              target[sObservable],
-              target[sPath],
-              ChangeType.Sort,
+            target[sObservable].dispatchEvent(
+              new ChangeEvent(target[sPath], ChangeType.Sort),
             );
             break;
         }
@@ -285,7 +267,9 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target[property] = isObservableObject(value)
       ? _Observable.getProxy(value, propertyPath, observable, [value])
       : value;
-    _Observable.emitChange(observable, propertyPath, ChangeType.Set, previous);
+    observable.dispatchEvent(
+      new ChangeEvent(propertyPath, ChangeType.Set, previous),
+    );
     return true;
   }
 
@@ -303,11 +287,8 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     const previous = target[property];
     const propertyPath = `${path}:${property}`;
     delete target[property];
-    _Observable.emitChange(
-      observable,
-      propertyPath,
-      ChangeType.Delete,
-      previous,
+    observable.dispatchEvent(
+      new ChangeEvent(propertyPath, ChangeType.Delete, previous),
     );
     return true;
   }

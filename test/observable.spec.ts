@@ -1,4 +1,5 @@
 import { Observable } from "../observable";
+import { ChangeEvent, ChangeType } from "../change-event";
 import { jest } from "@jest/globals";
 
 interface IData {
@@ -41,14 +42,7 @@ describe("Observable", () => {
       observable.answer = 1;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":answer",
-              type: "SET",
-              previous: 42,
-            },
-          }),
+          new ChangeEvent(":answer", ChangeType.Set, 42),
         ],
       ]);
     });
@@ -72,14 +66,7 @@ describe("Observable", () => {
       observableWithSetter.setAnswer = 45;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":answer",
-              type: "SET",
-              previous: 42,
-            },
-          }),
+          new ChangeEvent(":answer", ChangeType.Set, 42),
         ],
       ]);
     });
@@ -90,24 +77,10 @@ describe("Observable", () => {
       observable.assign({ array: [1] });
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":object:name",
-              type: "SET",
-              previous: "Zaphod",
-            },
-          }),
+          new ChangeEvent(":object:name", ChangeType.Set, "Zaphod"),
         ],
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "SET",
-              previous: undefined,
-            },
-          }),
+          new ChangeEvent(":array", ChangeType.Set),
         ],
       ]);
     });
@@ -118,14 +91,7 @@ describe("Observable", () => {
       observable.array[1] = 2;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array:1",
-              type: "SET",
-              previous: undefined,
-            },
-          }),
+          new ChangeEvent(":array:1", ChangeType.Set),
         ],
       ]);
     });
@@ -147,24 +113,10 @@ describe("Observable", () => {
       const { calls } = spy.mock;
       expect(calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":a",
-              type: "SET",
-              previous: 1,
-            },
-          }),
+          new ChangeEvent(":a", ChangeType.Set, 1),
         ],
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":a",
-              type: "SET",
-              previous: 2,
-            },
-          }),
+          new ChangeEvent(":a", ChangeType.Set, 2),
         ],
       ]);
     });
@@ -183,14 +135,7 @@ describe("Observable", () => {
       abObservable.c.d = 2;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":d:d",
-              type: "SET",
-              previous: 1,
-            },
-          }),
+          new ChangeEvent(":d:d", ChangeType.Set, 1),
         ],
       ]);
     });
@@ -198,16 +143,7 @@ describe("Observable", () => {
     it("allows usage of any type of property", () => {
       observable.addEventListener("change", spy);
       observable.re = new RegExp("abc");
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "change",
-          detail: {
-            path: ":re",
-            type: "SET",
-            previous: undefined,
-          },
-        }),
-      );
+      expect(spy).toHaveBeenCalledWith(new ChangeEvent(":re", ChangeType.Set));
     });
 
     it("does not react to changes inside built-in instances of classes that are not Object or Array", () => {
@@ -250,14 +186,7 @@ describe("Observable", () => {
       delete observable.question;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":question",
-              type: "DELETE",
-              previous: "",
-            },
-          }),
+          new ChangeEvent(":question", "DELETE", ""),
         ],
       ]);
     });
@@ -298,26 +227,8 @@ describe("Observable", () => {
       observable.array.push(4, 5, 6);
       observable.array.unshift(0);
       expect(spy.mock.calls).toEqual([
-        [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "ADD",
-              elements: [4, 5, 6],
-            },
-          }),
-        ],
-        [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "ADD",
-              elements: [0],
-            },
-          }),
-        ],
+        [new ChangeEvent(":array", ChangeType.Add, undefined, [4, 5, 6])],
+        [new ChangeEvent(":array", ChangeType.Add, undefined, [0])],
       ]);
     });
 
@@ -328,25 +239,10 @@ describe("Observable", () => {
       observable.array[0].a = 2;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "ADD",
-              previous: undefined,
-              elements: [{ a: 2 }],
-            },
-          }),
+          new ChangeEvent(":array", ChangeType.Add, undefined, [{ a: 2 }]),
         ],
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array:0:a",
-              type: "SET",
-              previous: 1,
-            },
-          }),
+          new ChangeEvent(":array:0:a", ChangeType.Set, 1),
         ],
       ]);
     });
@@ -357,26 +253,8 @@ describe("Observable", () => {
       observable.array.pop();
       observable.array.shift();
       expect(spy.mock.calls).toEqual([
-        [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "REMOVE",
-              elements: 3,
-            },
-          }),
-        ],
-        [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "REMOVE",
-              elements: 1,
-            },
-          }),
-        ],
+        [new ChangeEvent(":array", ChangeType.Remove, undefined, 3)],
+        [new ChangeEvent(":array", ChangeType.Remove, undefined, 1)],
       ]);
     });
 
@@ -386,24 +264,10 @@ describe("Observable", () => {
       observable.array.splice(1, 1, 4, 5);
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "REMOVE",
-              elements: [2],
-            },
-          }),
+          new ChangeEvent(":array", ChangeType.Remove, undefined, [2]),
         ],
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "ADD",
-              elements: [4, 5],
-            },
-          }),
+          new ChangeEvent(":array", ChangeType.Add, undefined, [4, 5]),
         ],
       ]);
     });
@@ -414,14 +278,7 @@ describe("Observable", () => {
       observable.array.splice(1, 1);
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "REMOVE",
-              elements: [2],
-            },
-          }),
+          new ChangeEvent(":array", ChangeType.Remove, undefined, [2]),
         ],
       ]);
     });
@@ -432,14 +289,7 @@ describe("Observable", () => {
       observable.array.sort();
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":array",
-              type: "SORT",
-              elements: undefined,
-            },
-          }),
+          new ChangeEvent(":array", ChangeType.Sort),
         ],
       ]);
     });
@@ -454,26 +304,12 @@ describe("Observable", () => {
       b.c.b = 1;
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":c",
-              type: "SET",
-              previous: undefined,
-            },
-          }),
+          new ChangeEvent(":c", ChangeType.Set),
         ],
       ]);
       expect(anotherSpy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":b",
-              type: "SET",
-              previous: undefined,
-            },
-          }),
+          new ChangeEvent(":b", ChangeType.Set),
         ],
       ]);
     });
@@ -490,26 +326,12 @@ describe("Observable", () => {
       b.c.push(a);
       expect(spy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":c",
-              type: "ADD",
-              elements: [a],
-            },
-          }),
+          new ChangeEvent(":c", ChangeType.Add, undefined, [a]),
         ],
       ]);
       expect(anotherSpy.mock.calls).toEqual([
         [
-          expect.objectContaining({
-            type: "change",
-            detail: {
-              path: ":b",
-              type: "SET",
-              previous: undefined,
-            },
-          }),
+          new ChangeEvent(":b", ChangeType.Set),
         ],
       ]);
     });

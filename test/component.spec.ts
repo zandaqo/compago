@@ -2,6 +2,8 @@ import { ChangeEvent, Component } from "../";
 import { Observable } from "../";
 import { Translator } from "../";
 import { jest } from "@jest/globals";
+import { LanguageChangeEvent } from "../language-change-event";
+import { RouteEvent } from "../route-event";
 
 class ComponentClass extends Component<any> {}
 ComponentClass.translations = { en: { two: "two" }, es: { two: "dos" } };
@@ -183,15 +185,15 @@ describe("Component", () => {
       globalThis.history.replaceState(state, "", "/user/arthur?a=b#c");
       globalThis.dispatchEvent(new PopStateEvent("popstate", { state }));
       expect(callback).toHaveBeenCalled();
-      expect((callback.mock.calls[0][0] as any).detail).toMatchObject({
-        route: "user",
-        params: {
-          name: "arthur",
-        },
-        query: new URLSearchParams("?a=b"),
-        hash: "#c",
-        state,
-      });
+      expect(callback.mock.calls[0][0]).toMatchObject(
+        new RouteEvent(
+          "user",
+          { name: "arthur" },
+          new URLSearchParams("?a=b"),
+          "#c",
+          state,
+        ),
+      );
     });
 
     it("handles custom roots while checking the url", () => {
@@ -211,7 +213,7 @@ describe("Component", () => {
   describe("onLanguageChange", () => {
     it("requests updating the component", async () => {
       component.requestUpdate = jest.fn();
-      await component.onLanguageChange();
+      await component.onLanguageChange(new LanguageChangeEvent());
       expect(component.requestUpdate).toHaveBeenCalled();
     });
   });

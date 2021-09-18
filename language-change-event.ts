@@ -1,11 +1,6 @@
-type LanguageChangeEventDetail = {
-  previous?: string;
-};
-
-export class LanguageChangeEvent extends CustomEvent<LanguageChangeEventDetail> {
-  static create(detail: LanguageChangeEventDetail) {
-    return new this('language-change', {
-      detail,
+export class LanguageChangeEvent extends Event {
+  constructor(public previous?: string) {
+    super("language-change", {
       bubbles: true,
       composed: true,
     });

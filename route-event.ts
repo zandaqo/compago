@@ -1,14 +1,12 @@
-type RouteEventDetail = {
-  route: string;
-  params: Record<string, string>;
-  query?: URLSearchParams;
-  hash?: string;
-  state?: any;
-};
-
-export class RouteEvent extends CustomEvent<RouteEventDetail> {
-  static create(detail: RouteEventDetail) {
-    return new this('route', { detail, bubbles: true, composed: true });
+export class RouteEvent extends Event {
+  constructor(
+    public route: string,
+    public params: Record<string, string>,
+    public query?: URLSearchParams,
+    public hash?: string,
+    public state?: unknown,
+  ) {
+    super("route", { bubbles: true, composed: true });
   }
 }
 

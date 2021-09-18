@@ -88,7 +88,7 @@ export class Translator extends EventTarget {
     this.language = language;
     this.pluralRules = new PluralRules(language);
     if (hasChanged) {
-      this.dispatchEvent(LanguageChangeEvent.create({ previous }));
+      this.dispatchEvent(new LanguageChangeEvent(previous));
     }
   }
 
@@ -120,7 +120,7 @@ export class Translator extends EventTarget {
     rule?: string,
   ): void {
     this.dispatchEvent(
-      MissingTranslationEvent.create({ component, key, rule }),
+      new MissingTranslationEvent(component, key, rule),
     );
   }
 

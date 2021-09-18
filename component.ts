@@ -4,6 +4,7 @@ import type { Observable } from "./observable";
 import { RouteEvent } from "./route-event";
 import { isBound } from "./utilities";
 import { ChangeEvent } from "./change-event";
+import { LanguageChangeEvent } from ".";
 
 const sTranslator = Symbol.for("c-translator");
 const sCurrentPath = Symbol.for("c-current-path");
@@ -115,7 +116,7 @@ export class Component<T = unknown> extends LitElement {
     state?: any,
   ): void {
     this.dispatchEvent(
-      RouteEvent.create({ route: name, params, query, hash, state }),
+      new RouteEvent(name, params, query, hash, state),
     );
   }
 
@@ -150,7 +151,7 @@ export class Component<T = unknown> extends LitElement {
   /**
    * Invoked when the translator changes the current language emitting a `language-change` event.
    */
-  async onLanguageChange(): Promise<void> {
+  async onLanguageChange(_: LanguageChangeEvent): Promise<void> {
     await this.requestUpdate();
   }
 

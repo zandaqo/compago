@@ -1,5 +1,6 @@
 import { Translator } from "../";
 import { jest } from "@jest/globals";
+import { MissingTranslationEvent } from "../missing-translation-event";
 
 describe("Translator", () => {
   describe("constructor", () => {
@@ -192,11 +193,9 @@ describe("Translator", () => {
       const cb = jest.fn();
       translator.addEventListener("missing-translation", cb);
       translator.translate(translations, "abc", undefined, "ABC");
-      expect((cb.mock.calls[0][0] as any).detail).toEqual({
-        component: "ABC",
-        key: "abc",
-        rule: undefined,
-      });
+      expect(cb.mock.calls[0][0]).toEqual(
+        new MissingTranslationEvent("ABC", "abc"),
+      );
       translator.removeEventListener("missing-translation", cb);
     });
 

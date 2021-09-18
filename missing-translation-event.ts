@@ -1,13 +1,10 @@
-type MissingTranslationEventDetail = {
-  component: string;
-  key: string;
-  rule?: string;
-};
-
-export class MissingTranslationEvent extends CustomEvent<MissingTranslationEventDetail> {
-  static create(detail: MissingTranslationEventDetail) {
-    return new this('missing-translation', {
-      detail,
+export class MissingTranslationEvent extends Event {
+  constructor(
+    public component: string,
+    public key: string,
+    public rule?: string,
+  ) {
+    super("missing-translation", {
       bubbles: true,
       composed: true,
     });
