@@ -1,17 +1,18 @@
-import { LitElement } from "lit";
-import type { Translations, Translator } from "./translator";
-import type { Observable } from "./observable";
-import { RouteEvent } from "./route-event";
-import { isBound } from "./utilities";
-import { ChangeEvent } from "./change-event";
-import { LanguageChangeEvent } from ".";
+import { LitElement } from "lit-element";
+import type { Translations, Translator } from "./translator.ts";
+import type { Observable } from "./observable.ts";
+import { RouteEvent } from "./route-event.ts";
+import { isBound } from "./utilities.ts";
+import { ChangeEvent } from "./change-event.ts";
+import { LanguageChangeEvent } from "./language-change-event.ts";
 
 const sTranslator = Symbol.for("c-translator");
 const sCurrentPath = Symbol.for("c-current-path");
 const sObservable = Symbol.for("c-observable");
 const sRoutes = Symbol.for("c-routes");
 
-export class Component<T = unknown> extends LitElement {
+// deno-lint-ignore ban-types
+export class Component<T extends object = object> extends LitElement {
   rootPath?: string;
   [sObservable]?: Observable<T>;
   [sCurrentPath]?: string;
@@ -67,6 +68,7 @@ export class Component<T = unknown> extends LitElement {
    * The translator instance used by the component.
    */
   static get translator(): Translator | undefined {
+    // deno-lint-ignore no-explicit-any
     return (globalThis as any)[sTranslator];
   }
 
@@ -113,7 +115,7 @@ export class Component<T = unknown> extends LitElement {
     params: Record<string, string>,
     query?: URLSearchParams,
     hash?: string,
-    state?: any,
+    state?: unknown,
   ): void {
     this.dispatchEvent(
       new RouteEvent(name, params, query, hash, state),
@@ -151,8 +153,8 @@ export class Component<T = unknown> extends LitElement {
   /**
    * Invoked when the translator changes the current language emitting a `language-change` event.
    */
-  async onLanguageChange(_: LanguageChangeEvent): Promise<void> {
-    await this.requestUpdate();
+  onLanguageChange(_: LanguageChangeEvent): void {
+    this.requestUpdate();
   }
 
   /**
@@ -163,7 +165,7 @@ export class Component<T = unknown> extends LitElement {
    * @param interpolation
    * @returns the translation
    */
-  static translate(key: string, interpolation?: any): string {
+  static translate(key: string, interpolation?: unknown): string {
     const { translator, translations = {}, name } = this;
     return translator?.translate(translations, key, interpolation, name) || key;
   }

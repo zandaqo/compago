@@ -4,13 +4,13 @@ import {
   Part,
   PartInfo,
   PartType,
-} from "lit/directive.js";
+} from "lit-html/directive.js";
 
 type TranslatableComponent = {
   translate(key: string, interpolation?: unknown): string;
 };
 
-class TranslateDirective extends Directive {
+export class TranslateDirective extends Directive {
   host?: unknown;
 
   constructor(partInfo: PartInfo) {

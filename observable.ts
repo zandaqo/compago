@@ -1,9 +1,13 @@
-import { ChangeEvent, ChangeType } from "./change-event";
-import { isEqual, isObservableObject } from "./utilities";
+import { ChangeEvent, ChangeType } from "./change-event.ts";
+import { isEqual, isObservableObject } from "./utilities.ts";
 
 const sPath = Symbol.for("c-path");
-
 const sObservable = Symbol.for("c-observable");
+
+interface Observed {
+  [sPath]: string;
+  [sObservable]: _Observable;
+}
 
 const watchedArrayMethods = new Set([
   "push",
@@ -21,7 +25,7 @@ interface ObservableEventMap {
 export interface _Observable {
   addEventListener<K extends keyof ObservableEventMap>(
     type: K,
-    listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
+    listener: (this: _Observable, ev: ObservableEventMap[K]) => unknown,
     options?: boolean | AddEventListenerOptions,
   ): void;
 
@@ -33,7 +37,7 @@ export interface _Observable {
 
   removeEventListener<K extends keyof ObservableEventMap>(
     type: K,
-    listener: (this: _Observable, ev: ObservableEventMap[K]) => any,
+    listener: (this: _Observable, ev: ObservableEventMap[K]) => unknown,
     options?: boolean | AddEventListenerOptions,
   ): void;
 
@@ -44,13 +48,17 @@ export interface _Observable {
   ): void;
 }
 
-export class _Observable<T extends Object = Object> extends EventTarget {
-  static readonly arrayHandler: ProxyHandler<any> = {
+// deno-lint-ignore ban-types
+export class _Observable<T extends object = object> extends EventTarget {
+  [sPath]?: string;
+  [sObservable]?: _Observable;
+
+  static readonly arrayHandler: ProxyHandler<object> = {
     get: _Observable.arrayGetTrap,
     set: _Observable.setTrap,
     deleteProperty: _Observable.deletePropertyTrap,
   };
-  static readonly handler: ProxyHandler<any> = {
+  static readonly handler: ProxyHandler<object> = {
     set: _Observable.setTrap,
     deleteProperty: _Observable.deletePropertyTrap,
   };
@@ -83,7 +91,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
    */
   set(properties: T): this {
     Object.keys(this).forEach((key) => {
-      if (!Reflect.has(properties, key)) delete (this as any)[key];
+      if (!Reflect.has(properties, key)) delete this[key as keyof this];
     });
     return Object.assign(this, properties);
   }
@@ -103,13 +111,14 @@ export class _Observable<T extends Object = Object> extends EventTarget {
    * @param source the source object to be merged with the target object.
    * @param target the target object to be merged, uses the observable by default
    */
-  merge(source: any, target: any = this) {
-    Object.keys(source).forEach((key) => {
+  merge(source: object, target: object = this): object {
+    (Object.keys(source) as Array<keyof typeof source>).forEach((key) => {
       const current = source[key];
       const existing = target[key];
-      target[key] = isObservableObject(existing) && isObservableObject(current)
-        ? this.merge(current, existing)
-        : (target[key] = current);
+      (target as any)[key] =
+        isObservableObject(existing) && isObservableObject(current)
+          ? this.merge(current, existing)
+          : (target[key] = current);
     });
     return target;
   }
@@ -133,7 +142,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     target: any,
     path: string,
     observable: _Observable,
-    processed: Array<any>,
+    processed: Array<unknown>,
   ) {
     let proxy;
     // if the target already has a proxy
@@ -164,13 +173,13 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     return proxy;
   }
 
-  private static setProxies(
-    target: any,
+  private static setProxies<T extends object>(
+    target: T,
     path: string,
     observable: _Observable,
-    processed: Array<any>,
+    processed: Array<unknown>,
   ): void {
-    const keys = Object.keys(target);
+    const keys = Object.keys(target) as Array<keyof T>;
     for (const key of keys) {
       if (isObservableObject(target[key]) && !processed.includes(target[key])) {
         processed.push(target[key]);
@@ -184,14 +193,14 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     }
   }
 
-  private static arrayGetTrap(
-    target: any,
-    property: PropertyKey,
-    receiver: any,
-  ): any {
+  private static arrayGetTrap<T extends Observed>(
+    target: T,
+    property: keyof T,
+    receiver: Observed,
+  ): unknown {
     if (typeof property === "string" && watchedArrayMethods.has(property)) {
-      return (...args: any[]) => {
-        const value = target[property](...args);
+      return (...args: unknown[]) => {
+        const value = (target[property] as any)(...args);
         _Observable.setProxies(target, receiver[sPath], receiver[sObservable], [
           receiver,
         ]);
@@ -245,11 +254,11 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     return target[property];
   }
 
-  private static setTrap(
-    target: any,
-    property: PropertyKey,
-    value: any,
-    receiver: any,
+  private static setTrap<T extends Observed>(
+    target: T,
+    property: keyof T,
+    value: unknown,
+    receiver: unknown,
   ): boolean {
     // do not track symbols or non-enumerable properties
     if (
@@ -262,7 +271,7 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     if (isEqual(target[property], value)) return true;
     const path: string = target[sPath];
     const observable: _Observable = target[sObservable];
-    const previous: any = target[property];
+    const previous = target[property];
     const propertyPath = `${path}:${property}`;
     target[property] = isObservableObject(value)
       ? _Observable.getProxy(value, propertyPath, observable, [value])
@@ -273,7 +282,10 @@ export class _Observable<T extends Object = Object> extends EventTarget {
     return true;
   }
 
-  private static deletePropertyTrap(target: any, property: PropertyKey) {
+  private static deletePropertyTrap<T extends Observed>(
+    target: T,
+    property: keyof T,
+  ) {
     if (!Reflect.has(target, property)) return true;
     if (
       typeof property === "symbol" ||
@@ -294,8 +306,10 @@ export class _Observable<T extends Object = Object> extends EventTarget {
   }
 }
 
-export type Observable<K> = _Observable<K> & K;
+// deno-lint-ignore ban-types
+export type Observable<K extends object> = _Observable<K> & K;
 
 export const Observable = _Observable as {
-  new <T>(data: T): _Observable<T> & T;
+  // deno-lint-ignore ban-types
+  new <T extends object>(data: T): _Observable<T> & T;
 };

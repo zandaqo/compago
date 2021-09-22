@@ -4,9 +4,9 @@ import {
   EventPart,
   PartInfo,
   PartType,
-} from "lit/directive.js";
+} from "lit-html/directive.js";
 
-class Navigate extends Directive {
+export class NavigateDirective extends Directive {
   path: string | undefined;
   state: unknown;
   constructor(partInfo: PartInfo) {
@@ -35,9 +35,11 @@ class Navigate extends Directive {
 
   handler(event: Event): void {
     event.preventDefault();
-    window.history.pushState(this.state, globalThis.document.title, this.path);
-    window.dispatchEvent(new PopStateEvent("popstate", { state: this.state }));
+    window.history.pushState(this.state, window.document.title, this.path);
+    globalThis.dispatchEvent(
+      new PopStateEvent("popstate", { state: this.state }),
+    );
   }
 }
 
-export const navigate = directive(Navigate);
+export const navigate = directive(NavigateDirective);

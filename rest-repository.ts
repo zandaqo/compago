@@ -1,6 +1,7 @@
-import type { Repository } from "./repository";
-import { Result } from "./result";
+import type { Repository } from "./repository.ts";
+import { Result } from "./result.ts";
 
+// deno-lint-ignore ban-types
 export class RESTRepository<T extends object> implements Repository<T> {
   static init: Partial<RequestInit> = {
     method: "GET",
@@ -10,13 +11,15 @@ export class RESTRepository<T extends object> implements Repository<T> {
   };
 
   constructor(
-    protected EntityClass: { new (...args: any[]): T },
+    protected EntityClass: { new (...args: unknown[]): T },
     protected url: string,
     protected idProperty = "_id",
   ) {}
 
   exists(value: T): Promise<Result<boolean, undefined>> {
-    return Promise.resolve(Result.ok((value as any)[this.idProperty] != null));
+    return Promise.resolve(
+      Result.ok(value[this.idProperty as keyof T] != null),
+    );
   }
 
   async query<U>(
@@ -26,7 +29,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
     let { url } = this;
     const constructor = this.constructor as typeof RESTRepository;
     if (path) url += path;
-    if (search) url += `?${new globalThis.URLSearchParams(search).toString()}`;
+    if (search) url += `?${new URLSearchParams(search).toString()}`;
     const result = await constructor.fetch<U>(url);
     if (!result.ok) return result;
     if (result.value === undefined) return Result.fail(undefined);
@@ -65,11 +68,11 @@ export class RESTRepository<T extends object> implements Repository<T> {
     return Result.ok(this.deserialize(result.value));
   }
 
-  update(_: unknown, updates: any) {
-    return this.save(updates);
+  update(_: unknown, updates: unknown) {
+    return this.save(updates as T);
   }
 
-  async delete(id: string) {
+  delete(id: string) {
     const constructor = this.constructor as typeof RESTRepository;
     return constructor.fetch(`${this.url}/${id}`, {
       method: "DELETE",
@@ -95,7 +98,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
     const exists = await this.exists(value);
     if (exists.value) {
       method = "PUT";
-      url += `/${(value as any)[this.idProperty]}`;
+      url += `/${value[this.idProperty as keyof T]}`;
     }
     return constructor.fetch(url, {
       method,

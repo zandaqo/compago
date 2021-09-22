@@ -2,7 +2,7 @@ export function isBound(f: Function): boolean {
   return f.name.startsWith("bound ");
 }
 
-export function isObservableObject(value: any): boolean {
+export function isObservableObject(value: unknown): boolean {
   const type = Object.prototype.toString.call(value);
   return type === "[object Object]" || type === "[object Array]";
 }
@@ -17,7 +17,7 @@ export function isObservableObject(value: any): boolean {
  * @param b
  * @returns
  */
-export function isEqual(a: any, b: any): boolean {
+export function isEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
 
   if (a && b && typeof a === "object" && typeof b === "object") {
@@ -30,7 +30,7 @@ export function isEqual(a: any, b: any): boolean {
     if (arrA && arrB) {
       length = a.length;
       if (length !== b.length) return false;
-      for (i = length; i-- !== 0; ) if (!isEqual(a[i], b[i])) return false;
+      for (i = length; i-- !== 0;) if (!isEqual(a[i], b[i])) return false;
       return true;
     }
 
@@ -46,14 +46,14 @@ export function isEqual(a: any, b: any): boolean {
     if (regexpA !== regexpB) return false;
     if (regexpA && regexpB) return a.toString() === b.toString();
 
-    const keys = Object.keys(a);
+    const keys = Object.keys(a) as Array<keyof typeof a>;
     length = keys.length;
 
     if (length !== Object.keys(b).length) return false;
 
-    for (i = length; i-- !== 0; ) if (!b.hasOwnProperty(keys[i])) return false;
+    for (i = length; i-- !== 0;) if (!b.hasOwnProperty(keys[i])) return false;
 
-    for (i = length; i-- !== 0; ) {
+    for (i = length; i-- !== 0;) {
       key = keys[i];
       if (!isEqual(a[key], b[key])) return false;
     }

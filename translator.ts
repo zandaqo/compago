@@ -1,9 +1,15 @@
-import { LanguageChangeEvent } from "./language-change-event";
-import { MissingTranslationEvent } from "./missing-translation-event";
+import { LanguageChangeEvent } from "./language-change-event.ts";
+import { MissingTranslationEvent } from "./missing-translation-event.ts";
 
 type PluralTranslation = Partial<Record<Intl.LDMLPluralRule, string>>;
 
 const sTranslator = Symbol.for("c-translator");
+
+declare global {
+  interface window {
+    [sTranslator]: Translator;
+  }
+}
 
 export type Translations = {
   [language: string]: {
@@ -33,7 +39,7 @@ interface TranslatorEventMap {
 export interface Translator {
   addEventListener<K extends keyof TranslatorEventMap>(
     type: K,
-    listener: (this: Translator, ev: TranslatorEventMap[K]) => any,
+    listener: (this: Translator, ev: TranslatorEventMap[K]) => unknown,
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
@@ -43,7 +49,7 @@ export interface Translator {
   ): void;
   removeEventListener<K extends keyof TranslatorEventMap>(
     type: K,
-    listener: (this: Translator, ev: TranslatorEventMap[K]) => any,
+    listener: (this: Translator, ev: TranslatorEventMap[K]) => unknown,
     options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener(
@@ -96,7 +102,9 @@ export class Translator extends EventTarget {
    * @param language
    * @returns
    */
-  getLanguage(language = globalThis.navigator.language): string {
+  getLanguage(
+    language = (globalThis.navigator as any).language || "en",
+  ): string {
     const { languages } = this;
     // perfect match
     if (languages.includes(language)) return language;
@@ -134,7 +142,7 @@ export class Translator extends EventTarget {
   translate(
     translations: Translations,
     key: string,
-    interpolation?: any,
+    interpolation?: unknown,
     component?: string,
   ): string {
     const { language, globalPrefix } = this;
@@ -146,16 +154,18 @@ export class Translator extends EventTarget {
 
     if (translation) {
       if (!interpolation) return translation as string;
-      if (typeof interpolation.count === "number") {
+      if (
+        typeof (interpolation as Record<string, unknown>).count === "number"
+      ) {
         const rule: Intl.LDMLPluralRule = this.pluralRules.select(
-          interpolation.count,
+          (interpolation as Record<string, number>).count,
         );
         const pluralTranslation = (translation as PluralTranslation)[rule] ||
           (translation as PluralTranslation).other;
         if (typeof pluralTranslation !== "undefined") {
           return (this.constructor as typeof Translator).interpolate(
             pluralTranslation,
-            interpolation,
+            interpolation as Record<string, string>,
           );
         } else {
           this.reportMissing(component, key, rule);
@@ -165,15 +175,18 @@ export class Translator extends EventTarget {
       if (typeof translation === "string") {
         return (this.constructor as typeof Translator).interpolate(
           translation,
-          interpolation,
+          interpolation as Record<string, string>,
         );
       }
       if (Reflect.has(translation, "format")) {
         if (translation instanceof RelativeTimeFormat) {
-          return translation.format(interpolation[0], interpolation[1]);
+          return translation.format(
+            (interpolation as [number, Intl.RelativeTimeFormatUnit])[0],
+            (interpolation as [number, Intl.RelativeTimeFormatUnit])[1],
+          );
         }
         return (translation as Intl.DateTimeFormat | Intl.NumberFormat).format(
-          interpolation,
+          interpolation as number,
         );
       }
     }
@@ -191,7 +204,8 @@ export class Translator extends EventTarget {
     symbol = sTranslator,
   ): Translator {
     const translator = new Translator(options);
-    (globalThis as any)[symbol] = translator;
+    // deno-lint-ignore no-explicit-any
+    (window as any)[symbol] = translator;
     return translator;
   }
 
@@ -200,7 +214,10 @@ export class Translator extends EventTarget {
    * @param {Object} interpolation
    * @returns {string}
    */
-  static interpolate(text: string, interpolation: any): string {
+  static interpolate(
+    text: string,
+    interpolation: Record<string, string>,
+  ): string {
     return text.replace(
       /{{(\w+)}}/gi,
       (_, param) =>

@@ -1,5 +1,6 @@
-import type { Result } from "./result";
+import type { Result } from "./result.ts";
 
+// deno-lint-ignore ban-types
 export interface Repository<T extends object> {
   exists(value: T): Promise<Result<boolean, unknown>>;
   get(...args: Array<unknown>): Promise<Result<Array<T>, unknown>>;

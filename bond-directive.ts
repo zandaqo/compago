@@ -4,21 +4,22 @@ import {
   EventPart,
   PartInfo,
   PartType,
-} from "lit/directive.js";
+} from "lit-html/directive.js";
 
 type ComponentBond = {
   to: string;
+  // deno-lint-ignore ban-types
   parse?: Function;
-  validate?: (element: Element, content: any) => boolean;
+  validate?: (element: Element, content: unknown) => boolean;
   prevent?: boolean;
   property?: string;
   attribute?: string;
-  value?: any;
+  value?: unknown;
 };
 
-class Bond extends Directive {
+export class BondDirective extends Directive {
   options?: ComponentBond;
-  recipient?: unknown;
+  recipient?: Record<string, unknown>;
   path?: string;
   element?: Element;
 
@@ -32,16 +33,18 @@ class Bond extends Directive {
   update(part: EventPart, [options]: [ComponentBond]): unknown {
     const { to } = options;
     let path = to;
-    let recipient = part.options?.host;
+    let recipient = part.options?.host as Record<string, unknown>;
+    // TODO: rename Component#model into $ to avoid special-casing?
     if (path[0] === ":") {
-      recipient = (recipient as any)!.model;
+      recipient = recipient.model as Record<string, unknown>;
       path = path.slice(1);
     }
     if (path.includes(".")) {
+      // TODO: optimize to avoid splitting
       const chunks = path.split(".");
       path = chunks[chunks.length - 1];
       for (let i = 0; i < chunks.length - 1; i += 1) {
-        recipient = (recipient as any)[chunks[i]];
+        recipient = recipient[chunks[i]] as Record<string, unknown>;
       }
     }
     this.options = options;
@@ -50,10 +53,11 @@ class Bond extends Directive {
     this.element = part.element;
     return this.render(this.options);
   }
-  //@ts-ignore
-  render(options: ComponentBond): unknown {
+
+  render(_options: ComponentBond): unknown {
     return this.handler;
   }
+
   handler(event: Event): void {
     const {
       parse,
@@ -68,14 +72,14 @@ class Bond extends Directive {
     let content = Reflect.has(this.options!, "value")
       ? value
       : attribute != null
-      ? this.element!.getAttribute(attribute)
-      : (this.element as any)[property];
+      ? (this.element as HTMLElement).getAttribute(attribute)
+      : this.element![property as keyof Element];
     if (typeof validate === "function" && !validate(this.element!, content)) {
       return;
     }
     if (typeof parse === "function") content = parse(content);
-    (this.recipient as any)[this.path!] = content;
+    this.recipient![this.path!] = content;
   }
 }
 
-export const bond = directive(Bond);
+export const bond = directive(BondDirective);

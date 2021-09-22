@@ -15,11 +15,7 @@
     "*.d.ts",
     "*.js.map"
   ],
-  "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "build": "tsc",
-    "doc": "typedoc --out docs src/index.ts"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/zandaqo/compago.git"
@@ -30,45 +26,8 @@
   },
   "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
   "license": "MIT",
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "jsdom",
-    "transform": {
-      "^.+\\.(js|ts)$": "ts-jest"
-    },
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
-    "globals": {
-      "ts-jest": {
-        "useESM": true,
-        "tsconfig": {
-          "allowJs": true,
-          "esModuleInterop": true
-        }
-      }
-    },
-    "testMatch": [
-      "**/test/**/*.spec.ts"
-    ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "*.ts",
-      "!**/node_modules/**"
-    ],
-    "coverageDirectory": "<rootDir>/coverage",
-    "coverageReporters": [
-      "lcov"
-    ]
-  },
-  "devDependencies": {
-    "@types/jest": "^27.0.1",
-    "jest": "^27.0.5",
-    "ts-jest": "^27.0.3",
-    "typedoc": "^0.20.36",
-    "typescript": "^4.2.4"
-  },
   "dependencies": {
-    "lit": "^2.0.0-rc.4"
+    "lit-html": "^2.0.0",
+    "lit-element": "^3.0.0"
   }
 }

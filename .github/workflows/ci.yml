@@ -6,11 +6,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - name: download deno
+        uses: denoland/setup-deno@main
         with:
-          node-version: '16.x'
-      - name: Install Packages
-        run: npm ci
-      - name: Test
-        run: npm test
+          deno-version: 1.14
+      - name: check format
+        run: deno fmt --check
+      # - name: lint
+      #   run: deno lint
+      - name: run tests
+        run: deno test -A --unstable --import-map=./tests/test-import-map.json
