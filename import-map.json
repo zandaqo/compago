@@ -1,7 +1,7 @@
 {
   "imports": {
-    "lit-html/": "https://esm.sh/lit-html@next/",
-    "lit-element": "https://esm.sh/lit-element@next",
+    "lit-html/": "https://cdn.esm.sh/v53/lit-html@2.0.0/",
+    "lit-element": "https://cdn.esm.sh/v53/lit-element@3.0.0",
     "testing/": "https://deno.land/std@0.107.0/testing/",
     "mock/": "https://raw.githubusercontent.com/udibo/mock/0.10.1/"
   }
