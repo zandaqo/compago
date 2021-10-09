@@ -5,9 +5,10 @@ import {
   PartInfo,
   PartType,
 } from "lit-html/directive.js";
+import type { TranslateController } from "./translate-controller.ts";
 
-type TranslatableComponent = {
-  translate(key: string, interpolation?: unknown): string;
+type TranslatableElement = {
+  translator: TranslateController;
 };
 
 export class TranslateDirective extends Directive {
@@ -26,12 +27,15 @@ export class TranslateDirective extends Directive {
   }
 
   update(part: Part, [key, interpolation]: [string, unknown | undefined]) {
-    this.host = part.options?.host?.constructor;
+    this.host = part.options?.host;
     return this.render(key, interpolation);
   }
 
   render(key: string, interpolation?: unknown) {
-    return (this.host as TranslatableComponent).translate(key, interpolation);
+    return (this.host as TranslatableElement).translator.translate(
+      key,
+      interpolation,
+    );
   }
 }
 

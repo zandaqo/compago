@@ -1,5 +1,6 @@
 {
   "imports": {
+    "@lit/reactive-element": "https://cdn.esm.sh/v53/@lit/reactive-element@1.0.1",
     "lit-html/": "https://cdn.esm.sh/v53/lit-html@2.0.0/",
     "lit-element": "https://cdn.esm.sh/v53/lit-element@3.0.0",
     "testing/": "https://deno.land/std@0.107.0/testing/",

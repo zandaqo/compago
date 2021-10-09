@@ -11,7 +11,8 @@ export class RESTRepository<T extends object> implements Repository<T> {
   };
 
   constructor(
-    protected EntityClass: { new (...args: unknown[]): T },
+    // deno-lint-ignore no-explicit-any
+    protected EntityClass: { new (...args: any[]): T },
     protected url: string,
     protected idProperty = "_id",
   ) {}

@@ -27,6 +27,7 @@
   "author": "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
   "license": "MIT",
   "dependencies": {
+    "@lit/reactive-element": "^1.0.1",
     "lit-html": "^2.0.0",
     "lit-element": "^3.0.0"
   }

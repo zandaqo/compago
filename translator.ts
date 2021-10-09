@@ -148,9 +148,9 @@ export class Translator extends EventTarget {
     const { language, globalPrefix } = this;
     // use global store if prefix found
     const resources = !key.startsWith(globalPrefix)
-      ? translations[language]
+      ? translations?.[language]
       : this.translations[language];
-    const translation = resources[key];
+    const translation = resources?.[key];
 
     if (translation) {
       if (!interpolation) return translation as string;
