@@ -86,7 +86,7 @@ export class Translator extends EventTarget {
 
   /**
    * @param language
-   * @returns {void}
+   * @returns
    */
   setLanguage(language: string): void {
     const { language: previous } = this;
@@ -120,7 +120,7 @@ export class Translator extends EventTarget {
    * @param component
    * @param key
    * @param rule
-   * @returns {void}
+   * @returns
    */
   reportMissing(
     component: string = this.constructor.name,
@@ -135,9 +135,9 @@ export class Translator extends EventTarget {
   /**
    * @param translations
    * @param key
-   * @param {Object|number|Array} [interpolation]
+   * @param interpolation
    * @param component
-   * @returns string
+   * @returns
    */
   translate(
     translations: Translations,
@@ -210,9 +210,9 @@ export class Translator extends EventTarget {
   }
 
   /**
-   * @param {string} text
-   * @param {Object} interpolation
-   * @returns {string}
+   * @param text
+   * @param interpolation
+   * @returns
    */
   static interpolate(
     text: string,

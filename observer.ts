@@ -8,8 +8,8 @@ const sObservable = Symbol.for("c-observable");
 type Constructor<T> = { new (...args: any[]): T };
 
 export interface Observer<T extends object> {
-  model?: Observable<T>;
-  onModelChange(event: ChangeEvent): void;
+  $?: Observable<T>;
+  onObservableChange(event: ChangeEvent): void;
 }
 
 export function Observing<
@@ -18,32 +18,30 @@ export function Observing<
 >(Base: U): Constructor<Observer<T>> & U {
   return class Observer extends Base {
     [sObservable]?: Observable<T>;
-    get model() {
+    get $() {
       return this[sObservable];
     }
 
-    set model(model) {
-      const oldModel = this.model;
-      if (oldModel === model) return;
-      if (oldModel) {
-        oldModel.removeEventListener("change", this.onModelChange);
-      }
-      if (model) {
-        if (!isBound(this.onModelChange)) {
-          this.onModelChange = this.onModelChange.bind(this);
+    set $(value) {
+      const old = this.$;
+      if (old === value) return;
+      if (old) old.removeEventListener("change", this.onObservableChange);
+      if (value) {
+        if (!isBound(this.onObservableChange)) {
+          this.onObservableChange = this.onObservableChange.bind(this);
         }
-        model.addEventListener("change", this.onModelChange);
+        value.addEventListener("change", this.onObservableChange);
         this.requestUpdate();
       }
-      this[sObservable] = model;
+      this[sObservable] = value;
     }
 
     disconnectedCallback(): void {
-      if (this.model) this.model = undefined;
+      if (this.$) this.$ = undefined;
       super.disconnectedCallback();
     }
 
-    onModelChange(_: ChangeEvent): void {
+    onObservableChange(_event: ChangeEvent): void {
       this.requestUpdate();
     }
   };

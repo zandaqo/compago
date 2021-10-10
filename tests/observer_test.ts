@@ -28,36 +28,36 @@ const componentContext = (callback: (component: ComponentClass) => void) => {
 };
 
 test(
-  "[Component#disconnectedCallback] removes model",
+  "[Component#disconnectedCallback] removes observable",
   componentContext((component) => {
-    const model = new Observable({});
-    component.model = model;
-    assertEquals(component.model, model);
+    const observable = new Observable({});
+    component.$ = observable;
+    assertEquals(component.$, observable);
     component.disconnectedCallback();
-    assertEquals(component.model, undefined);
+    assertEquals(component.$, undefined);
   }),
 );
 
 test(
-  "[Component#onModelChange] requests component update",
+  "[Component#onObservableChange] requests component update",
   componentContext((component) => {
     const updateSpy = spy(component, "requestUpdate");
-    component.onModelChange(new ChangeEvent("a", ChangeType.Set));
+    component.onObservableChange(new ChangeEvent("a", ChangeType.Set));
     assertEquals(updateSpy.calls.length, 1);
   }),
 );
 
 test(
-  "[Component#model] subscribes to model change event",
+  "[Component#$] subscribes to observable change event",
   componentContext((component) => {
-    const model = new Observable({ a: 20 });
-    const changeSpy = spy(component, "onModelChange");
-    assertEquals(isBound(component.onModelChange), false);
-    component.model = model;
-    assertEquals(component.model, model);
-    assertEquals(isBound(component.onModelChange), true);
+    const observable = new Observable({ a: 20 });
+    const changeSpy = spy(component, "onObservableChange");
+    assertEquals(isBound(component.onObservableChange), false);
+    component.$ = observable;
+    assertEquals(component.$, observable);
+    assertEquals(isBound(component.onObservableChange), true);
     assertEquals(changeSpy.calls.length, 0);
-    model.a = 10;
+    observable.a = 10;
     assertEquals(changeSpy.calls.length, 1);
     assertEquals(changeSpy.calls[0].args[0].path, ":a");
     assertEquals(changeSpy.calls[0].args[0].kind, ChangeType.Set);
@@ -65,23 +65,26 @@ test(
 );
 
 test(
-  "[Component#model] does not subscribe twice to the same model",
+  "[Component#$] does not subscribe twice to the same observable",
   componentContext((component) => {
-    const model = new Observable({});
-    model.addEventListener = spy();
-    component.model = model;
-    component.model = model;
-    assertEquals((model.addEventListener as Spy<void>).calls.length, 1);
+    const observable = new Observable({});
+    observable.addEventListener = spy();
+    component.$ = observable;
+    component.$ = observable;
+    assertEquals((observable.addEventListener as Spy<void>).calls.length, 1);
   }),
 );
 
 test(
-  "[Component#model] unsubscribes from the old model when replacing",
+  "[Component#$] unsubscribes from the old observable when replacing",
   componentContext((component) => {
-    const oldModel = new Observable({});
-    component.model = oldModel;
-    oldModel.removeEventListener = spy();
-    component.model = new Observable({});
-    assertEquals((oldModel.removeEventListener as Spy<void>).calls.length, 1);
+    const oldobservable = new Observable({});
+    component.$ = oldobservable;
+    oldobservable.removeEventListener = spy();
+    component.$ = new Observable({});
+    assertEquals(
+      (oldobservable.removeEventListener as Spy<void>).calls.length,
+      1,
+    );
   }),
 );

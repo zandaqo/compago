@@ -21,7 +21,7 @@ export class BondDirective extends Directive {
   constructor(partInfo: PartInfo) {
     super(partInfo);
     if (partInfo.type !== PartType.EVENT) {
-      throw new Error("navigate only supports event expressions");
+      throw new Error("bond only supports event expressions");
     }
     this.handler = this.handler.bind(this);
   }
@@ -29,13 +29,7 @@ export class BondDirective extends Directive {
     const { to } = options;
     let path = to;
     let recipient = part.options?.host as Record<string, unknown>;
-    // TODO: rename Component#model into $ to avoid special-casing?
-    if (path[0] === ":") {
-      recipient = recipient.model as Record<string, unknown>;
-      path = path.slice(1);
-    }
     if (path.includes(".")) {
-      // TODO: optimize to avoid splitting
       const chunks = path.split(".");
       path = chunks[chunks.length - 1];
       for (let i = 0; i < chunks.length - 1; i += 1) {

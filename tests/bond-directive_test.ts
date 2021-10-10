@@ -8,7 +8,7 @@ import type { EventPart } from "lit-html/directive.js";
 const { test } = Deno;
 
 class Div extends HTMLElement {
-  model?: Record<string, unknown>;
+  $?: Record<string, unknown>;
   nested?: Record<string, unknown>;
   attributeChangedCallback() {
     return;
@@ -67,18 +67,6 @@ test(
     directive.update({ options: { host } } as unknown as EventPart, [options]);
     assertEquals(directive.recipient, host.nested);
     assertEquals(directive.path, "a");
-  }),
-);
-
-test(
-  "[BondDirective#update] bonds to component's model if `to` starts with `:`",
-  bondContext((host, directive) => {
-    host.model = { "a": { b: 1 } };
-    const options = { to: ":a.b" };
-    directive.update({ options: { host } } as unknown as EventPart, [options]);
-    assertEquals(directive.options, options);
-    assertEquals(directive.recipient, host.model.a);
-    assertEquals(directive.path, "b");
   }),
 );
 
@@ -156,13 +144,13 @@ test(
   "[BondDirective#handler] sets value from a property",
   bondContext((host, directive) => {
     host.nested = {};
-    host.model = { a: 5 };
-    const options = { to: "nested.a", property: "model" };
+    host.$ = { a: 5 };
+    const options = { to: "nested.a", property: "$" };
     directive.update(
       { element: host, options: { host: host } } as unknown as EventPart,
       [options],
     );
     directive.handler(new Event("click"));
-    assertEquals(host.nested?.a, host.model);
+    assertEquals(host.nested?.a, host.$);
   }),
 );
