@@ -1,10 +1,5 @@
-import {
-  Directive,
-  directive,
-  Part,
-  PartInfo,
-  PartType,
-} from "lit-html/directive.js";
+import { Directive, directive, PartType } from "lit-html/directive.js";
+import type { Part, PartInfo } from "lit-html/directive.js";
 import type { TranslateController } from "./translate-controller.ts";
 
 type TranslatableElement = {

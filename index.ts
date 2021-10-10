@@ -9,7 +9,7 @@ export { RouteController } from "./route-controller.ts";
 export type { RouteHandler, RouteMap } from "./route-controller.ts";
 export { TranslateController } from "./translate-controller.ts";
 export { Observable } from "./observable.ts";
-export { Component } from "./component.ts";
+export { Observing } from "./observer.ts";
 export { Translator } from "./translator.ts";
 export { Result } from "./result.ts";
 export type { Repository } from "./repository.ts";

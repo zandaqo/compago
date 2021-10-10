@@ -1,6 +1,7 @@
 import type {
   ReactiveController,
   ReactiveControllerHost,
+  ReactiveElement,
 } from "@lit/reactive-element";
 import { LanguageChangeEvent } from "./language-change-event.ts";
 import type { Translator } from "./translator.ts";

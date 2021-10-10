@@ -1,10 +1,5 @@
-import {
-  Directive,
-  directive,
-  EventPart,
-  PartInfo,
-  PartType,
-} from "lit-html/directive.js";
+import { Directive, directive, PartType } from "lit-html/directive.js";
+import type { EventPart, PartInfo } from "lit-html/directive.js";
 
 type ComponentBond = {
   to: string;

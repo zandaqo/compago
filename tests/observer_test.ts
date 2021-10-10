@@ -1,15 +1,23 @@
 import "./dom-shim.ts";
 import { assertEquals } from "testing/asserts.ts";
 import { Spy, spy } from "mock/spy.ts";
-import { Component } from "../component.ts";
+import { ReactiveElement } from "@lit/reactive-element";
+import { Observing } from "../observer.ts";
 import { ChangeEvent, ChangeType } from "../change-event.ts";
 import { Observable } from "../observable.ts";
 import { isBound } from "../utilities.ts";
 
 const { test } = Deno;
 
+export class LitElement extends ReactiveElement {
+  connectedCallback() {}
+  disconnectedCallback() {}
+  attributeChangedCallback() {}
+  requestUpdate() {}
+}
+
 // deno-lint-ignore no-explicit-any
-class ComponentClass extends Component<any> {
+class ComponentClass extends Observing<any>(LitElement) {
   static translations = { en: { two: "two" }, es: { two: "dos" } };
 }
 

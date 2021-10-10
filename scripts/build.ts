@@ -8,12 +8,13 @@ try {
   }
   const { files } = await Deno.emit("index.ts", {
     compilerOptions: {
-      "target": "es2020",
-      "module": "es2020",
+      "target": "esnext",
+      "module": "esnext",
       "sourceMap": true,
       "inlineSources": true,
       "declaration": true,
       "removeComments": false,
+      "useDefineForClassFields": false,
       "lib": [
         "dom",
         "dom.iterable",
