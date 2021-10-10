@@ -1,5 +1,6 @@
 import type { Repository } from "./repository.ts";
 import { Result } from "./result.ts";
+import type { Constructor } from "./utilities.ts";
 
 // deno-lint-ignore ban-types
 export class RESTRepository<T extends object> implements Repository<T> {
@@ -11,8 +12,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
   };
 
   constructor(
-    // deno-lint-ignore no-explicit-any
-    protected EntityClass: { new (...args: any[]): T },
+    protected EntityClass: Constructor<T>,
     protected url: string,
     protected idProperty = "_id",
   ) {}

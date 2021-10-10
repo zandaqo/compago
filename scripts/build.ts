@@ -6,7 +6,7 @@ try {
   for (const [key, value] of Object.entries(importMap)) {
     reversedImportMap.push([value as string, key]);
   }
-  const { files } = await Deno.emit("index.ts", {
+  const { files } = await Deno.emit("mod.ts", {
     compilerOptions: {
       "target": "esnext",
       "module": "esnext",

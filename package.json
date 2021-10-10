@@ -2,7 +2,7 @@
   "name": "compago",
   "version": "5.0.0-beta.27",
   "description": "A minimalist MVC framework for modern browsers.",
-  "main": "index.js",
+  "main": "mod.js",
   "type": "module",
   "keywords": [
     "mvc",

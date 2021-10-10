@@ -2,10 +2,9 @@ import type { ReactiveElement } from "@lit/reactive-element";
 import { isBound } from "./utilities.ts";
 import type { Observable } from "./observable.ts";
 import type { ChangeEvent } from "./change-event.ts";
+import type { Constructor } from "./utilities.ts";
 
 const sObservable = Symbol.for("c-observable");
-
-type Constructor<T> = { new (...args: any[]): T };
 
 export interface Observer<T extends object> {
   $?: Observable<T>;

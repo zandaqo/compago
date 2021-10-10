@@ -12,14 +12,14 @@ export type RouteHandler = (
   state?: unknown,
 ) => void;
 
-export type RouteMap = Record<string, [RegExp, RouteHandler | undefined]>;
+export type RoutesMap = Record<string, [RegExp, RouteHandler | undefined]>;
 
-export class RouteController implements ReactiveController {
+export class RouterController implements ReactiveController {
   host: ReactiveControllerHost;
   root = "";
   current = "";
-  routes: RouteMap;
-  constructor(host: ReactiveControllerHost, routes: RouteMap, root = "") {
+  routes: RoutesMap;
+  constructor(host: ReactiveControllerHost, routes: RoutesMap, root = "") {
     (this.host = host).addController(this);
     this.routes = routes;
     this.root = root;

@@ -1,45 +1,39 @@
 import { LanguageChangeEvent } from "./language-change-event.ts";
-import { MissingTranslationEvent } from "./missing-translation-event.ts";
+import { MissingLocalizationEvent } from "./missing-localization-event.ts";
 
-type PluralTranslation = Partial<Record<Intl.LDMLPluralRule, string>>;
+type Pluralization = Partial<Record<Intl.LDMLPluralRule, string>>;
 
-const sTranslator = Symbol.for("c-translator");
+const sLocalizer = Symbol.for("c-localizer");
 
-declare global {
-  interface window {
-    [sTranslator]: Translator;
-  }
-}
-
-export type Translations = {
+export type Localizations = {
   [language: string]: {
     [key: string]:
       | string
       | Intl.DateTimeFormat
       | Intl.NumberFormat
       | Intl.RelativeTimeFormat
-      | PluralTranslation;
+      | Pluralization;
   };
 };
 
-type TranslatorOptions = {
+type LocalizerOptions = {
   language?: string;
   languages: Array<string>;
-  translations: Translations;
+  localizations: Localizations;
   globalPrefix?: string;
 };
 
 const { PluralRules, RelativeTimeFormat } = globalThis.Intl;
 
-interface TranslatorEventMap {
+interface LocalizerEventMap {
   "language-change": LanguageChangeEvent;
-  "missing-translation": MissingTranslationEvent;
+  "missing-localization": MissingLocalizationEvent;
 }
 
-export interface Translator {
-  addEventListener<K extends keyof TranslatorEventMap>(
+export interface Localizer {
+  addEventListener<K extends keyof LocalizerEventMap>(
     type: K,
-    listener: (this: Translator, ev: TranslatorEventMap[K]) => unknown,
+    listener: (this: Localizer, ev: LocalizerEventMap[K]) => unknown,
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
@@ -47,9 +41,9 @@ export interface Translator {
     listener: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ): void;
-  removeEventListener<K extends keyof TranslatorEventMap>(
+  removeEventListener<K extends keyof LocalizerEventMap>(
     type: K,
-    listener: (this: Translator, ev: TranslatorEventMap[K]) => unknown,
+    listener: (this: Localizer, ev: LocalizerEventMap[K]) => unknown,
     options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener(
@@ -60,12 +54,12 @@ export interface Translator {
 }
 
 /**/
-export class Translator extends EventTarget {
+export class Localizer extends EventTarget {
   globalPrefix: string;
   language: string;
   languages: Array<string>;
   pluralRules: Intl.PluralRules;
-  translations: Translations;
+  localizations: Localizations;
 
   /**
    * @param options
@@ -73,12 +67,12 @@ export class Translator extends EventTarget {
   constructor({
     language,
     languages,
-    translations = {},
+    localizations = {},
     globalPrefix = "$",
-  }: TranslatorOptions) {
+  }: LocalizerOptions) {
     super();
     this.languages = languages;
-    this.translations = translations;
+    this.localizations = localizations;
     this.globalPrefix = globalPrefix;
     this.language = language || this.getLanguage();
     this.pluralRules = new PluralRules(this.language);
@@ -128,19 +122,19 @@ export class Translator extends EventTarget {
     rule?: string,
   ): void {
     this.dispatchEvent(
-      new MissingTranslationEvent(component, key, rule),
+      new MissingLocalizationEvent(component, key, rule),
     );
   }
 
   /**
-   * @param translations
+   * @param localizations
    * @param key
    * @param interpolation
    * @param component
    * @returns
    */
-  translate(
-    translations: Translations,
+  localize(
+    localizations: Localizations,
     key: string,
     interpolation?: unknown,
     component?: string,
@@ -148,23 +142,23 @@ export class Translator extends EventTarget {
     const { language, globalPrefix } = this;
     // use global store if prefix found
     const resources = !key.startsWith(globalPrefix)
-      ? translations?.[language]
-      : this.translations[language];
-    const translation = resources?.[key];
+      ? localizations?.[language]
+      : this.localizations[language];
+    const localizaion = resources?.[key];
 
-    if (translation) {
-      if (!interpolation) return translation as string;
+    if (localizaion) {
+      if (!interpolation) return localizaion as string;
       if (
         typeof (interpolation as Record<string, unknown>).count === "number"
       ) {
         const rule: Intl.LDMLPluralRule = this.pluralRules.select(
           (interpolation as Record<string, number>).count,
         );
-        const pluralTranslation = (translation as PluralTranslation)[rule] ||
-          (translation as PluralTranslation).other;
-        if (typeof pluralTranslation !== "undefined") {
-          return (this.constructor as typeof Translator).interpolate(
-            pluralTranslation,
+        const pluralization = (localizaion as Pluralization)[rule] ||
+          (localizaion as Pluralization).other;
+        if (typeof pluralization !== "undefined") {
+          return (this.constructor as typeof Localizer).interpolate(
+            pluralization,
             interpolation as Record<string, string>,
           );
         } else {
@@ -172,20 +166,20 @@ export class Translator extends EventTarget {
           return "";
         }
       }
-      if (typeof translation === "string") {
-        return (this.constructor as typeof Translator).interpolate(
-          translation,
+      if (typeof localizaion === "string") {
+        return (this.constructor as typeof Localizer).interpolate(
+          localizaion,
           interpolation as Record<string, string>,
         );
       }
-      if (Reflect.has(translation, "format")) {
-        if (translation instanceof RelativeTimeFormat) {
-          return translation.format(
+      if (Reflect.has(localizaion, "format")) {
+        if (localizaion instanceof RelativeTimeFormat) {
+          return localizaion.format(
             (interpolation as [number, Intl.RelativeTimeFormatUnit])[0],
             (interpolation as [number, Intl.RelativeTimeFormatUnit])[1],
           );
         }
-        return (translation as Intl.DateTimeFormat | Intl.NumberFormat).format(
+        return (localizaion as Intl.DateTimeFormat | Intl.NumberFormat).format(
           interpolation as number,
         );
       }
@@ -200,13 +194,11 @@ export class Translator extends EventTarget {
    * @returns
    */
   static initialize(
-    options: TranslatorOptions,
-    symbol = sTranslator,
-  ): Translator {
-    const translator = new Translator(options);
+    options: LocalizerOptions,
+    symbol = sLocalizer,
+  ): Localizer {
     // deno-lint-ignore no-explicit-any
-    (window as any)[symbol] = translator;
-    return translator;
+    return (globalThis as any)[symbol] = new Localizer(options);
   }
 
   /**

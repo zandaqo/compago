@@ -1,12 +1,12 @@
 import { Directive, directive, PartType } from "lit-html/directive.js";
 import type { Part, PartInfo } from "lit-html/directive.js";
-import type { TranslateController } from "./translate-controller.ts";
+import type { LocalizerController } from "./localizer-controller.ts";
 
-type TranslatableElement = {
-  translator: TranslateController;
+type LocalizableElement = {
+  localizer: LocalizerController;
 };
 
-export class TranslateDirective extends Directive {
+export class LocalizeDirective extends Directive {
   host?: unknown;
 
   constructor(partInfo: PartInfo) {
@@ -16,7 +16,7 @@ export class TranslateDirective extends Directive {
       partInfo.type !== PartType.CHILD && partInfo.type !== PartType.PROPERTY
     ) {
       throw new Error(
-        "translate only supports attribute, property, and child expressions",
+        "localize only supports attribute, property, and child expressions",
       );
     }
   }
@@ -27,11 +27,11 @@ export class TranslateDirective extends Directive {
   }
 
   render(key: string, interpolation?: unknown) {
-    return (this.host as TranslatableElement).translator.translate(
+    return (this.host as LocalizableElement).localizer.localize(
       key,
       interpolation,
     );
   }
 }
 
-export const translate = directive(TranslateDirective);
+export const localize = directive(LocalizeDirective);

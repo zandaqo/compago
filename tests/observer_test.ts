@@ -18,7 +18,7 @@ export class LitElement extends ReactiveElement {
 
 // deno-lint-ignore no-explicit-any
 class ComponentClass extends Observing<any>(LitElement) {
-  static translations = { en: { two: "two" }, es: { two: "dos" } };
+  static localizations = { en: { two: "two" }, es: { two: "dos" } };
 }
 
 const componentContext = (callback: (component: ComponentClass) => void) => {

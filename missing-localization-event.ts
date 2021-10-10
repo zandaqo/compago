@@ -1,10 +1,10 @@
-export class MissingTranslationEvent extends Event {
+export class MissingLocalizationEvent extends Event {
   constructor(
     public component: string,
     public key: string,
     public rule?: string,
   ) {
-    super("missing-translation", {
+    super("missing-localization", {
       bubbles: true,
       composed: true,
     });

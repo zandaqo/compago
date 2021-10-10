@@ -1,26 +1,25 @@
 import type {
   ReactiveController,
   ReactiveControllerHost,
-  ReactiveElement,
 } from "@lit/reactive-element";
 import { LanguageChangeEvent } from "./language-change-event.ts";
-import type { Translator } from "./translator.ts";
+import type { Localizer } from "./localizer.ts";
 
-export class TranslateController implements ReactiveController {
+export class LocalizerController implements ReactiveController {
   host: ReactiveControllerHost;
-  translator = (globalThis as any)[Symbol.for("c-translator")] as Translator;
+  localizer = (globalThis as any)[Symbol.for("c-localizer")] as Localizer;
   constructor(host: ReactiveControllerHost) {
     (this.host = host).addController(this);
     this.onLanguageChange = this.onLanguageChange.bind(this);
   }
   hostConnected() {
-    this.translator.addEventListener(
+    this.localizer.addEventListener(
       "language-change",
       this.onLanguageChange,
     );
   }
   hostDisconnected() {
-    this.translator.removeEventListener(
+    this.localizer.removeEventListener(
       "language-change",
       this.onLanguageChange,
     );
@@ -28,9 +27,9 @@ export class TranslateController implements ReactiveController {
   onLanguageChange(_: LanguageChangeEvent) {
     this.host.requestUpdate();
   }
-  translate(key: string, interpolation?: unknown): string {
-    return this.translator.translate(
-      (this.host.constructor as any).translations,
+  localize(key: string, interpolation?: unknown): string {
+    return this.localizer.localize(
+      (this.host.constructor as any).localizations,
       key,
       interpolation,
     ) || key;
