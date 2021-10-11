@@ -50,7 +50,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
     });
   }
 
-  async get(
+  async list(
     search?: Record<string, string>,
   ): Promise<Result<Array<T>, undefined | Response | TypeError>> {
     const result = await this.query<Array<T>>(search);

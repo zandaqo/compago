@@ -79,26 +79,26 @@ test(
 );
 
 test(
-  "[RESTRepository#get] queries REST endpoint with optional search parameters",
+  "[RESTRepository#list] queries REST endpoint with optional search parameters",
   repositoryContext(async (repository) => {
-    await repository.get({ a: "1", b: "1" });
+    await repository.list({ a: "1", b: "1" });
     assertEquals(fetchStub.calls[0].args[0], "/things?a=1&b=1");
   }),
 );
 
 test(
-  "[RESTRepository#get] queries an endpoint without search parameters",
+  "[RESTRepository#list] queries an endpoint without search parameters",
   repositoryContext(async (repository) => {
-    await repository.get();
+    await repository.list();
     assertEquals(fetchStub.calls[0].args[0], "/things");
   }),
 );
 
 test(
-  "[RESTRepository#get] proxies failed response when fetch fails",
+  "[RESTRepository#list] proxies failed response when fetch fails",
   repositoryContext(
     async (repository) => {
-      const result = await repository.get();
+      const result = await repository.list();
       assertEquals(fetchStub.calls[0].args[0], "/things");
       assertEquals(result.ok, false);
       assertEquals(result.value instanceof Response, true);
