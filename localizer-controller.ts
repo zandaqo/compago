@@ -7,6 +7,7 @@ import type { Localizer } from "./localizer.ts";
 
 export class LocalizerController implements ReactiveController {
   host: ReactiveControllerHost;
+  // deno-lint-ignore no-explicit-any
   localizer = (globalThis as any)[Symbol.for("c-localizer")] as Localizer;
   constructor(host: ReactiveControllerHost) {
     (this.host = host).addController(this);
@@ -29,6 +30,7 @@ export class LocalizerController implements ReactiveController {
   }
   localize(key: string, interpolation?: unknown): string {
     return this.localizer.localize(
+      // deno-lint-ignore no-explicit-any
       (this.host.constructor as any).localizations,
       key,
       interpolation,

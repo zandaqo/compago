@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-types
 import { ChangeEvent, ChangeType } from "./change-event.ts";
 import { isEqual, isObservableObject } from "./utilities.ts";
 
@@ -48,7 +49,6 @@ export interface _Observable {
   ): void;
 }
 
-// deno-lint-ignore ban-types
 export class _Observable<T extends object = object> extends EventTarget {
   [sPath]?: string;
   [sObservable]?: _Observable;
@@ -58,6 +58,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     set: _Observable.setTrap,
     deleteProperty: _Observable.deletePropertyTrap,
   };
+
   static readonly handler: ProxyHandler<object> = {
     set: _Observable.setTrap,
     deleteProperty: _Observable.deletePropertyTrap,
@@ -115,6 +116,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     (Object.keys(source) as Array<keyof typeof source>).forEach((key) => {
       const current = source[key];
       const existing = target[key];
+      // deno-lint-ignore no-explicit-any
       (target as any)[key] =
         isObservableObject(existing) && isObservableObject(current)
           ? this.merge(current, existing)
@@ -139,6 +141,7 @@ export class _Observable<T extends object = object> extends EventTarget {
    * @returns a new Proxy object
    */
   private static getProxy(
+    // deno-lint-ignore no-explicit-any
     target: any,
     path: string,
     observable: _Observable,
@@ -200,6 +203,7 @@ export class _Observable<T extends object = object> extends EventTarget {
   ): unknown {
     if (typeof property === "string" && watchedArrayMethods.has(property)) {
       return (...args: unknown[]) => {
+        // deno-lint-ignore no-explicit-any
         const value = (target[property] as any)(...args);
         _Observable.setProxies(target, receiver[sPath], receiver[sObservable], [
           receiver,
@@ -263,6 +267,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     // do not track symbols or non-enumerable properties
     if (
       typeof property === "symbol" ||
+      // deno-lint-ignore no-prototype-builtins
       (Reflect.has(target, property) && !target.propertyIsEnumerable(property))
     ) {
       Reflect.set(target, property, value, receiver);
@@ -289,6 +294,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     if (!Reflect.has(target, property)) return true;
     if (
       typeof property === "symbol" ||
+      // deno-lint-ignore no-prototype-builtins
       !target.propertyIsEnumerable(property)
     ) {
       delete target[property];
@@ -306,10 +312,8 @@ export class _Observable<T extends object = object> extends EventTarget {
   }
 }
 
-// deno-lint-ignore ban-types
 export type Observable<K extends object> = _Observable<K> & K;
 
 export const Observable = _Observable as {
-  // deno-lint-ignore ban-types
   new <T extends object>(data: T): _Observable<T> & T;
 };

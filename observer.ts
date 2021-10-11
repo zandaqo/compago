@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-types
 import type { ReactiveElement } from "@lit/reactive-element";
 import { isBound } from "./utilities.ts";
 import type { Observable } from "./observable.ts";

@@ -1,6 +1,7 @@
-//deno-lint-ignore no-explicit-any
+// deno-lint-ignore no-explicit-any
 export type Constructor<T> = { new (...args: any[]): T };
 
+// deno-lint-ignore ban-types
 export function isBound(f: Function): boolean {
   return f.name.startsWith("bound ");
 }
@@ -53,7 +54,7 @@ export function isEqual(a: unknown, b: unknown): boolean {
     length = keys.length;
 
     if (length !== Object.keys(b).length) return false;
-
+    // deno-lint-ignore no-prototype-builtins
     for (i = length; i-- !== 0;) if (!b.hasOwnProperty(keys[i])) return false;
 
     for (i = length; i-- !== 0;) {

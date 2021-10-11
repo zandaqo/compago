@@ -97,6 +97,7 @@ export class Localizer extends EventTarget {
    * @returns
    */
   getLanguage(
+    // deno-lint-ignore no-explicit-any
     language = (globalThis.navigator as any).language || "en",
   ): string {
     const { languages } = this;
