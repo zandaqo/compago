@@ -3,7 +3,7 @@ import type { ReactiveElement } from "@lit/reactive-element";
 import { isBound } from "./utilities.ts";
 import type { Observable } from "./observable.ts";
 import type { ChangeEvent } from "./change-event.ts";
-import type { Constructor } from "./utilities.ts";
+import type { Constructor } from "./interfaces.ts";
 
 const sObservable = Symbol.for("c-observable");
 

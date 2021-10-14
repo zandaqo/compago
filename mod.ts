@@ -13,5 +13,5 @@ export { Observing } from "./observer.ts";
 export type { Observer } from "./observer.ts";
 export { Localizer } from "./localizer.ts";
 export { Result } from "./result.ts";
-export type { Repository } from "./repository.ts";
+export type { Constructor, Entity, Repository } from "./interfaces.ts";
 export { RESTRepository } from "./rest-repository.ts";

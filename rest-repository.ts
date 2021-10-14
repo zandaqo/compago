@@ -1,6 +1,5 @@
-import type { Repository } from "./repository.ts";
+import type { Constructor, Repository } from "./interfaces.ts";
 import { Result } from "./result.ts";
-import type { Constructor } from "./utilities.ts";
 
 // deno-lint-ignore ban-types
 export class RESTRepository<T extends object> implements Repository<T> {

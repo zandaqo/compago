@@ -10,7 +10,7 @@ const attributes: WeakMap<HTMLElement, Map<string, string>> = new WeakMap();
 const attributesForElement = (element: HTMLElement) => {
   let attrs = attributes.get(element);
   if (!attrs) {
-    attributes.set(element, (attrs = new Map()));
+    attributes.set(element, attrs = new Map());
   }
   return attrs;
 };

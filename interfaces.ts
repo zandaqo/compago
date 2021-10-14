@@ -1,5 +1,15 @@
 import type { Result } from "./result.ts";
 
+// deno-lint-ignore no-explicit-any
+export type Constructor<T> = { new (...args: any[]): T };
+
+export type Entity<
+  T extends { [K in ID]?: unknown },
+  ID extends string = "_id",
+> =
+  & T
+  & { [K in ID]: Exclude<T[ID], undefined> };
+
 // deno-lint-ignore ban-types
 export interface Repository<T extends object> {
   exists(value: T): Promise<Result<boolean, unknown>>;
