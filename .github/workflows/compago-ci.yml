@@ -16,4 +16,4 @@ jobs:
       - name: lint
         run: deno lint
       - name: run tests
-        run: deno test -A --unstable --import-map=./test-import-map.json
+        run: deno test -A --unstable --import-map=./import-map.json
