@@ -32,8 +32,11 @@ try {
       fileName.lastIndexOf("/") + 1,
       fileName.indexOf("."),
     );
-    const path = fileName.replace(/file\:\/\/\//g, "")
-      .replace(/\.ts\./g, "."); // remove .ts extenstion
+    const isLocal = fileName.startsWith("file:");
+    const path = isLocal
+      ? fileName.replace(/file\:\/\/\//g, "")
+        .replace(/\.ts\./g, ".")
+      : fileName; // remove .ts extenstion
     let content = text;
     if (isJS || isDTS) {
       content = text.replace(/\.ts";/g, isDTS ? '";' : '.js";') // remove .ts extension
@@ -56,7 +59,7 @@ try {
       source.sources = [name + ".ts"];
       content = JSON.stringify(source);
     }
-    Deno.writeTextFileSync(path, content);
+    if (isLocal) Deno.writeTextFileSync(path, content);
   }
   console.log("Done!");
 } catch (e) {
