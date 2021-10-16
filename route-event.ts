@@ -1,10 +1,14 @@
-export class RouteEvent extends Event {
+export type RouteDetail<T = Record<string, string>> = {
+  name: string;
+  params: T;
+  query?: URLSearchParams;
+  hash?: string;
+  state?: unknown;
+};
+
+export class RouteEvent<T = Record<string, string>> extends Event {
   constructor(
-    public route: string,
-    public params: Record<string, string>,
-    public query?: URLSearchParams,
-    public hash?: string,
-    public state?: unknown,
+    public detail: RouteDetail<T>,
   ) {
     super("route", { bubbles: true, composed: true });
   }

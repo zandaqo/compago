@@ -2,57 +2,106 @@ import type {
   ReactiveController,
   ReactiveControllerHost,
 } from "@lit/reactive-element";
-import { RouteEvent } from "./route-event.ts";
+import { RouteDetail, RouteEvent } from "./route-event.ts";
 
-export type RouteHandler = (
-  name: string,
-  params: Record<string, string>,
-  query?: URLSearchParams,
-  hash?: string,
-  state?: unknown,
-) => void;
+export type RouteConfig = {
+  /**
+   * The name of the route
+   */
+  name: string;
+  /**
+   * RegExp matching the path
+   */
+  path: RegExp;
+  /**
+   * The URL to dynamically import a component
+   */
+  load?: string;
+  /**
+   * The component tag name
+   */
+  component?: keyof HTMLElementTagNameMap;
+  /**
+   * The custom handler
+   *
+   * @param route details of the matched route
+   */
+  action?(route: RouteDetail): void;
+};
 
-export type RoutesMap = Record<string, [RegExp, RouteHandler | undefined]>;
-
-export class RouterController implements ReactiveController {
-  host: ReactiveControllerHost;
+/**
+ * A controller to serve as a client-side router.
+ */
+export class RouterController<T extends ReactiveControllerHost>
+  implements ReactiveController {
+  host: T;
   root = "";
   current = "";
-  routes: RoutesMap;
-  constructor(host: ReactiveControllerHost, routes: RoutesMap, root = "") {
+  outlet: keyof T;
+  routes: Array<RouteConfig>;
+  /**
+   * @param host the controller host
+   * @param routes an array of routes
+   * @param outlet the host property to which the created components are assigned
+   * @param root the base path of the router
+   */
+  constructor(
+    host: T,
+    routes: Array<RouteConfig>,
+    outlet: keyof T,
+    root = "",
+  ) {
     (this.host = host).addController(this);
     this.routes = routes;
     this.root = root;
+    this.outlet = outlet;
     this.onPopstate = this.onPopstate.bind(this);
   }
 
   onPopstate(event: PopStateEvent): void {
-    const { root, routes } = this;
+    const { host, root, routes } = this;
     const { location } = globalThis;
     let path = decodeURIComponent(location.pathname);
     if (path === this.current) return;
     this.current = path;
     if (root && !path.startsWith(root)) return;
     path = path.slice(root.length);
-    const names = Object.keys(routes);
-    for (let i = 0; i < names.length; i += 1) {
-      const name = names[i];
-      const [route, handler] = routes[name];
-      const match = route.exec(path);
+    for (const route of routes) {
+      const match = route.path.exec(path);
       if (!match) continue;
       const params = match.groups || {};
       const hash = decodeURIComponent(location.hash);
       const query = location.search
         ? new URLSearchParams(location.search)
         : undefined;
-      if (handler) {
-        handler.call(this.host, name, params, query, hash, event.state);
+      const detail: RouteDetail = {
+        name: route.name,
+        params,
+        query,
+        hash,
+        state: event.state,
+      };
+      if (route.action) {
+        route.action.call(host, detail);
+      } else if (route.component) {
+        this.setComponent(detail, route.component, route.load);
       }
-      (this.host as unknown as HTMLElement).dispatchEvent(
-        new RouteEvent(name, params, query, hash, event.state),
+      (host as unknown as HTMLElement).dispatchEvent(
+        new RouteEvent(detail),
       );
       return;
     }
+  }
+
+  async setComponent(
+    detail: RouteDetail,
+    component: keyof HTMLElementTagNameMap,
+    load?: string,
+  ) {
+    if (load) await import(load);
+    const element = document.createElement(component);
+    (element as any).location = detail;
+    (this.host[this.outlet] as any) = element;
   }
 
   hostConnected() {
@@ -61,5 +110,17 @@ export class RouterController implements ReactiveController {
 
   hostDisconnected() {
     globalThis.removeEventListener("popstate", this.onPopstate);
+  }
+
+  /**
+   * Repaces the current history entry and emits a popstate event triggering routers.
+   *
+   * @param url the new url for the hisotyr entry
+   * @param title page title (unsupported)
+   * @param state the state object associated with the history entry
+   */
+  static redirect(url: string, title = "", state?: unknown) {
+    globalThis.history.replaceState(state, title, url);
+    globalThis.dispatchEvent(new PopStateEvent("popstate", { state }));
   }
 }
