@@ -2,27 +2,15 @@ try {
   const importMap = JSON.parse(
     new TextDecoder().decode(Deno.readFileSync("./import-map.json")),
   ).imports;
+  const { compilerOptions } = JSON.parse(
+    new TextDecoder().decode(Deno.readFileSync("./deno.json")),
+  );
   const reversedImportMap: Array<[string, string]> = [];
   for (const [key, value] of Object.entries(importMap)) {
     reversedImportMap.push([value as string, key]);
   }
   const { files } = await Deno.emit("mod.ts", {
-    compilerOptions: {
-      "target": "esnext",
-      "module": "esnext",
-      "sourceMap": true,
-      "inlineSources": true,
-      "declaration": true,
-      "removeComments": false,
-      "useDefineForClassFields": false,
-      "lib": [
-        "dom",
-        "dom.iterable",
-        "dom.asynciterable",
-        "deno.ns",
-        "deno.unstable",
-      ],
-    },
+    compilerOptions,
     importMapPath: "./import-map.json",
   });
   for (const [fileName, text] of Object.entries(files)) {

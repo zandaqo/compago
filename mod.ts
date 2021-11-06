@@ -6,7 +6,6 @@ export { bond } from "./bond-directive.ts";
 export { navigate } from "./navigate-directive.ts";
 export { localize } from "./localize-directive.ts";
 export { RouterController } from "./router-controller.ts";
-export type { RouteHandler, RoutesMap } from "./router-controller.ts";
 export { LocalizerController } from "./localizer-controller.ts";
 export { Observable } from "./observable.ts";
 export { Observing } from "./observer.ts";

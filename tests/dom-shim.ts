@@ -71,7 +71,7 @@ class Document {
   createTextNode() {
     return {};
   }
-  createElement() {
+  createElement(_tag: string) {
     return {};
   }
   createComment() {
@@ -107,9 +107,9 @@ class CustomElementRegistry {
 
 class PopStateEvent extends Event {
   state?: unknown;
-  constructor(name: string, init: { state: unknown } & EventInit) {
+  constructor(name: string, init?: { state: unknown } & EventInit) {
     super(name, init);
-    this.state = init.state;
+    this.state = init?.state;
   }
 }
 
@@ -139,6 +139,10 @@ Object.assign(window, {
   history,
   PopStateEvent,
 });
+
+interface HTMLElementTagNameMap {
+  [key: string]: unknown;
+}
 
 interface Window {
   Element: typeof Element;

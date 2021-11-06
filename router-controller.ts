@@ -39,6 +39,7 @@ export class RouterController<T extends ReactiveControllerHost>
   current = "";
   outlet: keyof T;
   routes: Array<RouteConfig>;
+  static location = window.location;
   /**
    * @param host the controller host
    * @param routes an array of routes
@@ -60,7 +61,7 @@ export class RouterController<T extends ReactiveControllerHost>
 
   onPopstate(event: PopStateEvent): void {
     const { host, root, routes } = this;
-    const { location } = globalThis;
+    const { location } = this.constructor as typeof RouterController;
     let path = decodeURIComponent(location.pathname);
     if (path === this.current) return;
     this.current = path;
@@ -70,7 +71,7 @@ export class RouterController<T extends ReactiveControllerHost>
       const match = route.path.exec(path);
       if (!match) continue;
       const params = match.groups || {};
-      const hash = decodeURIComponent(location.hash);
+      const hash = location.hash && decodeURIComponent(location.hash);
       const query = location.search
         ? new URLSearchParams(location.search)
         : undefined;
@@ -99,8 +100,10 @@ export class RouterController<T extends ReactiveControllerHost>
     load?: string,
   ) {
     if (load) await import(load);
-    const element = document.createElement(component);
+    const element = window.document.createElement(component);
+    // deno-lint-ignore no-explicit-any
     (element as any).location = detail;
+    // deno-lint-ignore no-explicit-any
     (this.host[this.outlet] as any) = element;
   }
 
@@ -120,7 +123,7 @@ export class RouterController<T extends ReactiveControllerHost>
    * @param state the state object associated with the history entry
    */
   static redirect(url: string, title = "", state?: unknown) {
-    globalThis.history.replaceState(state, title, url);
+    window.history.replaceState(state, title, url);
     globalThis.dispatchEvent(new PopStateEvent("popstate", { state }));
   }
 }
