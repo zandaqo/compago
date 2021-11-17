@@ -71,7 +71,7 @@ class Document {
   createTextNode() {
     return {};
   }
-  createElement(_tag: string) {
+  createElement(_tag: keyof HTMLElementTagNameMap) {
     return {};
   }
   createComment() {

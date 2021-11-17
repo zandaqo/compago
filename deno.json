@@ -10,9 +10,7 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "dom.asynciterable",
-      "deno.ns",
-      "deno.unstable"
+      "dom.asynciterable"
     ]
   }
 }
