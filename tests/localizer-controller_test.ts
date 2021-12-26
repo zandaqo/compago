@@ -1,7 +1,6 @@
 import "./dom-shim.ts";
-import { assertEquals } from "testing/asserts.ts";
-import { Spy, spy } from "mock/spy.ts";
-import type { ReactiveControllerHost } from "@lit/reactive-element";
+import { assertEquals, Spy, spy } from "../dev_deps.ts";
+import type { ReactiveControllerHost } from "../deps.ts";
 import { LocalizerController } from "../localizer-controller.ts";
 import type { LanguageChangeEvent } from "../language-change-event.ts";
 import { isBound } from "../utilities.ts";

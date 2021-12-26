@@ -1,5 +1,5 @@
-import { Directive, directive, PartType } from "lit-html/directive.js";
-import type { Part, PartInfo } from "lit-html/directive.js";
+import { Directive, directive, PartType } from "./deps.ts";
+import type { Part, PartInfo } from "./deps.ts";
 import type { LocalizerController } from "./localizer-controller.ts";
 
 type LocalizableElement = {

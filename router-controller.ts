@@ -1,7 +1,4 @@
-import type {
-  ReactiveController,
-  ReactiveControllerHost,
-} from "@lit/reactive-element";
+import type { ReactiveController, ReactiveControllerHost } from "./deps.ts";
 import { RouteDetail, RouteEvent } from "./route-event.ts";
 
 export type RouteConfig = {
@@ -115,15 +112,14 @@ export class RouterController<T extends ReactiveControllerHost>
     globalThis.removeEventListener("popstate", this.onPopstate);
   }
 
-  /**
-   * Repaces the current history entry and emits a popstate event triggering routers.
-   *
-   * @param url the new url for the hisotyr entry
-   * @param title page title (unsupported)
-   * @param state the state object associated with the history entry
-   */
-  static redirect(url: string, title = "", state?: unknown) {
-    window.history.replaceState(state, title, url);
+  static redirect(url: string, state?: unknown) {
+    window.history.replaceState(state, "", url);
+    globalThis.dispatchEvent(new PopStateEvent("popstate", { state }));
+  }
+
+  static go(url: string, state?: unknown) {
+    if (url === window.location.href) return;
+    window.history.pushState(state, "", url);
     globalThis.dispatchEvent(new PopStateEvent("popstate", { state }));
   }
 }

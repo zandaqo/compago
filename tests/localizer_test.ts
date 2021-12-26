@@ -1,5 +1,4 @@
-import { assertEquals } from "testing/asserts.ts";
-import { spy } from "mock/spy.ts";
+import { assertEquals, spy } from "../dev_deps.ts";
 import { Localizations, Localizer } from "../localizer.ts";
 
 const { test } = Deno;

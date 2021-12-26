@@ -1,8 +1,0 @@
-{
-  "imports": {
-    "@lit/reactive-element": "https://cdn.esm.sh/v57/@lit/reactive-element@1.0.2",
-    "lit-html/": "https://cdn.esm.sh/v57/lit-html@2.0.2/",
-    "testing/": "https://deno.land/std@0.114.0/testing/",
-    "mock/": "https://raw.githubusercontent.com/udibo/mock/0.10.1/"
-  }
-}

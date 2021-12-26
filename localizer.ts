@@ -199,6 +199,7 @@ export class Localizer extends EventTarget {
     symbol = sLocalizer,
   ): Localizer {
     // deno-lint-ignore no-explicit-any
+    // dnt-shim-ignore
     return (globalThis as any)[symbol] = new Localizer(options);
   }
 

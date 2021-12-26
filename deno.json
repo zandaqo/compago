@@ -1,16 +1,10 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "sourceMap": true,
-    "inlineSources": true,
-    "declaration": true,
-    "removeComments": false,
-    "useDefineForClassFields": false,
     "lib": [
       "dom",
       "dom.iterable",
-      "dom.asynciterable"
+      "dom.asynciterable",
+      "deno.ns"
     ]
   }
 }

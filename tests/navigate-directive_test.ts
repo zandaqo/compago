@@ -1,9 +1,8 @@
 import "./dom-shim.ts";
-import { assertEquals, assertThrows } from "testing/asserts.ts";
-import { spy } from "mock/spy.ts";
+import { assertEquals, assertThrows, spy } from "../dev_deps.ts";
 import { NavigateDirective } from "../navigate-directive.ts";
 import { isBound } from "../utilities.ts";
-import type { EventPart } from "lit-html/directive.js";
+import type { EventPart } from "../deps.ts";
 
 const { test } = Deno;
 

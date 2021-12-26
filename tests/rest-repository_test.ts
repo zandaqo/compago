@@ -1,11 +1,10 @@
-import { assertEquals } from "testing/asserts.ts";
-import { stub } from "mock/stub.ts";
+import { assertEquals, Stub, stub } from "../dev_deps.ts";
 import { RESTRepository } from "../rest-repository.ts";
 import { Result } from "../result.ts";
 
 const { test } = Deno;
 
-const fetchStub = stub(window, "fetch");
+let fetchStub: Stub<Window & typeof globalThis>;
 
 const repositoryContext = (
   // deno-lint-ignore ban-types
@@ -14,17 +13,20 @@ const repositoryContext = (
   status?: number,
 ) => {
   return async () => {
-    fetchStub.returns = [
-      body !== undefined
-        ? new Response(JSON.stringify(body), {
-          status: status || 200,
-          headers: { "content-type": "application/json" },
-        })
-        : new Response(undefined, { status: status || 200 }),
-    ];
+    fetchStub = stub(
+      window,
+      "fetch",
+      () =>
+        body !== undefined
+          ? new Response(JSON.stringify(body), {
+            status: status || 200,
+            headers: { "content-type": "application/json" },
+          })
+          : new Response(undefined, { status: status || 200 }),
+    );
     const repository = new RESTRepository(Object, "/things");
     await callback(repository);
-    fetchStub.calls.length = 0;
+    fetchStub.restore();
   };
 };
 

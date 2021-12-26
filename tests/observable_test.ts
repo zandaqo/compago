@@ -1,5 +1,4 @@
-import { assertEquals } from "testing/asserts.ts";
-import { Spy, spy } from "mock/spy.ts";
+import { assertEquals, Spy, spy } from "../dev_deps.ts";
 import { Observable } from "../observable.ts";
 import { ChangeEvent, ChangeType } from "../change-event.ts";
 import { isEqual } from "../utilities.ts";

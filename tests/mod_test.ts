@@ -1,5 +1,5 @@
 import "./dom-shim.ts";
-import { assert, assertEquals } from "testing/asserts.ts";
+import { assert, assertEquals } from "../dev_deps.ts";
 import * as mod from "../mod.ts";
 
 Deno.test("Public API Assertions", () => {

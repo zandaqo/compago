@@ -1,13 +1,11 @@
-import type {
-  ReactiveController,
-  ReactiveControllerHost,
-} from "@lit/reactive-element";
+import type { ReactiveController, ReactiveControllerHost } from "./deps.ts";
 import { LanguageChangeEvent } from "./language-change-event.ts";
 import type { Localizer } from "./localizer.ts";
 
 export class LocalizerController implements ReactiveController {
   host: ReactiveControllerHost;
   // deno-lint-ignore no-explicit-any
+  // dnt-shim-ignore
   localizer = (globalThis as any)[Symbol.for("c-localizer")] as Localizer;
   constructor(host: ReactiveControllerHost) {
     (this.host = host).addController(this);

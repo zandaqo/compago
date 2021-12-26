@@ -1,8 +1,7 @@
 import "./dom-shim.ts";
-import { assertEquals, assertThrows } from "testing/asserts.ts";
-import { spy } from "mock/spy.ts";
+import { assertEquals, assertThrows, spy } from "../dev_deps.ts";
 import { LocalizeDirective } from "../localize-directive.ts";
-import type { AttributePart } from "lit-html/directive.js";
+import type { AttributePart } from "../deps.ts";
 
 const { test } = Deno;
 

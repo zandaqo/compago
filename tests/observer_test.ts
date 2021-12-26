@@ -1,7 +1,6 @@
 import "./dom-shim.ts";
-import { assertEquals } from "testing/asserts.ts";
-import { Spy, spy } from "mock/spy.ts";
-import { ReactiveElement } from "@lit/reactive-element";
+import { assertEquals, Spy, spy } from "../dev_deps.ts";
+import { ReactiveElement } from "../deps.ts";
 import { Observing } from "../observer.ts";
 import { ChangeEvent, ChangeType } from "../change-event.ts";
 import { Observable } from "../observable.ts";

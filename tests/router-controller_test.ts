@@ -1,8 +1,7 @@
 import "./dom-shim.ts";
-import { assertEquals } from "testing/asserts.ts";
-import { Spy, spy } from "mock/spy.ts";
+import { assertEquals, Spy, spy } from "../dev_deps.ts";
 import { RouterController } from "../router-controller.ts";
-import type { ReactiveControllerHost } from "@lit/reactive-element";
+import type { ReactiveControllerHost } from "../deps.ts";
 import { isBound } from "../utilities.ts";
 import { RouteEvent } from "../route-event.ts";
 
