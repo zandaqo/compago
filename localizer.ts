@@ -12,6 +12,7 @@ export type Localizations = {
       | Intl.DateTimeFormat
       | Intl.NumberFormat
       | Intl.RelativeTimeFormat
+      | Intl.DisplayNames
       | Pluralization;
   };
 };
@@ -183,6 +184,9 @@ export class Localizer extends EventTarget {
         return (localizaion as Intl.DateTimeFormat | Intl.NumberFormat).format(
           interpolation as number,
         );
+      }
+      if (localizaion instanceof Intl.DisplayNames) {
+        return localizaion.of(interpolation as string);
       }
     }
     this.reportMissing(component, key);

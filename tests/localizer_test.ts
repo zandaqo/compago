@@ -109,6 +109,7 @@ const localizerContext = (
         date: new Intl.DateTimeFormat("en", { year: "numeric", era: "narrow" }),
         amount: new Intl.NumberFormat("en"),
         ago: new Intl.RelativeTimeFormat("en", { style: "narrow" }),
+        language: new Intl.DisplayNames("en", { type: "language" }),
       },
       es: {
         open: "Abrir",
@@ -123,6 +124,7 @@ const localizerContext = (
         date: new Intl.DateTimeFormat("es", { year: "2-digit", era: "long" }),
         amount: new Intl.NumberFormat("es"),
         ago: new Intl.RelativeTimeFormat("es", { style: "narrow" }),
+        language: new Intl.DisplayNames("es", { type: "language" }),
       },
     };
     callback(localizer, localizations);
@@ -266,6 +268,21 @@ test(
     assertEquals(
       localizer.localize(localizations, "ago", [2, "day"]),
       "dentro de 2 días",
+    );
+  }),
+);
+
+test(
+  "[Localizer#localize] localizes names with DisplayNames",
+  localizerContext((localizer, localizations) => {
+    assertEquals(
+      localizer.localize(localizations, "language", "en"),
+      "English",
+    );
+    localizer.setLanguage("es");
+    assertEquals(
+      localizer.localize(localizations, "language", "en"),
+      "inglés",
     );
   }),
 );
