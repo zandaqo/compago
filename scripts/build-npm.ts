@@ -1,4 +1,4 @@
-import { build } from "https://raw.githubusercontent.com/denoland/dnt/0.11.0/mod.ts";
+import { build } from "https://raw.githubusercontent.com/denoland/dnt/0.12.0/mod.ts";
 
 await Deno.remove("npm", { recursive: true }).catch((_) => {});
 
@@ -15,13 +15,14 @@ await build({
     inlineSources: true,
   },
   mappings: {
-    "https://cdn.esm.sh/v57/lit-html@2.0.2/directive.js": {
+    "https://cdn.esm.sh/v57/lit-html@2.1.0/directive.js": {
       name: "lit-html",
-      version: "^2.0.2",
+      version: "^2.1.0",
+      subPath: "directive.js",
     },
-    "https://cdn.esm.sh/v57/@lit/reactive-element@1.0.2": {
+    "https://cdn.esm.sh/v57/@lit/reactive-element@1.1.0": {
       name: "@lit/reactive-element",
-      version: "^1.0.2",
+      version: "^1.1.0",
     },
   },
   shims: {
@@ -47,10 +48,6 @@ await build({
       "*.js.map",
       "*.d.ts",
     ],
-    dependencies: {
-      "@lit/reactive-element": "^1.0.2",
-      "lit-html": "^2.0.2",
-    },
     repository: {
       type: "git",
       url: "https://github.com/zandaqo/structurae.git",

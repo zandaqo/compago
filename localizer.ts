@@ -98,6 +98,7 @@ export class Localizer extends EventTarget {
    * @returns
    */
   getLanguage(
+    // dnt-shim-ignore
     // deno-lint-ignore no-explicit-any
     language = (globalThis.navigator as any).language || "en",
   ): string {
@@ -202,8 +203,8 @@ export class Localizer extends EventTarget {
     options: LocalizerOptions,
     symbol = sLocalizer,
   ): Localizer {
-    // deno-lint-ignore no-explicit-any
     // dnt-shim-ignore
+    // deno-lint-ignore no-explicit-any
     return (globalThis as any)[symbol] = new Localizer(options);
   }
 

@@ -4,8 +4,8 @@ import type { Localizer } from "./localizer.ts";
 
 export class LocalizerController implements ReactiveController {
   host: ReactiveControllerHost;
-  // deno-lint-ignore no-explicit-any
   // dnt-shim-ignore
+  // deno-lint-ignore no-explicit-any
   localizer = (globalThis as any)[Symbol.for("c-localizer")] as Localizer;
   constructor(host: ReactiveControllerHost) {
     (this.host = host).addController(this);
