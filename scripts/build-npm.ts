@@ -1,4 +1,4 @@
-import { build } from "https://raw.githubusercontent.com/denoland/dnt/0.12.0/mod.ts";
+import { build } from "https://raw.githubusercontent.com/denoland/dnt/0.15.0/mod.ts";
 
 await Deno.remove("npm", { recursive: true }).catch((_) => {});
 
@@ -15,12 +15,12 @@ await build({
     inlineSources: true,
   },
   mappings: {
-    "https://cdn.esm.sh/v57/lit-html@2.1.0/directive.js": {
+    "https://cdn.esm.sh/v57/lit-html@2.1.1/directive.js": {
       name: "lit-html",
       version: "^2.1.0",
       subPath: "directive.js",
     },
-    "https://cdn.esm.sh/v57/@lit/reactive-element@1.1.0": {
+    "https://cdn.esm.sh/v57/@lit/reactive-element@1.2.0": {
       name: "@lit/reactive-element",
       version: "^1.1.0",
     },
