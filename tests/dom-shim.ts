@@ -20,7 +20,9 @@ class ChildNode {}
 class HTMLTemplateElement {}
 class DocumentFragment {}
 
-class Element extends EventTarget {}
+class Element extends EventTarget {
+  tagName!: string;
+}
 
 abstract class HTMLElement extends Element {
   get attributes() {
@@ -50,6 +52,13 @@ abstract class HTMLElement extends Element {
     const value = attributesForElement(this).get(name);
     return value === undefined ? null : value;
   }
+}
+
+class HTMLAnchorElement extends HTMLElement {
+  pathname = "";
+  href = "";
+  target = "";
+  origin = "";
 }
 
 interface CustomHTMLElement {
@@ -111,6 +120,13 @@ class PopStateEvent extends Event {
     super(name, init);
     this.state = init?.state;
   }
+}
+
+class MouseEvent extends Event {
+  button!: number;
+  metaKey!: number;
+  ctrlKey!: number;
+  shiftKey!: number;
 }
 
 const history = {

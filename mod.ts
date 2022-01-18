@@ -1,7 +1,6 @@
 export { ChangeEvent, ChangeType } from "./change-event.ts";
 export { RouteEvent } from "./route-event.ts";
 export { bond } from "./bond-directive.ts";
-export { navigate } from "./navigate-directive.ts";
 export { RouterController } from "./router-controller.ts";
 export { Observable } from "./observable.ts";
 export { Observing } from "./observer.ts";

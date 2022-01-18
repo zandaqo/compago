@@ -7,12 +7,13 @@ import { RouteEvent } from "../route-event.ts";
 
 const { test } = Deno;
 
-class RoutedElement implements ReactiveControllerHost {
+class RoutedElement extends HTMLElement implements ReactiveControllerHost {
   addController = spy();
   removeController = spy();
   requestUpdate = spy();
   updateComplete = Promise.resolve(true);
   dispatchEvent = spy();
+  attributeChangedCallback = spy();
   outlet = "";
 }
 
@@ -37,11 +38,9 @@ test("[RouterController.constructor] creates a router controller", () => {
 });
 
 test(
-  "[RouterController#onPopstate] emits RouteEvent if the path matches a route",
+  "[RouterController#goto] emits RouteEvent if the path matches a route",
   routerContext((router) => {
-    // deno-lint-ignore no-explicit-any
-    (router.constructor as any).location = { pathname: "/home" };
-    router.onPopstate(new PopStateEvent("popstate"));
+    router.goto("/home");
     assertEquals((router.host.dispatchEvent as Spy<void>).calls.length, 1);
     assertEquals((router.routes[0].action as Spy<void>).calls.length, 1);
     const event = (router.host.dispatchEvent as Spy<void>).calls[0].args[0];
@@ -49,55 +48,50 @@ test(
     assertEquals(event.detail, {
       name: "home",
       params: {},
-      hash: undefined,
-      query: undefined,
-      state: undefined,
     });
   }),
 );
 
 test(
-  "[RouterController#onPopstate] does not emit if the path has not changed",
+  "[RouterController#goto] does not emit if the path has not changed",
   routerContext((router) => {
     router.current = "/home";
-    // deno-lint-ignore no-explicit-any
-    (router.constructor as any).location = { pathname: "/home" };
-    router.onPopstate(new PopStateEvent("popstate"));
+    router.goto("/home");
     assertEquals((router.host.dispatchEvent as Spy<void>).calls.length, 0);
   }),
 );
 
 test(
-  "[RouterController#onPopstate] does not emit if the roots don't match",
+  "[RouterController#goto] does not emit if the roots don't match",
   routerContext((router) => {
     router.root = "/a";
-    // deno-lint-ignore no-explicit-any
-    (router.constructor as any).location = { pathname: "/home" };
-    router.onPopstate(new PopStateEvent("popstate"));
+    router.goto("/home");
     assertEquals((router.host.dispatchEvent as Spy<void>).calls.length, 0);
   }),
 );
 
 test(
-  "[RouterController#onPopstate] extracts parameters, hash, and search parameters from the path",
+  "[RouterController#goto] extracts parameters from the path",
   routerContext((router) => {
-    // deno-lint-ignore no-explicit-any
-    (router.constructor as any).location = {
-      pathname: "/users/dibbler",
-      search: "?a=1&b=2",
-      hash: "#abc",
-    };
-    router.onPopstate(new PopStateEvent("popstate", { state: { a: 3 } }));
+    router.goto("/users/dibbler");
     assertEquals((router.routes[1].action as Spy<void>).calls.length, 1);
     assertEquals(
       (router.routes[1].action as Spy<void>).calls[0].args[0],
       {
         name: "user",
         params: { name: "dibbler" },
-        hash: "#abc",
-        query: new URLSearchParams("?a=1&b=2"),
-        state: { a: 3 },
       },
     );
+  }),
+);
+
+test(
+  "[RouterController#onPopstate] reacts to the popstate event",
+  routerContext((router) => {
+    // deno-lint-ignore no-explicit-any
+    (router.constructor as any).location = { pathname: "/home" };
+    router.onPopstate(new PopStateEvent("popstate"));
+    assertEquals((router.host.dispatchEvent as Spy<void>).calls.length, 1);
+    assertEquals((router.routes[0].action as Spy<void>).calls.length, 1);
   }),
 );

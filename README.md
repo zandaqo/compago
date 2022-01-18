@@ -6,8 +6,8 @@ Components.
 [![Actions Status](https://github.com/zandaqo/compago/workflows/ci/badge.svg)](https://github.com/zandaqo/compago/actions)
 [![npm](https://img.shields.io/npm/v/compago.svg?style=flat-square)](https://www.npmjs.com/package/compago)
 
-Compago is a collection extensions for [Lit](https://lit.dev) that provide
-advanced state management, routing, and localization capabilities.
+Compago is a collection of extensions for [Lit](https://lit.dev) that provide
+advanced state management and routing capabilities.
 
 ## Installation
 

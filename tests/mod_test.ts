@@ -8,7 +8,6 @@ Deno.test("Public API Assertions", () => {
   assertEquals(typeof mod.ChangeType, "object");
   assertEquals(typeof mod.RouteEvent, "function");
   assertEquals(typeof mod.bond, "function");
-  assertEquals(typeof mod.navigate, "function");
   assertEquals(typeof mod.RouterController, "function");
   assertEquals(typeof mod.Observable, "function");
   assertEquals(typeof mod.Observing, "function");

@@ -1,9 +1,6 @@
 export type RouteDetail<T = Record<string, string>> = {
   name: string;
   params: T;
-  query?: URLSearchParams;
-  hash?: string;
-  state?: unknown;
 };
 
 export class RouteEvent<T = Record<string, string>> extends Event {

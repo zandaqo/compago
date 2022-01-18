@@ -29,7 +29,7 @@ export type RouteConfig = {
 /**
  * A controller to serve as a client-side router.
  */
-export class RouterController<T extends ReactiveControllerHost>
+export class RouterController<T extends ReactiveControllerHost & HTMLElement>
   implements ReactiveController {
   host: T;
   root = "";
@@ -53,40 +53,70 @@ export class RouterController<T extends ReactiveControllerHost>
     this.routes = routes;
     this.root = root;
     this.outlet = outlet;
-    this.onPopstate = this.onPopstate.bind(this);
   }
 
-  onPopstate(event: PopStateEvent): void {
-    const { host, root, routes } = this;
-    const { location } = this.constructor as typeof RouterController;
-    let path = decodeURIComponent(location.pathname);
+  onClick = (event: MouseEvent) => {
+    const isNonNavigationClick = event.button !== 0 || event.metaKey ||
+      event.ctrlKey || event.shiftKey;
+    if (event.defaultPrevented || isNonNavigationClick) {
+      return;
+    }
+
+    const anchor = event
+      .composedPath()
+      .find((n) => (n as HTMLElement).tagName === "A") as
+        | HTMLAnchorElement
+        | undefined;
+    if (
+      anchor === undefined ||
+      anchor.target !== "" ||
+      anchor.hasAttribute("download") ||
+      anchor.getAttribute("rel") === "external"
+    ) {
+      return;
+    }
+
+    const href = anchor.href;
+    if (href === "" || href.startsWith("mailto:")) {
+      return;
+    }
+
+    const location = RouterController.location;
+    const origin = location.origin || location.protocol + "//" + location.host;
+    if (anchor.origin !== origin) {
+      return;
+    }
+
+    event.preventDefault();
+    if (href !== location.href) {
+      window.history.pushState({}, "", href);
+      this.goto(anchor.pathname);
+    }
+  };
+
+  onPopstate = (_event: PopStateEvent) => {
+    this.goto(RouterController.location.pathname);
+  };
+
+  goto(path: string) {
     if (path === this.current) return;
     this.current = path;
-    if (root && !path.startsWith(root)) return;
-    path = path.slice(root.length);
-    for (const route of routes) {
+    if (this.root && !path.startsWith(this.root)) return;
+    path = path.slice(this.root.length);
+    for (const route of this.routes) {
       const match = route.path.exec(path);
       if (!match) continue;
       const params = match.groups || {};
-      const hash = location.hash && decodeURIComponent(location.hash);
-      const query = location.search
-        ? new URLSearchParams(location.search)
-        : undefined;
       const detail: RouteDetail = {
         name: route.name,
         params,
-        query,
-        hash,
-        state: event.state,
       };
       if (route.action) {
-        route.action.call(host, detail);
+        route.action.call(this.host, detail);
       } else if (route.component) {
         this.setComponent(detail, route.component, route.load);
       }
-      (host as unknown as HTMLElement).dispatchEvent(
-        new RouteEvent(detail),
-      );
+      this.host.dispatchEvent(new RouteEvent(detail));
       return;
     }
   }
@@ -105,10 +135,12 @@ export class RouterController<T extends ReactiveControllerHost>
   }
 
   hostConnected() {
+    this.host.addEventListener("click", this.onClick as EventListener);
     globalThis.addEventListener("popstate", this.onPopstate);
   }
 
   hostDisconnected() {
+    this.host.removeEventListener("click", this.onClick as EventListener);
     globalThis.removeEventListener("popstate", this.onPopstate);
   }
 
