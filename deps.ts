@@ -4,9 +4,7 @@ export {
   PartType,
 } from "https://cdn.esm.sh/v57/lit-html@2.1.1/directive.js";
 export type {
-  AttributePart,
   EventPart,
-  Part,
   PartInfo,
 } from "https://cdn.esm.sh/v57/lit-html@2.1.1/directive.js";
 export type {

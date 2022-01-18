@@ -36,10 +36,10 @@ await build({
     type: "module",
     description: "A minimalist MVC framework for modern browsers.",
     keywords: [
-      "mvc",
       "framework",
-      "client-side",
       "frontend",
+      "full-stack",
+      "lit",
     ],
     author: "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
     license: "MIT",
