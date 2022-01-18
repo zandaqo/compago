@@ -2,7 +2,6 @@ import "./dom-shim.ts";
 import { assertEquals, Spy, spy } from "../dev_deps.ts";
 import { RouterController } from "../router-controller.ts";
 import type { ReactiveControllerHost } from "../deps.ts";
-import { isBound } from "../utilities.ts";
 import { RouteEvent } from "../route-event.ts";
 
 const { test } = Deno;
@@ -34,7 +33,6 @@ test("[RouterController.constructor] creates a router controller", () => {
   assertEquals(router.routes, []);
   assertEquals(router.root, "");
   assertEquals((host.addController as Spy<void>).calls.length, 1);
-  assertEquals(isBound(router.onPopstate), true);
 });
 
 test(
