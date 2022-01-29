@@ -11,3 +11,4 @@ export type {
   Spy,
   Stub,
 } from "https://raw.githubusercontent.com/udibo/mock/0.12.2/mod.ts";
+export { JSDOM } from "https://esm.sh/jsdom@19.0.0?no-check";

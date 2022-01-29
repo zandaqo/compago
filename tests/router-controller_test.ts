@@ -1,4 +1,4 @@
-import "./dom-shim.ts";
+import "./dom.ts";
 import { assertEquals, Spy, spy } from "../dev_deps.ts";
 import { RouterController } from "../router-controller.ts";
 import type { ReactiveControllerHost } from "../deps.ts";
@@ -6,29 +6,29 @@ import { RouteEvent } from "../route-event.ts";
 
 const { test } = Deno;
 
-class RoutedElement extends HTMLElement implements ReactiveControllerHost {
-  addController = spy();
-  removeController = spy();
-  requestUpdate = spy();
-  updateComplete = Promise.resolve(true);
-  dispatchEvent = spy();
-  attributeChangedCallback = spy();
-  outlet = "";
-}
-
 const routerContext = (
-  callback: (controller: RouterController<RoutedElement>) => void,
+  callback: (
+    controller: RouterController<ReactiveControllerHost & HTMLElement>,
+  ) => void,
 ) => {
-  const router = new RouterController(new RoutedElement(), [
+  const div = document.createElement("div") as unknown as
+    & ReactiveControllerHost
+    & HTMLElement;
+  div.dispatchEvent = spy();
+  div.addController = spy();
+  const router = new RouterController(div, [
     { name: "home", path: /\/home$/i, action: spy() },
     { name: "user", path: /\/users\/(?<name>.*?)$/i, action: spy() },
-  ], "outlet");
+  ], "title");
   return () => callback(router);
 };
 
 test("[RouterController.constructor] creates a router controller", () => {
-  const host = new RoutedElement();
-  const router = new RouterController(host, [], "outlet");
+  const host = document.createElement("div") as unknown as
+    & ReactiveControllerHost
+    & HTMLElement;
+  host.addController = spy();
+  const router = new RouterController(host, [], "title");
   assertEquals(router.host, host);
   assertEquals(router.routes, []);
   assertEquals(router.root, "");

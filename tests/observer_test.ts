@@ -1,28 +1,18 @@
-import "./dom-shim.ts";
+import "./dom.ts";
 import { assertEquals, Spy, spy } from "../dev_deps.ts";
-import { ReactiveElement } from "../deps.ts";
-import { Observing } from "../observer.ts";
 import { ChangeEvent, ChangeType } from "../change-event.ts";
 import { Observable } from "../observable.ts";
-import { isBound } from "../utilities.ts";
 
 const { test } = Deno;
-
-export class LitElement extends ReactiveElement {
-  connectedCallback() {}
-  disconnectedCallback() {}
-  attributeChangedCallback() {}
-  requestUpdate() {}
-}
+const { ObserverElement } = await import("../observer-element.ts");
 
 // deno-lint-ignore no-explicit-any
-class ComponentClass extends Observing<any>(LitElement) {
-  static localizations = { en: { two: "two" }, es: { two: "dos" } };
-}
+class ComponentClass extends ObserverElement<any> {}
+customElements.define("c-component", ComponentClass);
 
 const componentContext = (callback: (component: ComponentClass) => void) => {
   return () => {
-    callback(new ComponentClass());
+    callback(document.createElement("c-component") as ComponentClass);
   };
 };
 
@@ -51,10 +41,7 @@ test(
   componentContext((component) => {
     const observable = new Observable({ a: 20 });
     const changeSpy = spy(component, "onObservableChange");
-    assertEquals(isBound(component.onObservableChange), false);
     component.$ = observable;
-    assertEquals(component.$, observable);
-    assertEquals(isBound(component.onObservableChange), true);
     assertEquals(changeSpy.calls.length, 0);
     observable.a = 10;
     assertEquals(changeSpy.calls.length, 1);

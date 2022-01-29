@@ -1,6 +1,7 @@
-import "./dom-shim.ts";
+import "./dom.ts";
 import { assert, assertEquals } from "../dev_deps.ts";
-import * as mod from "../mod.ts";
+
+const mod = await import("../mod.ts");
 
 Deno.test("Public API Assertions", () => {
   assert(mod != null);
@@ -10,7 +11,7 @@ Deno.test("Public API Assertions", () => {
   assertEquals(typeof mod.bond, "function");
   assertEquals(typeof mod.RouterController, "function");
   assertEquals(typeof mod.Observable, "function");
-  assertEquals(typeof mod.Observing, "function");
+  assertEquals(typeof mod.ObserverElement, "function");
   assertEquals(typeof mod.Result, "object");
   assertEquals(typeof mod.RESTRepository, "function");
 });

@@ -1,24 +1,30 @@
-import "./dom-shim.ts";
+import "./dom.ts";
 import { assertEquals, assertThrows, spy } from "../dev_deps.ts";
-import { BondDirective } from "../bond-directive.ts";
 import { isBound } from "../utilities.ts";
 import type { EventPart } from "../deps.ts";
+import { Observable } from "../observable.ts";
 
 const { test } = Deno;
+const { ObserverElement } = await import("../observer-element.ts");
+const { BondDirective } = await import("../bond-directive.ts");
 
-class Div extends HTMLElement {
-  $?: Record<string, unknown>;
+class ComponentClass extends ObserverElement<Record<string, unknown>> {
   nested?: Record<string, unknown>;
-  attributeChangedCallback() {
-    return;
-  }
 }
 
+customElements.define("c-component", ComponentClass);
+
 const bondContext = (
-  callback: (host: Div, directive: BondDirective) => void,
+  callback: (
+    host: ComponentClass,
+    directive: InstanceType<typeof BondDirective>,
+  ) => void,
 ) => {
   return () =>
-    callback(new Div(), new BondDirective({ type: 5, name: "", tagName: "a" }));
+    callback(
+      document.createElement("c-component") as ComponentClass,
+      new BondDirective({ type: 5, name: "", tagName: "a" }),
+    );
 };
 
 test("[BondDirective#constructor] can only be attached to an event expression", () => {
@@ -143,7 +149,7 @@ test(
   "[BondDirective#handler] sets value from a property",
   bondContext((host, directive) => {
     host.nested = {};
-    host.$ = { a: 5 };
+    host.$ = new Observable<Record<string, unknown>>({ a: 5 });
     const options = { to: "nested.a", property: "$" };
     directive.update(
       { element: host, options: { host: host } } as unknown as EventPart,
