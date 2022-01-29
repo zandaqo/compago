@@ -31,26 +31,25 @@ import { ... } from "https://raw.githubusercontent.com/zandaqo/compago/master/mo
 
 ### Advanced State Management with Observable
 
-Lit's reactive properties are well-suited for their task: holding UI state in
-properties and attributes of a Custom Element, usually in the form of simple
-strings and numbers. However, reactive properties are cumbersome to work with
-when dealing with a complex domain state that involves large nested objects and
-arrays. To handle complex domain objects, compago introduces the `Observable`
-class that wraps a given object and turns it into a proxy that reacts to changes
-on the object and all its nested objects with a `change` event. Using
-`Observing` mixin and `bond` directive, one can extend `LitElement` to work
-seamlessly with observables providing two-way binding:
+Lit's reactive properties hold UI state in properties and attributes of a Custom
+Element, usually as simple strings and numbers. However, reactive properties are
+cumbersome to work with when dealing with a complex domain state that involves
+large nested objects and arrays. To handle complex domain objects, compago
+introduces the `Observable` class that wraps a given object and turns it into a
+proxy that reacts to changes on the object and all its nested objects with a
+`change` event. Using `ObserverElement` and `bond` directive, one can extend
+`LitElement` to work seamlessly with observables providing two-way binding:
 
 ```typescript
 import { html, LitElement } from "lit";
-import { bond, Observable, Observing } from "compago";
+import { bond, Observable, ObserverElement } from "compago";
 
 class Todo {
   description = "";
   done = false;
 }
 
-class TodoItem extends Observing<Todo>(LitElement) {
+class TodoItem extends ObserverElement<Todo> {
   connectedCallback() {
     super.connectedCallback();
     // Create an observable of a Todo object
