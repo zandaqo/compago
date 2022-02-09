@@ -7,7 +7,7 @@ Components.
 [![npm](https://img.shields.io/npm/v/compago.svg?style=flat-square)](https://www.npmjs.com/package/compago)
 
 Compago is a collection of extensions for [Lit](https://lit.dev) that provide
-advanced state management and routing capabilities.
+advanced state management.
 
 ## Installation
 
@@ -68,61 +68,6 @@ class TodoItem extends ObserverElement<Todo> {
           @click=${bond({ to: "$.done", attirubute: "checked" })} />
       </div>
     `;
-  }
-}
-```
-
-### Routing with RouterController
-
-Compago includes a router controller not dissimilar in capablities to existing
-solutions in other frameworks, yet significantly smaller (~100 LOC).
-
-```typescript
-import { html, LitElement } from "lit";
-import { RouterController } from "compago";
-
-class Application extends LitElement {
-  main = html``;
-  router = new RouterController(
-    this,
-    [
-      { name: "home", path: /^\/$/g, action: this.onHome },
-      // this will create x-settings element and assign it to the main property
-      { name: "settings", path: /^\/settings\/?$/g, component: "x-settings" },
-      {
-        name: "user",
-        // we use RegExp group called 'id' as a URL parameter that will be supplied to
-        // x-user component in `location.params`
-        path: /^\/users\/(?<id>[^/]+)/g,
-        // optionally we can dynamically load the x-user component from a file
-        // when the route is invoked
-        load: "./x-user.js",
-        component: "x-user",
-      },
-      // the fallback route
-      { name: "missing", path: /^.*$/g, component: "x-missing" },
-    ],
-    "main", // the host property to which the created components are assigned
-    "", // the base path of the router, setting allows creating path specific or "child" routers
-  );
-  onHome() {
-    this.main = html`Welcome home!`;
-  }
-  render() {
-    return html`<div>${this.main}</div>`;
-  }
-}
-
-// in user.ts
-import { RouteDetail } from "compago";
-
-class User extends LitElement {
-  // location object holding route details is supplied by router when creating the element
-  location?: RouteDetail<{ id?: string }>;
-  id?: string;
-  connectedCallback() {
-    if (this.location) this.id = this.location.params.id;
-    super.connectedCallback();
   }
 }
 ```
