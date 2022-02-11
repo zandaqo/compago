@@ -315,5 +315,5 @@ export class _Observable<T extends object = object> extends EventTarget {
 export type Observable<K extends object> = _Observable<K> & K;
 
 export const Observable = _Observable as {
-  new <T extends object>(data: T): _Observable<T> & T;
+  new <T extends object>(properties: T): _Observable<T> & T;
 };

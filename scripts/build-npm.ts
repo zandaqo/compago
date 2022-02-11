@@ -1,14 +1,17 @@
-import { build } from "https://raw.githubusercontent.com/denoland/dnt/0.16.1/mod.ts";
+import {
+  build,
+  emptyDir,
+} from "https://raw.githubusercontent.com/denoland/dnt/0.17.0/mod.ts";
 
-await Deno.remove("npm", { recursive: true }).catch((_) => {});
+await emptyDir("npm");
 
 await build({
   entryPoints: ["./mod.ts"],
   outDir: "./npm",
   typeCheck: false,
   test: false,
-  cjs: false,
   declaration: true,
+  scriptModule: false,
   compilerOptions: {
     target: "Latest",
     sourceMap: true,
