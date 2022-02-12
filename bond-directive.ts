@@ -1,53 +1,56 @@
+// deno-lint-ignore-file ban-types
 import { Directive, directive, PartType } from "./deps.ts";
 import type { EventPart, PartInfo } from "./deps.ts";
 
-type ComponentBond = {
-  to: string;
-  // deno-lint-ignore ban-types
-  parse?: Function;
+type BondOptions<T extends object, K extends keyof T> = {
+  to: T;
+  key: K;
+  // deno-lint-ignore no-explicit-any
+  parse?: (...args: any[]) => T[K];
   validate?: (element: Element, content: unknown) => boolean;
   prevent?: boolean;
   property?: string;
   attribute?: string;
-  value?: unknown;
+  value?: T[K];
 };
 
-export class BondDirective extends Directive {
-  options?: ComponentBond;
-  recipient?: Record<string, unknown>;
-  path?: string;
-  element?: Element;
+export type BondFunction = <
+  T extends object,
+  K extends keyof T,
+>(
+  options: BondOptions<T, K>,
+) => unknown;
+
+export class BondDirective<T extends object, K extends keyof T>
+  extends Directive {
+  options!: BondOptions<T, K>;
+  recipient!: T;
+  property!: K;
+  element!: Element;
 
   constructor(partInfo: PartInfo) {
     super(partInfo);
     if (partInfo.type !== PartType.EVENT) {
       throw new Error("bond only supports event expressions");
     }
-    this.handler = this.handler.bind(this);
-  }
-  update(part: EventPart, [options]: [ComponentBond]): unknown {
-    const { to } = options;
-    let path = to;
-    let recipient = part.options?.host as Record<string, unknown>;
-    if (path.includes(".")) {
-      const chunks = path.split(".");
-      path = chunks[chunks.length - 1];
-      for (let i = 0; i < chunks.length - 1; i += 1) {
-        recipient = recipient[chunks[i]] as Record<string, unknown>;
-      }
-    }
-    this.options = options;
-    this.recipient = recipient;
-    this.path = path;
-    this.element = part.element;
-    return this.render(this.options);
   }
 
-  render(_options: ComponentBond): unknown {
+  update(
+    part: EventPart,
+    [options]: [BondOptions<T, K>],
+  ): unknown {
+    this.options = options;
+    this.recipient = options.to || part.element as T;
+    this.property = options.key;
+    this.element = part.element;
+    return this.render();
+  }
+
+  render(): unknown {
     return this.handler;
   }
 
-  handler(event: Event): void {
+  handler = (event: Event) => {
     const {
       parse,
       prevent,
@@ -55,10 +58,10 @@ export class BondDirective extends Directive {
       attribute,
       value,
       validate,
-    } = this.options!;
+    } = this.options;
 
     if (prevent) event.preventDefault();
-    let content = Reflect.has(this.options!, "value")
+    let content = Reflect.has(this.options, "value")
       ? value
       : attribute != null
       ? (this.element as HTMLElement).getAttribute(attribute)
@@ -67,8 +70,8 @@ export class BondDirective extends Directive {
       return;
     }
     if (typeof parse === "function") content = parse(content);
-    this.recipient![this.path!] = content;
-  }
+    this.recipient[this.property] = content as T[K];
+  };
 }
 
-export const bond = directive(BondDirective);
+export const bond = directive(BondDirective) as BondFunction;

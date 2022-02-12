@@ -59,10 +59,12 @@ class TodoItem extends LitElement {
       <div>
         <input .value=${this.state.description}
           <-- Bind the input value to the 'description' property of our observable -->
-          @input=${bond({ to: "state.description" })} />
+          @input=${bond({ to: this.state, key: "description" })} />
         <input type="checkbox" ?checked=${this.state.done}
           <-- Bind the 'checked' attribute of the input to the 'done' property of our observable -->
-          @click=${bond({ to: "state.done", attirubute: "checked" })} />
+          @click=${
+      bond({ to: this.state, key: "done", attirubute: "checked" })
+    } />
       </div>
     `;
   }

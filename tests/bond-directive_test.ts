@@ -1,8 +1,7 @@
 import "./dom.ts";
 import { assertEquals, assertThrows, spy } from "../dev_deps.ts";
-import { isBound } from "../utilities.ts";
 import type { EventPart } from "../deps.ts";
-import { Observable } from "../observable.ts";
+import type { BondDirective as BondType } from "../bond-directive.ts";
 
 const { test } = Deno;
 const { ObserverElement } = await import("../observer-element.ts");
@@ -14,16 +13,26 @@ class ComponentClass extends ObserverElement<Record<string, unknown>> {
 
 customElements.define("c-component", ComponentClass);
 
+type Recipient = {
+  a: number;
+  b: string;
+  c: Array<number>;
+};
+
 const bondContext = (
   callback: (
-    host: ComponentClass,
-    directive: InstanceType<typeof BondDirective>,
+    recipient: Recipient,
+    directive: BondType<Recipient, keyof Recipient>,
   ) => void,
 ) => {
   return () =>
     callback(
-      document.createElement("c-component") as ComponentClass,
-      new BondDirective({ type: 5, name: "", tagName: "a" }),
+      { a: 1, b: "", c: [] },
+      new BondDirective<Recipient, keyof Recipient>({
+        type: 5,
+        name: "",
+        tagName: "a",
+      }),
     );
 };
 
@@ -47,115 +56,100 @@ test("[BondDirective#constructor] can only be attached to an event expression", 
   );
 });
 
-test("[BondDirective#constructor] binds the handler", () => {
-  const directive = new BondDirective({ type: 5, name: "", tagName: "a" });
-  assertEquals(isBound(directive.handler), true);
-});
-
 test(
-  "[BondDirective#update] bonds to component's property",
-  bondContext((host, directive) => {
-    assertEquals(directive.recipient, undefined);
-    const options = { to: "a" };
-    directive.update({ options: { host } } as unknown as EventPart, [options]);
-    assertEquals(directive.options, options);
-    assertEquals(directive.recipient, host);
-    assertEquals(directive.path, "a");
-  }),
-);
-
-test(
-  "[BondDirective#update] bonds to component's nested property",
-  bondContext((host, directive) => {
-    host.nested = { a: {} };
-    const options = { to: "nested.a" };
-    directive.update({ options: { host } } as unknown as EventPart, [options]);
-    assertEquals(directive.recipient, host.nested);
-    assertEquals(directive.path, "a");
-  }),
-);
-
-test(
-  "[BondDirective#handler] sets a given constant on a property",
-  bondContext((host, directive) => {
-    host.nested = {};
-    const options = { to: "nested.a", value: 1 };
-    directive.update({ options: { host } } as unknown as EventPart, [options]);
+  "[BondDirective#handler] sets a given constant",
+  bondContext((recipient, directive) => {
+    const options = { to: recipient, key: "a", value: 10 } as const;
+    directive.update({} as unknown as EventPart, [options]);
     directive.handler(new Event("click"));
-    assertEquals(host.nested?.a, 1);
+    assertEquals(recipient.a, 10);
   }),
 );
 
 test(
   "[BondDirective#handler] prevents default event behavior if `prevent:true`",
-  bondContext((host, directive) => {
-    host.nested = {};
-    const options = { to: "nested.a", value: 1, prevent: true };
-    directive.update({ options: { host } } as unknown as EventPart, [options]);
+  bondContext((recipient, directive) => {
+    const options = {
+      to: recipient,
+      key: "a",
+      value: 10,
+      prevent: true,
+    } as const;
+    directive.update({} as unknown as EventPart, [options]);
     const event = new Event("click");
     const preventSpy = spy();
     event.preventDefault = preventSpy;
     directive.handler(event);
     assertEquals(preventSpy.calls.length, 1);
+    assertEquals(recipient.a, 10);
   }),
 );
 
 test(
   "[BondDirective#handler] sets value from an attribute",
-  bondContext((host, directive) => {
-    host.nested = {};
-    host.setAttribute("abc", "b");
-    const options = { to: "nested.a", attribute: "abc" };
+  bondContext((recipient, directive) => {
+    const host = document.createElement("div");
+    host.setAttribute("abc", "xyz");
+    const options = { to: recipient, key: "b", attribute: "abc" } as const;
     directive.update(
       { element: host, options: { host } } as unknown as EventPart,
       [options],
     );
     directive.handler(new Event("click"));
-    assertEquals(host.nested?.a, "b");
-  }),
-);
-
-test(
-  "[BondDirective#handler] does not set value if validation fails",
-  bondContext((host, directive) => {
-    host.nested = { a: 2 };
-    host.setAttribute("abc", "1");
-    const options = { to: "nested.a", attribute: "abc", validate: () => false };
-    directive.update(
-      { element: host, options: { host } } as unknown as EventPart,
-      [options],
-    );
-    directive.handler(new Event("click"));
-    assertEquals(host.nested?.a, 2);
-  }),
-);
-
-test(
-  "[BondDirective#handler] parses value if `parse` function provided",
-  bondContext((host, directive) => {
-    host.nested = {};
-    host.setAttribute("abc", "1");
-    const options = { to: "nested.a", attribute: "abc", parse: parseInt };
-    directive.update(
-      { element: host, options: { host } } as unknown as EventPart,
-      [options],
-    );
-    directive.handler(new Event("click"));
-    assertEquals(host.nested?.a, 1);
+    assertEquals(recipient.b, "xyz");
   }),
 );
 
 test(
   "[BondDirective#handler] sets value from a property",
-  bondContext((host, directive) => {
-    host.nested = {};
-    host.$ = new Observable<Record<string, unknown>>({ a: 5 });
-    const options = { to: "nested.a", property: "$" };
+  bondContext((recipient, directive) => {
+    const host = document.createElement("div");
+    const options = { to: recipient, key: "b", property: "nodeName" } as const;
     directive.update(
-      { element: host, options: { host: host } } as unknown as EventPart,
+      { element: host, options: { host } } as unknown as EventPart,
       [options],
     );
     directive.handler(new Event("click"));
-    assertEquals(host.nested?.a, host.$);
+    assertEquals(recipient.b, "DIV");
+  }),
+);
+
+test(
+  "[BondDirective#handler] does not set value if validation fails",
+  bondContext((recipient, directive) => {
+    const host = document.createElement("div");
+    host.setAttribute("abc", "xyz");
+    const options = {
+      to: recipient,
+      key: "b",
+      attribute: "abc",
+      validate: () => false,
+    } as const;
+    directive.update(
+      { element: host, options: { host } } as unknown as EventPart,
+      [options],
+    );
+    directive.handler(new Event("click"));
+    assertEquals(recipient.b, "");
+  }),
+);
+
+test(
+  "[BondDirective#handler] parses value if `parse` function provided",
+  bondContext((recipient, directive) => {
+    const host = document.createElement("div");
+    host.setAttribute("abc", "100");
+    const options = {
+      to: recipient,
+      key: "a",
+      attribute: "abc",
+      parse: parseInt,
+    } as const;
+    directive.update(
+      { element: host, options: { host } } as unknown as EventPart,
+      [options],
+    );
+    directive.handler(new Event("click"));
+    assertEquals(recipient.a, 100);
   }),
 );
