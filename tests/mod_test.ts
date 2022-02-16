@@ -9,7 +9,6 @@ Deno.test("Public API Assertions", () => {
   assertEquals(typeof mod.ChangeType, "object");
   assertEquals(typeof mod.bond, "function");
   assertEquals(typeof mod.Observable, "function");
-  assertEquals(typeof mod.ObservableController, "function");
   assertEquals(typeof mod.ObserverElement, "function");
   assertEquals(typeof mod.Result, "object");
   assertEquals(typeof mod.RESTRepository, "function");

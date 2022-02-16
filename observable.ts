@@ -2,12 +2,13 @@
 import { ChangeEvent, ChangeType } from "./change-event.ts";
 import { isEqual, isObservableObject } from "./utilities.ts";
 
-const sPath = Symbol.for("c-path");
-const sObservable = Symbol.for("c-observable");
+export const sPath = Symbol.for("c-path");
+export const sObservable = Symbol.for("c-observable");
 
-interface Observed {
+export interface ObservedValue {
   [sPath]: string;
   [sObservable]: _Observable;
+  [key: PropertyKey]: unknown;
 }
 
 const watchedArrayMethods = new Set([
@@ -188,7 +189,7 @@ export class _Observable<T extends object = object> extends EventTarget {
         processed.push(target[key]);
         target[key] = this.getProxy(
           target[key],
-          `${path}:${key}`,
+          `${path}.${key}`,
           observable,
           processed,
         );
@@ -196,10 +197,10 @@ export class _Observable<T extends object = object> extends EventTarget {
     }
   }
 
-  private static arrayGetTrap<T extends Observed>(
+  private static arrayGetTrap<T extends ObservedValue>(
     target: T,
     property: keyof T,
-    receiver: Observed,
+    receiver: ObservedValue,
   ): unknown {
     if (typeof property === "string" && watchedArrayMethods.has(property)) {
       return (...args: unknown[]) => {
@@ -258,7 +259,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     return target[property];
   }
 
-  private static setTrap<T extends Observed>(
+  private static setTrap<T extends ObservedValue>(
     target: T,
     property: keyof T,
     value: unknown,
@@ -277,7 +278,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     const path: string = target[sPath];
     const observable: _Observable = target[sObservable];
     const previous = target[property];
-    const propertyPath = `${path}:${property}`;
+    const propertyPath = `${path}.${property}`;
     target[property] = isObservableObject(value)
       ? _Observable.getProxy(value, propertyPath, observable, [value])
       : value;
@@ -287,7 +288,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     return true;
   }
 
-  private static deletePropertyTrap<T extends Observed>(
+  private static deletePropertyTrap<T extends ObservedValue>(
     target: T,
     property: keyof T,
   ) {
@@ -303,7 +304,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     const path = target[sPath];
     const observable = target[sObservable];
     const previous = target[property];
-    const propertyPath = `${path}:${property}`;
+    const propertyPath = `${path}.${property}`;
     delete target[property];
     observable.dispatchEvent(
       new ChangeEvent(propertyPath, ChangeType.Delete, previous),

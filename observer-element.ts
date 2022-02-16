@@ -1,33 +1,83 @@
-import { LitElement } from "./deps.ts";
-import type { Observable } from "./observable.ts";
+// deno-lint-ignore-file no-explicit-any
+import { LitElement, PropertyDeclaration } from "./deps.ts";
+import { Observable, ObservedValue, sObservable, sPath } from "./observable.ts";
 import type { ChangeEvent } from "./change-event.ts";
 
-const sObservable = Symbol.for("c-observable");
+export abstract class ObserverElement extends LitElement {
+  #observables = new Map<string, (event: ChangeEvent) => void>();
 
-// deno-lint-ignore ban-types
-export abstract class ObserverElement<T extends object> extends LitElement {
-  [sObservable]?: Observable<T>;
-  get $() {
-    return this[sObservable];
-  }
-
-  set $(value) {
-    const old = this.$;
-    if (old === value) return;
-    if (old) old.removeEventListener("change", this.onObservableChange);
-    if (value) {
-      value.addEventListener("change", this.onObservableChange);
-      this.requestUpdate();
+  constructor() {
+    super();
+    const properties =
+      (this.constructor as typeof ObserverElement).elementProperties;
+    if (properties) {
+      for (const [name, options] of properties.entries()) {
+        if (options.type === Observable) {
+          this.#observables.set(name, this.onObservableChange.bind(this, name));
+        }
+      }
     }
-    this[sObservable] = value;
   }
 
   disconnectedCallback(): void {
-    if (this.$) this.$ = undefined;
     super.disconnectedCallback();
+    for (const property of this.#observables.keys()) {
+      const observable =
+        (this as unknown as { [key: string]: ObservedValue })[property];
+      if (observable) {
+        observable[sObservable].removeEventListener(
+          "change",
+          this.#observables.get(property)!,
+        );
+      }
+    }
   }
 
-  onObservableChange = (_event: ChangeEvent) => {
-    this.requestUpdate();
-  };
+  onObservableChange(property: string, event: ChangeEvent): void {
+    const pathPrefix: string = (this as any)[property][sPath];
+    if (event.path.startsWith(pathPrefix)) {
+      const elementPath = `${property}${event.path.slice(pathPrefix.length)}`;
+      this.requestUpdate(elementPath, event);
+    }
+  }
+
+  static createProperty(name: PropertyKey, options?: any) {
+    if (options?.type === Observable) {
+      options.attribute = false;
+    }
+    super.createProperty(name, options);
+  }
+
+  static getPropertyDescriptor(
+    name: string,
+    key: string | symbol,
+    options: PropertyDeclaration,
+  ): ReturnType<typeof LitElement.getPropertyDescriptor> {
+    if (options.type !== Observable) {
+      return super.getPropertyDescriptor(name, key, options);
+    }
+    return {
+      get(): ObservedValue {
+        return (this as unknown as { [key: string]: ObservedValue })[
+          key as string
+        ];
+      },
+
+      set(this: ObserverElement, value: ObservedValue) {
+        const oldValue = (this as any)[name];
+        if (oldValue === value) return;
+        const handler = this.#observables.get(name)!;
+        if (oldValue && oldValue[sObservable]) {
+          oldValue[sObservable].removeEventListener("change", handler);
+        }
+        if (value && value[sObservable]) {
+          value[sObservable].addEventListener("change", handler);
+        }
+        (this as unknown as { [key: string]: unknown })[key as string] = value;
+        this.requestUpdate(name, oldValue, options);
+      },
+      configurable: true,
+      enumerable: true,
+    };
+  }
 }

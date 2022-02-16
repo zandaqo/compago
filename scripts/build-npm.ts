@@ -18,23 +18,23 @@ await build({
     inlineSources: true,
   },
   mappings: {
-    "https://cdn.esm.sh/v64/lit-html@2.1.2/es2021/directive.js": {
+    "https://cdn.esm.sh/v64/lit-html@2.1.3/es2021/directive.js": {
       name: "lit-html",
-      version: "^2.1.2",
+      version: "^2.1.3",
       subPath: "directive.js",
     },
-    "https://cdn.esm.sh/v64/lit-html@2.1.2/directive.d.ts": {
+    "https://cdn.esm.sh/v64/lit-html@2.1.3/directive.d.ts": {
       name: "lit-html",
-      version: "^2.1.2",
+      version: "^2.1.3",
       subPath: "directive.js",
     },
     "https://cdn.esm.sh/v64/lit-element@3.1.2/es2021/lit-element.js": {
       name: "lit-element",
       version: "^3.1.2",
     },
-    "https://cdn.esm.sh/v64/@lit/reactive-element@1.2.1": {
+    "https://cdn.esm.sh/v64/@lit/reactive-element@1.2.3": {
       name: "@lit/reactive-element",
-      version: "^1.2.1",
+      version: "^1.2.3",
     },
   },
   shims: {

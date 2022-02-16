@@ -6,52 +6,45 @@ import { Observable } from "../observable.ts";
 const { test } = Deno;
 const { ObserverElement } = await import("../observer-element.ts");
 
-// deno-lint-ignore no-explicit-any
-class ComponentClass extends ObserverElement<any> {}
-customElements.define("c-component", ComponentClass);
+class ObserverClass extends ObserverElement {
+  // deno-lint-ignore no-explicit-any
+  declare $: Observable<any>;
+  static properties = {
+    $: { type: Observable },
+  };
+}
+customElements.define("c-component", ObserverClass);
 
-const componentContext = (callback: (component: ComponentClass) => void) => {
+const componentContext = (callback: (component: ObserverClass) => void) => {
   return () => {
-    callback(document.createElement("c-component") as ComponentClass);
+    callback(document.createElement("c-component") as ObserverClass);
   };
 };
 
 test(
-  "[Component#disconnectedCallback] removes observable",
+  "[ObserverElement#constructor] creates accessors for observable properties",
   componentContext((component) => {
-    const observable = new Observable({});
-    component.$ = observable;
-    assertEquals(component.$, observable);
-    component.disconnectedCallback();
-    assertEquals(component.$, undefined);
+    const descriptor = Object.getOwnPropertyDescriptor(
+      component.constructor.prototype,
+      "$",
+    )!;
+    assertEquals(descriptor.get instanceof Function, true);
+    assertEquals(descriptor.set instanceof Function, true);
   }),
 );
 
 test(
-  "[Component#onObservableChange] requests component update",
-  componentContext((component) => {
-    const updateSpy = spy(component, "requestUpdate");
-    component.onObservableChange(new ChangeEvent("a", ChangeType.Set));
-    assertEquals(updateSpy.calls.length, 1);
-  }),
-);
-
-test(
-  "[Component#$] subscribes to observable change event",
+  "[ObserverElement#observable] subscribes to observable change event",
   componentContext((component) => {
     const observable = new Observable({ a: 20 });
-    const changeSpy = spy(component, "onObservableChange");
+    observable.addEventListener = spy();
     component.$ = observable;
-    assertEquals(changeSpy.calls.length, 0);
-    observable.a = 10;
-    assertEquals(changeSpy.calls.length, 1);
-    assertEquals(changeSpy.calls[0].args[0].path, ":a");
-    assertEquals(changeSpy.calls[0].args[0].kind, ChangeType.Set);
+    assertEquals((observable.addEventListener as Spy<void>).calls.length, 1);
   }),
 );
 
 test(
-  "[Component#$] does not subscribe twice to the same observable",
+  "[ObserverElement#observable] does not subscribe twice to the same observable",
   componentContext((component) => {
     const observable = new Observable({});
     observable.addEventListener = spy();
@@ -62,7 +55,7 @@ test(
 );
 
 test(
-  "[Component#$] unsubscribes from the old observable when replacing",
+  "[ObserverElement#observable] unsubscribes from the old observable when replacing",
   componentContext((component) => {
     const oldobservable = new Observable({});
     component.$ = oldobservable;
@@ -71,6 +64,29 @@ test(
     assertEquals(
       (oldobservable.removeEventListener as Spy<void>).calls.length,
       1,
+    );
+  }),
+);
+
+test(
+  "[ObserverElement#observable] schedules updates when observable changes",
+  componentContext((component) => {
+    const observable = new Observable({ a: { b: 1 } });
+    const updateSpy: Spy<void> = spy();
+    component.requestUpdate = updateSpy;
+    component.$ = observable.a;
+    observable.a.b = 2;
+    assertEquals(updateSpy.calls[0].args[0], "$");
+    assertEquals(updateSpy.calls[1].args[0], "$.b");
+    assertEquals(
+      (updateSpy.calls[1].args[1] as ChangeEvent)
+        .path,
+      ".a.b",
+    );
+    assertEquals(
+      (updateSpy.calls[1].args[1] as ChangeEvent)
+        .kind,
+      ChangeType.Set,
     );
   }),
 );

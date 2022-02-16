@@ -62,7 +62,7 @@ test(
     assertEquals(changeSpy.calls.length, 1);
     assertChange(
       changeSpy.calls[0].args[0],
-      ":answer",
+      ".answer",
       ChangeType.Set,
       42,
     );
@@ -86,7 +86,7 @@ test("[Observable@change] handles setter", () => {
   observableWithSetter.addEventListener("change", changeSpy);
   observableWithSetter.setAnswer = 45;
   assertEquals(changeSpy.calls.length, 1);
-  assertChange(changeSpy.calls[0].args[0], ":answer", ChangeType.Set, 42);
+  assertChange(changeSpy.calls[0].args[0], ".answer", ChangeType.Set, 42);
 });
 
 test(
@@ -98,11 +98,11 @@ test(
     assertEquals(changeSpy.calls.length, 2);
     assertChange(
       changeSpy.calls[0].args[0],
-      ":object:name",
+      ".object.name",
       ChangeType.Set,
       "Zaphod",
     );
-    assertChange(changeSpy.calls[1].args[0], ":array", ChangeType.Set);
+    assertChange(changeSpy.calls[1].args[0], ".array", ChangeType.Set);
   }),
 );
 
@@ -112,8 +112,8 @@ test(
     observable.array = [0];
     observable.array[1] = 2;
     assertEquals(changeSpy.calls.length, 2);
-    assertChange(changeSpy.calls[0].args[0], ":array", ChangeType.Set);
-    assertChange(changeSpy.calls[1].args[0], ":array:1", ChangeType.Set);
+    assertChange(changeSpy.calls[0].args[0], ".array", ChangeType.Set);
+    assertChange(changeSpy.calls[1].args[0], ".array.1", ChangeType.Set);
   }),
 );
 
@@ -133,8 +133,8 @@ test("[Observable@change] handles cyclic self-references", () => {
   abObservable.c!.a = 3;
   assertEquals(abObservable.a, 3);
   assertEquals(changeSpy.calls.length, 2);
-  assertChange(changeSpy.calls[0].args[0], ":a", ChangeType.Set, 1);
-  assertChange(changeSpy.calls[1].args[0], ":a", ChangeType.Set, 2);
+  assertChange(changeSpy.calls[0].args[0], ".a", ChangeType.Set, 1);
+  assertChange(changeSpy.calls[1].args[0], ".a", ChangeType.Set, 2);
 });
 
 test("[Observable@change] handles moving objects within", () => {
@@ -153,14 +153,14 @@ test("[Observable@change] handles moving objects within", () => {
   abObservable.addEventListener("change", changeSpy);
   abObservable.c.d = 2;
   assertEquals(changeSpy.calls.length, 1);
-  assertChange(changeSpy.calls[0].args[0], ":d:d", ChangeType.Set, 1);
+  assertChange(changeSpy.calls[0].args[0], ".d.d", ChangeType.Set, 1);
 });
 
 test(
   "[Observable@change] allows usage of any type of property",
   observableContext((observable, changeSpy) => {
     observable.re = new RegExp("abc");
-    assertChange(changeSpy.calls[0].args[0], ":re", ChangeType.Set);
+    assertChange(changeSpy.calls[0].args[0], ".re", ChangeType.Set);
   }),
 );
 
@@ -213,7 +213,7 @@ test(
     delete observable.question;
     assertChange(
       changeSpy.calls[0].args[0],
-      ":question",
+      ".question",
       ChangeType.Delete,
       "",
     );
@@ -268,14 +268,14 @@ test(
     assertEquals(changeSpy.calls.length, 3);
     assertChange(
       changeSpy.calls[1].args[0],
-      ":array",
+      ".array",
       ChangeType.Add,
       undefined,
       [4, 5, 6],
     );
     assertChange(
       changeSpy.calls[2].args[0],
-      ":array",
+      ".array",
       ChangeType.Add,
       undefined,
       [0],
@@ -293,12 +293,12 @@ test(
     assertEquals(changeSpy.calls.length, 3);
     assertChange(
       changeSpy.calls[1].args[0],
-      ":array",
+      ".array",
       ChangeType.Add,
       undefined,
       [{ a: 2 }],
     );
-    assertChange(changeSpy.calls[2].args[0], ":array:0:a", ChangeType.Set, 1);
+    assertChange(changeSpy.calls[2].args[0], ".array.0.a", ChangeType.Set, 1);
   }),
 );
 
@@ -311,14 +311,14 @@ test(
     assertEquals(changeSpy.calls.length, 3);
     assertChange(
       changeSpy.calls[1].args[0],
-      ":array",
+      ".array",
       ChangeType.Remove,
       undefined,
       3,
     );
     assertChange(
       changeSpy.calls[2].args[0],
-      ":array",
+      ".array",
       ChangeType.Remove,
       undefined,
       1,
@@ -334,14 +334,14 @@ test(
     assertEquals(changeSpy.calls.length, 3);
     assertChange(
       changeSpy.calls[1].args[0],
-      ":array",
+      ".array",
       ChangeType.Remove,
       undefined,
       [2],
     );
     assertChange(
       changeSpy.calls[2].args[0],
-      ":array",
+      ".array",
       ChangeType.Add,
       undefined,
       [4, 5],
@@ -357,7 +357,7 @@ test(
     assertEquals(changeSpy.calls.length, 2);
     assertChange(
       changeSpy.calls[1].args[0],
-      ":array",
+      ".array",
       ChangeType.Remove,
       undefined,
       [2],
@@ -371,7 +371,7 @@ test(
     observable.array = [1, 2, 3];
     observable.array.sort();
     assertEquals(changeSpy.calls.length, 2);
-    assertChange(changeSpy.calls[1].args[0], ":array", ChangeType.Sort);
+    assertChange(changeSpy.calls[1].args[0], ".array", ChangeType.Sort);
   }),
 );
 
@@ -385,9 +385,9 @@ test("[Observable@change] handles nested observables", () => {
   b.c = a;
   b.c.b = 1;
   assertEquals(changeSpy.calls.length, 1);
-  assertChange(changeSpy.calls[0].args[0], ":c", ChangeType.Set);
+  assertChange(changeSpy.calls[0].args[0], ".c", ChangeType.Set);
   assertEquals(anotherSpy.calls.length, 1);
-  assertChange(anotherSpy.calls[0].args[0], ":b", ChangeType.Set);
+  assertChange(anotherSpy.calls[0].args[0], ".b", ChangeType.Set);
 });
 
 test("[Observable@change] handles array of observables", () => {
@@ -402,11 +402,11 @@ test("[Observable@change] handles array of observables", () => {
   b.c[0].b = 10;
   b.c.push(a);
   assertEquals(changeSpy.calls.length, 1);
-  assertChange(changeSpy.calls[0].args[0], ":c", ChangeType.Add, undefined, [
+  assertChange(changeSpy.calls[0].args[0], ".c", ChangeType.Add, undefined, [
     a,
   ]);
   assertEquals(anotherSpy.calls.length, 1);
-  assertChange(anotherSpy.calls[0].args[0], ":b", ChangeType.Set);
+  assertChange(anotherSpy.calls[0].args[0], ".b", ChangeType.Set);
 });
 
 test(

@@ -7,7 +7,7 @@ const { test } = Deno;
 const { ObserverElement } = await import("../observer-element.ts");
 const { BondDirective } = await import("../bond-directive.ts");
 
-class ComponentClass extends ObserverElement<Record<string, unknown>> {
+class ComponentClass extends ObserverElement {
   nested?: Record<string, unknown>;
 }
 
