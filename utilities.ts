@@ -1,8 +1,3 @@
-// deno-lint-ignore ban-types
-export function isBound(f: Function): boolean {
-  return f.name.startsWith("bound ");
-}
-
 export function isObservableObject(value: unknown): boolean {
   const type = Object.prototype.toString.call(value);
   return type === "[object Object]" || type === "[object Array]";

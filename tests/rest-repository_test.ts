@@ -17,12 +17,14 @@ const repositoryContext = (
       window,
       "fetch",
       () =>
-        body !== undefined
-          ? new Response(JSON.stringify(body), {
-            status: status || 200,
-            headers: { "content-type": "application/json" },
-          })
-          : new Response(undefined, { status: status || 200 }),
+        Promise.resolve(
+          body !== undefined
+            ? new Response(JSON.stringify(body), {
+              status: status || 200,
+              headers: { "content-type": "application/json" },
+            })
+            : new Response(undefined, { status: status || 200 }),
+        ),
     );
     const repository = new RESTRepository(Object, "/things");
     await callback(repository);

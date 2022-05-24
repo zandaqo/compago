@@ -6,5 +6,9 @@
       "dom.asynciterable",
       "deno.ns"
     ]
+  },
+  "tasks": {
+    "test": "deno test -A --unstable --no-check --location http://example.com",
+    "build": "deno run -A --unstable --no-check ./scripts/build-npm.ts"
   }
 }

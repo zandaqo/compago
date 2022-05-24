@@ -1,7 +1,7 @@
 import {
   build,
   emptyDir,
-} from "https://raw.githubusercontent.com/denoland/dnt/0.17.0/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/dnt/0.23.0/mod.ts";
 
 await emptyDir("npm");
 
@@ -18,23 +18,23 @@ await build({
     inlineSources: true,
   },
   mappings: {
-    "https://cdn.esm.sh/v64/lit-html@2.1.3/es2021/directive.js": {
+    "https://cdn.esm.sh/v82/lit-html@2.2.4/es2022/directive.js": {
       name: "lit-html",
-      version: "^2.1.3",
+      version: "^2.2.4",
       subPath: "directive.js",
     },
-    "https://cdn.esm.sh/v64/lit-html@2.1.3/directive.d.ts": {
+    "https://cdn.esm.sh/v82/lit-html@2.2.4/directive.d.ts": {
       name: "lit-html",
-      version: "^2.1.3",
+      version: "^2.2.4",
       subPath: "directive.js",
     },
-    "https://cdn.esm.sh/v64/lit-element@3.1.2/es2021/lit-element.js": {
+    "https://cdn.esm.sh/v64/lit-element@3.2.0/es2022/lit-element.js": {
       name: "lit-element",
-      version: "^3.1.2",
+      version: "^3.2.0",
     },
-    "https://cdn.esm.sh/v64/@lit/reactive-element@1.2.3": {
+    "https://cdn.esm.sh/v82/@lit/reactive-element@1.3.2": {
       name: "@lit/reactive-element",
-      version: "^1.2.3",
+      version: "^1.3.2",
     },
   },
   shims: {
@@ -55,11 +55,6 @@ await build({
     ],
     author: "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
     license: "MIT",
-    files: [
-      "*.js",
-      "*.js.map",
-      "*.d.ts",
-    ],
     repository: {
       type: "git",
       url: "https://github.com/zandaqo/structurae.git",
@@ -71,44 +66,14 @@ await build({
     engines: {
       node: ">=14.0.0",
     },
+    exports: {
+      "./*": {
+        import: "./esm/*.js",
+        types: "./types/*.d.ts",
+      },
+    },
   },
 });
-const decoder = new TextDecoder();
-const packageJson = JSON.parse(
-  decoder.decode(Deno.readFileSync("./npm/package.json")),
-);
 
-console.log("[build] Flatten directory tree...");
-for (const dir of ["esm", "types"]) {
-  for await (const entry of Deno.readDir(`./npm/${dir}`)) {
-    if (!entry.isFile) continue;
-    if (entry.name.endsWith(".js") || entry.name.endsWith(".d.ts")) {
-      Deno.renameSync(`./npm/${dir}/${entry.name}`, `./npm/${entry.name}`);
-    } else if (entry.name.endsWith(".js.map")) {
-      // fix source paths
-      const source = JSON.parse(
-        decoder.decode(Deno.readFileSync(`./npm/${dir}/${entry.name}`)),
-      );
-      source.sources = [
-        entry.name.substring(0, entry.name.indexOf(".")) + ".ts",
-      ];
-      Deno.writeTextFileSync(`./npm/${entry.name}`, JSON.stringify(source));
-    }
-  }
-  Deno.removeSync(`./npm/${dir}`, { recursive: true });
-}
-
-console.log("[build] Copy docs...");
 Deno.copyFileSync("LICENSE", "npm/LICENSE");
 Deno.copyFileSync("README.md", "npm/README.md");
-
-console.log("[build] Fix package.json...");
-delete packageJson.exports;
-delete packageJson.types;
-delete packageJson.module;
-Deno.writeFileSync(
-  "./npm/package.json",
-  new TextEncoder().encode(JSON.stringify(packageJson)),
-);
-await Deno.remove("npm/package-lock.json").catch((_) => {});
-console.log("[build] Done!");

@@ -18,7 +18,7 @@ interface IData {
 class DataObservable extends Observable<IData> {}
 
 const observableContext = (
-  callback: (observable: DataObservable, changeSpy: Spy<void>) => void,
+  callback: (observable: DataObservable, changeSpy: Spy) => void,
 ) => {
   return () => {
     const observable = new DataObservable({
