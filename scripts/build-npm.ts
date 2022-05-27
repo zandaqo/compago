@@ -18,23 +18,18 @@ await build({
     inlineSources: true,
   },
   mappings: {
-    "https://cdn.esm.sh/v82/lit-html@2.2.4/es2022/directive.js": {
-      name: "lit-html",
-      version: "^2.2.4",
+    "https://cdn.skypack.dev/lit?dts": {
+      name: "lit",
+      version: "^2.2.5",
+    },
+    "https://cdn.skypack.dev/lit/directive.js?dts": {
+      name: "lit",
+      version: "^2.2.5",
       subPath: "directive.js",
     },
-    "https://cdn.esm.sh/v82/lit-html@2.2.4/directive.d.ts": {
-      name: "lit-html",
-      version: "^2.2.4",
-      subPath: "directive.js",
-    },
-    "https://cdn.esm.sh/v64/lit-element@3.2.0/es2022/lit-element.js": {
-      name: "lit-element",
-      version: "^3.2.0",
-    },
-    "https://cdn.esm.sh/v82/@lit/reactive-element@1.3.2": {
-      name: "@lit/reactive-element",
-      version: "^1.3.2",
+    "https://cdn.skypack.dev/@types/trusted-types?dts": {
+      name: "trusted-types",
+      version: "^2.0.2",
     },
   },
   shims: {
@@ -67,9 +62,13 @@ await build({
       node: ">=14.0.0",
     },
     exports: {
+      ".": {
+        types: "./types/mod.d.ts",
+        import: "./esm/mod.js",
+      },
       "./*": {
-        import: "./esm/*.js",
         types: "./types/*.d.ts",
+        import: "./esm/*.js",
       },
     },
   },

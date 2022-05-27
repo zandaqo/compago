@@ -1,16 +1,16 @@
+import "https://cdn.skypack.dev/@types/trusted-types?dts";
+
 export {
   Directive,
   directive,
   PartType,
-} from "https://cdn.esm.sh/v82/lit-html@2.2.4/es2022/directive.js";
+} from "https://cdn.skypack.dev/lit/directive.js?dts";
 
 export type {
   EventPart,
   PartInfo,
-} from "https://cdn.esm.sh/v82/lit-html@2.2.4/directive.d.ts";
+} from "https://cdn.skypack.dev/lit/directive.js?dts";
 
-export type {
-  PropertyDeclaration,
-} from "https://cdn.esm.sh/v82/@lit/reactive-element@1.3.2";
+export type { PropertyDeclaration } from "https://cdn.skypack.dev/lit?dts";
 
-export { LitElement } from "https://cdn.esm.sh/v64/lit-element@3.2.0/es2022/lit-element.js";
+export { LitElement } from "https://cdn.skypack.dev/lit?dts";
