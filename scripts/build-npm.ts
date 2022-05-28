@@ -27,9 +27,9 @@ await build({
       version: "^2.2.5",
       subPath: "directive.js",
     },
-    "https://cdn.skypack.dev/@types/trusted-types?dts": {
+    "https://cdn.skypack.dev/trusted-types?dts": {
       name: "trusted-types",
-      version: "^2.0.2",
+      version: "^2.0.0",
     },
   },
   shims: {

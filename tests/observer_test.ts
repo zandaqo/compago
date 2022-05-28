@@ -2,17 +2,18 @@ import "./dom.ts";
 import { assertEquals, Spy, spy } from "../dev_deps.ts";
 import { ChangeEvent, ChangeType } from "../change-event.ts";
 import { Observable } from "../observable.ts";
+import { observe, observer } from "../observer.ts";
 
 const { test } = Deno;
-const { ObserverElement } = await import("../observer-element.ts");
+const { LitElement } = await import("../deps.ts");
 
-class ObserverClass extends ObserverElement {
+@observer()
+class ObserverClass extends LitElement {
+  @observe()
   // deno-lint-ignore no-explicit-any
-  declare $: Observable<any>;
-  static properties = {
-    $: { type: Observable },
-  };
+  $: Observable<any> = new Observable({ a: 20 });
 }
+
 customElements.define("c-component", ObserverClass);
 
 const componentContext = (callback: (component: ObserverClass) => void) => {
@@ -25,7 +26,7 @@ test(
   "[ObserverElement#constructor] creates accessors for observable properties",
   componentContext((component) => {
     const descriptor = Object.getOwnPropertyDescriptor(
-      component.constructor.prototype,
+      component,
       "$",
     )!;
     assertEquals(descriptor.get instanceof Function, true);

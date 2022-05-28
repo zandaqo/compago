@@ -1,4 +1,4 @@
-import "https://cdn.skypack.dev/@types/trusted-types?dts";
+import "https://cdn.skypack.dev/trusted-types?dts";
 
 export {
   Directive,
@@ -13,4 +13,4 @@ export type {
 
 export type { PropertyDeclaration } from "https://cdn.skypack.dev/lit?dts";
 
-export { LitElement } from "https://cdn.skypack.dev/lit?dts";
+export { LitElement, ReactiveElement } from "https://cdn.skypack.dev/lit?dts";

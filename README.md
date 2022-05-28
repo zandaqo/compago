@@ -37,25 +37,25 @@ cumbersome to work with when dealing with a complex domain state that involves
 large nested objects and arrays. To handle complex domain objects, compago
 introduces the `Observable` class that wraps a given object into a proxy that
 reacts to changes on the object and all its nested objects with a `change`
-event. Using `ObserverElement` and `bond` directive, one can work seamlessly
-with observables providing two-way binding:
+event. Using `@observer`, `@observe` decorators and `bond` directive, one can
+work seamlessly with observables providing two-way binding:
 
 ```typescript
 import { html, LitElement } from "lit";
-import { bond, Observable, ObserverElement } from "compago";
+import { bond, Observable, observe, observer } from "compago";
 
 class Todo {
   description = "";
   done = false;
 }
 
-class TodoItem extends ObserverElement {
-  // Create an observable of a Todo object tied to the element
-  // `ObserverElement` extends LitElement to support observables as a property type
-  // this type will be treated as internal state and updates withing the observable
-  // (and all nested objects) will be propagated through the usual lifecycle of the reactive
-  // properties.
-  @property({ type: Observable })
+@observer()
+class TodoItem extends LitElement {
+  // Create an observable of a Todo object tied to the element.
+  // This will be treated as internal state and updates withing the observable
+  // (and all nested objects) will be propagated
+  // through the usual lifecycle of reactive properties.
+  @observe()
   state = new Observable(new Todo());
 
   // You can hook into updates to the observable properties just like reactive ones.

@@ -4,10 +4,10 @@ import type { EventPart } from "../deps.ts";
 import type { BondDirective as BondType } from "../bond-directive.ts";
 
 const { test } = Deno;
-const { ObserverElement } = await import("../observer-element.ts");
+const { LitElement } = await import("../deps.ts");
 const { BondDirective } = await import("../bond-directive.ts");
 
-class ComponentClass extends ObserverElement {
+class ComponentClass extends LitElement {
   nested?: Record<string, unknown>;
 }
 
