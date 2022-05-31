@@ -1,7 +1,5 @@
-import { assertEquals, Spy, spy } from "../dev_deps.ts";
-import { Observable } from "../observable.ts";
-import { ChangeEvent, ChangeType } from "../change-event.ts";
-import { isEqual } from "../utilities.ts";
+import { assertEquals, equal, Spy, spy } from "../dev_deps.ts";
+import { ChangeEvent, ChangeType, Observable } from "../observable.ts";
 
 const { test } = Deno;
 
@@ -17,6 +15,15 @@ interface IData {
 
 class DataObservable extends Observable<IData> {}
 
+// HACK: workaround for JSDOM bug introducing a rogue symbol
+// deno-lint-ignore ban-types
+const hideSymbols = <T extends object>(value: T): T => {
+  for (const key of Object.getOwnPropertySymbols(value)) {
+    Reflect.defineProperty(value, key, { enumerable: false });
+  }
+  return value;
+};
+
 const observableContext = (
   callback: (observable: DataObservable, changeSpy: Spy) => void,
 ) => {
@@ -27,6 +34,7 @@ const observableContext = (
       object: { name: "Zaphod", heads: 1 },
       array: undefined,
     });
+    hideSymbols(observable);
     const changeSpy = spy();
     observable.addEventListener("change", changeSpy);
     callback(observable, changeSpy);
@@ -43,7 +51,8 @@ const assertChange = (
   const isEvent = event instanceof ChangeEvent;
   if (
     !isEvent || event.path !== path || event.kind !== kind ||
-    !isEqual(event.previous, previous) || !isEqual(event.elements, elements)
+    !equal(event.previous, previous) ||
+    !equal(event.elements, elements)
   ) {
     throw new Error("Events don't match");
   }
@@ -52,7 +61,7 @@ const assertChange = (
 test("[Observable#constructor] creates an observable", () => {
   const observable = new Observable({});
   assertEquals(observable instanceof Observable, true);
-  assertEquals(isEqual(observable, {}), true);
+  assertEquals(hideSymbols(observable.toJSON()), {});
 });
 
 test(
@@ -414,7 +423,7 @@ test(
   observableContext((observable, changeSpy) => {
     const attributes = { answer: 1 };
     observable.set(attributes);
-    assertEquals(isEqual(observable, attributes), true);
+    assertEquals(observable.toJSON(), attributes);
     assertEquals(changeSpy.calls.length, 4);
   }),
 );
@@ -427,15 +436,12 @@ test(
       question: "2x2",
     };
     observable.assign(attributes);
-    assertEquals(
-      isEqual(observable, {
-        answer: 4,
-        question: "2x2",
-        object: { name: "Zaphod", heads: 1 },
-        array: undefined,
-      }),
-      true,
-    );
+    assertEquals(observable.toJSON(), {
+      answer: 4,
+      question: "2x2",
+      object: { name: "Zaphod", heads: 1 },
+      array: undefined,
+    });
     assertEquals(changeSpy.calls.length, 2);
   }),
 );
@@ -448,15 +454,12 @@ test(
       array: [1],
     };
     observable.assign(attributes);
-    assertEquals(
-      isEqual(observable, {
-        answer: 1,
-        question: "",
-        object: { name: "Zaphod", heads: 1 },
-        array: [1],
-      }),
-      true,
-    );
+    assertEquals(observable.toJSON(), {
+      answer: 1,
+      question: "",
+      object: { name: "Zaphod", heads: 1 },
+      array: [1],
+    });
     assertEquals(changeSpy.calls.length, 2);
   }),
 );
@@ -465,15 +468,12 @@ test(
   "[Observable#set] merges nested properties",
   observableContext((observable, changeSpy) => {
     observable.merge({ object: { name: "Ford" } });
-    assertEquals(
-      isEqual(observable, {
-        answer: 42,
-        question: "",
-        object: { name: "Ford", heads: 1 },
-        array: undefined,
-      }),
-      true,
-    );
+    assertEquals(observable.toJSON(), {
+      answer: 42,
+      question: "",
+      object: { name: "Ford", heads: 1 },
+      array: undefined,
+    });
     assertEquals(changeSpy.calls.length, 1);
   }),
 );
@@ -486,16 +486,16 @@ test(
     arr[0] = 4;
     arr[3] = 5;
     observable.merge({ array: arr });
-    assertEquals(isEqual(observable.array, [4, 2, 3, 5]), true);
+    assertEquals(observable.array, [4, 2, 3, 5]);
     assertEquals(changeSpy.calls.length, 3);
   }),
 );
 
 test("[Observable#toJSON] returns a copy of observable for JSON stringification", () => {
-  assertEquals(
-    isEqual(new Observable({ a: 1, b: 2 }).toJSON(), { a: 1, b: 2 }),
-    true,
-  );
+  assertEquals(hideSymbols(new Observable({ a: 1, b: 2 })).toJSON(), {
+    a: 1,
+    b: 2,
+  });
   assertEquals(
     new Observable({ a: 1, b: 2 }).toJSON() instanceof Observable,
     false,

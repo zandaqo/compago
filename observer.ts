@@ -1,6 +1,6 @@
 import { LitElement } from "./deps.ts";
 import { ObservedValue, sObservable, sPath } from "./observable.ts";
-import type { ChangeEvent } from "./change-event.ts";
+import type { ChangeEvent } from "./observable.ts";
 import { Constructor } from "./interfaces.ts";
 
 const sHandlers = Symbol.for("c-handlers");

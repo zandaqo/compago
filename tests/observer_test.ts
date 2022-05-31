@@ -1,7 +1,6 @@
 import "./dom.ts";
 import { assertEquals, Spy, spy } from "../dev_deps.ts";
-import { ChangeEvent, ChangeType } from "../change-event.ts";
-import { Observable } from "../observable.ts";
+import { ChangeEvent, ChangeType, Observable } from "../observable.ts";
 import { observe, observer } from "../observer.ts";
 
 const { test } = Deno;
