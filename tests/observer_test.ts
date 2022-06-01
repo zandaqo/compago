@@ -1,5 +1,5 @@
 import "./dom.ts";
-import { assertEquals, Spy, spy } from "../dev_deps.ts";
+import { assertEquals, Spy, spy } from "./test_deps.ts";
 import { ChangeEvent, ChangeType, Observable } from "../observable.ts";
 import { observe, observer } from "../observer.ts";
 

@@ -1,4 +1,4 @@
-import { assertEquals, equal, Spy, spy } from "../dev_deps.ts";
+import { assertEquals, equal, Spy, spy } from "./test_deps.ts";
 import { ChangeEvent, ChangeType, Observable } from "../observable.ts";
 
 const { test } = Deno;
@@ -16,7 +16,6 @@ interface IData {
 class DataObservable extends Observable<IData> {}
 
 // HACK: workaround for JSDOM bug introducing a rogue symbol
-// deno-lint-ignore ban-types
 const hideSymbols = <T extends object>(value: T): T => {
   for (const key of Object.getOwnPropertySymbols(value)) {
     Reflect.defineProperty(value, key, { enumerable: false });

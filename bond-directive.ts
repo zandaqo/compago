@@ -1,16 +1,42 @@
-// deno-lint-ignore-file ban-types
 import { Directive, directive, PartType } from "./deps.ts";
 import type { EventPart, PartInfo } from "./deps.ts";
 
 type BondOptions<T extends object, K extends keyof T> = {
+  /**
+   * An object that receives the value
+   */
   to: T;
+  /**
+   * A property name of the receiving object to set the value
+   */
   key: K;
+  /**
+   * Parse function to apply to the value, gets the bond value as the parameter
+   */
   // deno-lint-ignore no-explicit-any
   parse?: (...args: any[]) => T[K];
+  /**
+   * The validator function to check the value
+   *
+   * @param element The bound DOM element
+   * @param content The value being checked
+   */
   validate?: (element: Element, content: unknown) => boolean;
+  /**
+   * Whether to prevent the default event handling behavior
+   */
   prevent?: boolean;
+  /**
+   * Name of the DOM element's property that provides the bond value
+   */
   property?: string;
+  /**
+   * Name of the DOM element's attribute that provides the bond value
+   */
   attribute?: string;
+  /**
+   * The constant value to be set on the bond object
+   */
   value?: T[K];
 };
 
@@ -74,4 +100,9 @@ export class BondDirective<T extends object, K extends keyof T>
   };
 }
 
+/**
+ * Creates a one-way bond passing a value from a DOM element to
+ * a JavaScript object or another DOM element every time
+ * the listening event is fired.
+ */
 export const bond = directive(BondDirective) as BondFunction;

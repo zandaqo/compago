@@ -1,7 +1,6 @@
 import type { Constructor, Repository } from "./interfaces.ts";
 import { Result } from "./result.ts";
 
-// deno-lint-ignore ban-types
 export class RESTRepository<T extends object> implements Repository<T> {
   static init: Partial<RequestInit> = {
     method: "GET",

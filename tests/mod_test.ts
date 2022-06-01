@@ -1,5 +1,5 @@
 import "./dom.ts";
-import { assert, assertEquals } from "../dev_deps.ts";
+import { assert, assertEquals } from "./test_deps.ts";
 
 const mod = await import("../mod.ts");
 

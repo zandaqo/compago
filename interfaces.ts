@@ -10,7 +10,6 @@ export type Entity<
   & T
   & { [K in ID]: Exclude<T[ID], undefined> };
 
-// deno-lint-ignore ban-types
 export interface Repository<T extends object> {
   exists(value: T): Promise<Result<boolean, unknown>>;
   list(...args: Array<unknown>): Promise<Result<Array<T>, unknown>>;

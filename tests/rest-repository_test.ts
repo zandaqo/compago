@@ -1,4 +1,4 @@
-import { assertEquals, Stub, stub } from "../dev_deps.ts";
+import { assertEquals, Stub, stub } from "./test_deps.ts";
 import { RESTRepository } from "../rest-repository.ts";
 import { Result } from "../result.ts";
 
@@ -7,7 +7,6 @@ const { test } = Deno;
 let fetchStub: Stub<Window & typeof globalThis>;
 
 const repositoryContext = (
-  // deno-lint-ignore ban-types
   callback: (repository: RESTRepository<object>) => void,
   body?: unknown,
   status?: number,

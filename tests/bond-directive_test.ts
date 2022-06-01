@@ -1,5 +1,5 @@
 import "./dom.ts";
-import { assertEquals, assertThrows, spy } from "../dev_deps.ts";
+import { assertEquals, assertThrows, spy } from "./test_deps.ts";
 import type { EventPart } from "../deps.ts";
 import type { BondDirective as BondType } from "../bond-directive.ts";
 

@@ -1,4 +1,4 @@
-import { JSDOM } from "../dev_deps.ts";
+import { JSDOM } from "./test_deps.ts";
 
 const dom = new JSDOM(`<!DOCTYPE html><html><head></head><body></body></html>`);
 globalThis.document = dom.window.document;

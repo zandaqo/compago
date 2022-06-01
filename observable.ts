@@ -1,5 +1,3 @@
-// deno-lint-ignore-file ban-types
-
 export const sPath = Symbol.for("c-path");
 export const sObservable = Symbol.for("c-observable");
 
