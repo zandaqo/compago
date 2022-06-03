@@ -24,16 +24,18 @@ Deno:
 import { ... } from "https://raw.githubusercontent.com/zandaqo/compago/master/mod.ts"
 ```
 
-## Advanced State Management with Observable
+## State Management with Observables
 
-Lit's reactive properties hold UI state in properties and attributes of a Custom
-Element as simple strings and numbers. However, reactive properties are
-cumbersome to work with when dealing with a complex domain state that involves
-large nested objects and arrays. To handle complex domain objects, compago
-introduces the `Observable` class that wraps a given object into a proxy that
-reacts to changes on the object and all its nested objects with a `change`
-event. Using `@observer`, `@observe` decorators and `bond` directive, one can
-work seamlessly with observables providing two-way binding.
+UI frameworks like React and Lit provide built-in mechanisms to deal with simple
+UI state expressed as primitive values such as `useState` hooks in React or
+Lit's reactive properties. However, those mechanisms are cumbersome to work with
+when dealing with a complex domain state that involves nested objects and
+arrays. To give reactivity to complex domain objects, Compago introduces the
+`Observable` class. Observable wraps a given domain object into a proxy that
+reacts to changes on the object and all its nested structures with a `change`
+event. When used in Lit elements, additional helphers like `@observer`,
+`@observe` decorators and `bond` directive make reativity and two-way data
+binding seamless.
 
 ### Quick Example
 
@@ -83,13 +85,12 @@ class TodoItem extends LitElement {
 
 ### Observables
 
-`Observable` makes changing and monitoring the changes on JavaScript objects as
-seamless as possible using built-in Proxy and EventTarget interfaces. Under the
-hood, Observable simply wraps a given object into a proxy that emits "standard"
-`change` events whenever a change happens to the object or its "nested" objects.
-Since `Observable` is an extension of `EventTarget`, listening to changes is
-done through standard event handling methods
-`addEventListener`/`removeEventListener`.
+`Observable` makes monitoring changes on JavaScript objects as seamless as
+possible using the built-in Proxy and EventTarget interfaces. Under the hood,
+Observable wraps a given object into a proxy that emits `change` events whenever
+a change happens to the object or its "nested" objects and arrays. Since
+`Observable` is an extension of DOM's EventTarget, listening to changes is done
+through the standard event handling mechanisms.
 
 ```ts
 import { Observable } from "compago";
@@ -134,9 +135,9 @@ computed properties.
 
 ### Using Observables with Lit
 
-Observables nicely complement LitElement's reactive properties allowing
-separation of complex domain state (held in observables) and UI state. To
-simplify working with observables in LitElement, Compago offers
+Observables nicely complement Lit element's reactive properties allowing
+separation of complex domain state (held in observables) and UI state (held in
+properties). To simplify working with observables in Lit element, Compago offers
 `ObserverElement` mixin or `observer` and `observe` decorators that handle
 attaching and detaching from observables and triggering LitElement updates when
 observables detect changes.
@@ -187,10 +188,11 @@ const CommentElement = ObserverMixin(class extends LitElement {
 ### Two-Way Data Binding
 
 We often have to take values from DOM elements (e.g. input fields) and update
-with them our UI or domain states. To simplify the process, Compago offers the
-`bond` directive. The directive offers a declarative way to define an event
-listener that upon being triggered takes a specified value from its DOM element,
-optionally validates and parses it, and sets it on desired object.
+our UI or domain states with them. To simplify the process, Compago offers the
+`bond` directive. The directive provides a declarative way to define an event
+listener that (upon being triggered) takes the specified value from its DOM
+element, optionally validates and parses it, and sets it on desired object, be
+it the element itself or a domain state object.
 
 ```ts
 class CommentElement extends LitElement {

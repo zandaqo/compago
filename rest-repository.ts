@@ -1,4 +1,5 @@
-import type { Constructor, Repository } from "./interfaces.ts";
+import type { Constructor } from "./constructor.ts";
+import type { Repository } from "./repository.ts";
 import { Result } from "./result.ts";
 
 export class RESTRepository<T extends object> implements Repository<T> {
@@ -10,7 +11,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
   };
 
   constructor(
-    protected EntityClass: Constructor<T>,
+    protected Entity: Constructor<T>,
     protected url: string,
     protected idProperty = "_id",
   ) {}
@@ -83,7 +84,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
   }
 
   deserialize(value: unknown): T {
-    return new this.EntityClass(value);
+    return new this.Entity(value);
   }
 
   deserializeMany(value: unknown): Array<T> {

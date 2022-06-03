@@ -1,8 +1,9 @@
 import type { Result } from "./result.ts";
 
-// deno-lint-ignore no-explicit-any
-export type Constructor<T> = { new (...args: any[]): T };
-
+/**
+ * Enforces id attribute on a type. Id attribute name can be specified
+ * as the second type argument, uses `_id` by default.
+ */
 export type Entity<
   T extends { [K in ID]?: unknown },
   ID extends string = "_id",
@@ -10,6 +11,9 @@ export type Entity<
   & T
   & { [K in ID]: Exclude<T[ID], undefined> };
 
+/**
+ * General interface for Repositories.
+ */
 export interface Repository<T extends object> {
   exists(value: T): Promise<Result<boolean, unknown>>;
   list(...args: Array<unknown>): Promise<Result<Array<T>, unknown>>;
