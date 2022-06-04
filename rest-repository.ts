@@ -2,6 +2,10 @@ import type { Constructor } from "./constructor.ts";
 import type { Repository } from "./repository.ts";
 import { Result } from "./result.ts";
 
+/**
+ * RESTRepository encapsulates the logic required to access data sources
+ * exposed as RESTful APIs.
+ */
 export class RESTRepository<T extends object> implements Repository<T> {
   static init: Partial<RequestInit> = {
     method: "GET",
@@ -11,9 +15,9 @@ export class RESTRepository<T extends object> implements Repository<T> {
   };
 
   constructor(
-    protected Entity: Constructor<T>,
-    protected url: string,
-    protected idProperty = "_id",
+    public Entity: Constructor<T>,
+    public url: string,
+    public idProperty: string = "_id",
   ) {}
 
   exists(value: T): Promise<Result<boolean, undefined>> {
@@ -25,15 +29,11 @@ export class RESTRepository<T extends object> implements Repository<T> {
   async query<U>(
     search?: Record<string, string>,
     path = "",
-  ): Promise<Result<U, undefined | Response | TypeError>> {
+  ): Promise<Result<U | undefined, Response | TypeError>> {
     let { url } = this;
-    const constructor = this.constructor as typeof RESTRepository;
     if (path) url += path;
     if (search) url += `?${new URLSearchParams(search).toString()}`;
-    const result = await constructor.fetch<U>(url);
-    if (!result.ok) return result;
-    if (result.value === undefined) return Result.fail(undefined);
-    return result as Result<U, undefined>;
+    return await (this.constructor as typeof RESTRepository).fetch<U>(url);
   }
 
   async command<U>(
@@ -41,9 +41,8 @@ export class RESTRepository<T extends object> implements Repository<T> {
     path = "",
   ): Promise<Result<U | undefined, Response | TypeError>> {
     let { url } = this;
-    const constructor = this.constructor as typeof RESTRepository;
     if (path) url += path;
-    return await constructor.fetch<U>(url, {
+    return await (this.constructor as typeof RESTRepository).fetch<U>(url, {
       method: "POST",
       body: JSON.stringify(body),
     });
@@ -52,34 +51,45 @@ export class RESTRepository<T extends object> implements Repository<T> {
   async list(
     search?: Record<string, string>,
   ): Promise<Result<Array<T>, undefined | Response | TypeError>> {
-    const result = await this.query<Array<T>>(search);
+    const result = await this.query<Array<string>>(search);
     if (!result.ok) return result;
-    return Result.ok(this.deserializeMany(result.value));
+    if (result.value === undefined) return Result.fail(undefined);
+    return Result.ok(result.value.map((i) => this.deserialize(i)));
   }
 
-  create(value: T) {
-    return this.save(value);
+  create(value: T): Promise<Result<unknown, Response | TypeError>> {
+    return (this.constructor as typeof RESTRepository).fetch(
+      `${this.url}`,
+      { method: "POST", body: this.serialize(value) as string },
+    );
   }
 
   async read(id: string): Promise<Result<T, Response | TypeError>> {
-    const constructor = this.constructor as typeof RESTRepository;
-    const result = await constructor.fetch(`${this.url}/${id}`);
+    const result = await (this.constructor as typeof RESTRepository).fetch<
+      string
+    >(`${this.url}/${id}`);
     if (!result.ok) return result;
-    return Result.ok(this.deserialize(result.value));
+    return Result.ok(this.deserialize(result.value!));
   }
 
-  update(_: unknown, updates: unknown) {
-    return this.save(updates as T);
+  update(
+    id: string,
+    updates: Partial<T>,
+  ): Promise<Result<unknown, Response | TypeError>> {
+    return (this.constructor as typeof RESTRepository).fetch<unknown>(
+      `${this.url}/${id}`,
+      { method: "PUT", body: this.serialize(updates) as string },
+    );
   }
 
-  delete(id: string) {
-    const constructor = this.constructor as typeof RESTRepository;
-    return constructor.fetch(`${this.url}/${id}`, {
-      method: "DELETE",
-    });
+  delete(id: string): Promise<Result<undefined, Response | TypeError>> {
+    return (this.constructor as typeof RESTRepository).fetch<undefined>(
+      `${this.url}/${id}`,
+      { method: "DELETE" },
+    );
   }
 
-  serialize(entity: T): unknown {
+  serialize(entity: Partial<T>): unknown {
     return JSON.stringify(entity);
   }
 
@@ -87,23 +97,15 @@ export class RESTRepository<T extends object> implements Repository<T> {
     return new this.Entity(value);
   }
 
-  deserializeMany(value: unknown): Array<T> {
-    return (value as Array<unknown>).map((i) => this.deserialize(i));
-  }
-
-  async save(value: T) {
-    let { url } = this;
-    const constructor = this.constructor as typeof RESTRepository;
-    let method = "POST";
+  async save(value: T): Promise<Result<unknown, Response | TypeError>> {
     const exists = await this.exists(value);
     if (exists.value) {
-      method = "PUT";
-      url += `/${value[this.idProperty as keyof T]}`;
+      return this.update(
+        value[this.idProperty as keyof T] as unknown as string,
+        value,
+      );
     }
-    return constructor.fetch(url, {
-      method,
-      body: this.serialize(value) as string,
-    });
+    return this.create(value);
   }
 
   static async fetch<T>(
