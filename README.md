@@ -3,8 +3,12 @@
 [![Actions Status](https://github.com/zandaqo/compago/workflows/ci/badge.svg)](https://github.com/zandaqo/compago/actions)
 [![npm](https://img.shields.io/npm/v/compago.svg?style=flat-square)](https://www.npmjs.com/package/compago)
 
-Compago is a collection of extensions for [Lit](https://lit.dev) that provide
-advanced state management.
+Compago is a minimalist framework inspired by Domain-Driven Design for building
+applications using Web Components.
+
+Although most components are isomorphic and can be used independently, Compago
+works best with [Lit](https://lit.dev) for which it offers extensions focused on
+simplifying advanced state management in web components.
 
 ## Installation
 
@@ -14,13 +18,21 @@ Node.js:
 npm i compago
 ```
 
-```javascript
+```js
 import { ... } from "compago";
+```
+
+Components can also be imported separately, to avoid loading extra dependencies,
+for example:
+
+```js
+import { Result } from "compago/result";
+import { Observable } from "compago/observable";
 ```
 
 Deno:
 
-```javascript
+```js
 import { ... } from "https://raw.githubusercontent.com/zandaqo/compago/master/mod.ts"
 ```
 

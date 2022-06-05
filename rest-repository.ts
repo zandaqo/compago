@@ -65,11 +65,11 @@ export class RESTRepository<T extends object> implements Repository<T> {
   }
 
   async read(id: string): Promise<Result<T, Response | TypeError>> {
-    const result = await (this.constructor as typeof RESTRepository).fetch<
-      string
-    >(`${this.url}/${id}`);
+    const result = await (this.constructor as typeof RESTRepository).fetch(
+      `${this.url}/${id}`,
+    );
     if (!result.ok) return result;
-    return Result.ok(this.deserialize(result.value!));
+    return Result.ok(this.deserialize(result.value));
   }
 
   update(
