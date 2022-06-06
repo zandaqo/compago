@@ -44,7 +44,8 @@ test(
     assertEquals(await repository.exists({ _id: 1 }), Result.ok(true));
     assertEquals(await repository.exists({ _id: null }), Result.ok(false));
     assertEquals(await repository.exists({ _id: undefined }), Result.ok(false));
-    assertEquals(await repository.exists({ _id: false }), Result.ok(true));
+    assertEquals(await repository.exists({ _id: false }), Result.ok(false));
+    assertEquals(await repository.exists({ _id: "" }), Result.ok(false));
     const idRepo = new RESTRepository(
       Object,
       "",

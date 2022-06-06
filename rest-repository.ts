@@ -22,7 +22,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
 
   exists(value: T): Promise<Result<boolean, undefined>> {
     return Promise.resolve(
-      Result.ok(value[this.idProperty as keyof T] != null),
+      Result.ok(!!value[this.idProperty as keyof T]),
     );
   }
 
