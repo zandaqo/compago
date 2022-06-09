@@ -20,7 +20,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
     public idProperty: string = "_id",
   ) {}
 
-  exists(value: T): Promise<Result<boolean, undefined>> {
+  has(value: T): Promise<Result<boolean, undefined>> {
     return Promise.resolve(
       Result.ok(!!value[this.idProperty as keyof T]),
     );
@@ -98,7 +98,7 @@ export class RESTRepository<T extends object> implements Repository<T> {
   }
 
   async save(value: T): Promise<Result<unknown, Response | TypeError>> {
-    const exists = await this.exists(value);
+    const exists = await this.has(value);
     if (exists.value) {
       return this.update(
         value[this.idProperty as keyof T] as unknown as string,

@@ -39,20 +39,20 @@ test(
 );
 
 test(
-  "[RESTRepository#exists] checks if an entity was persisted",
+  "[RESTRepository#has] checks if an entity was persisted",
   repositoryContext(async (repository) => {
-    assertEquals(await repository.exists({ _id: 1 }), Result.ok(true));
-    assertEquals(await repository.exists({ _id: null }), Result.ok(false));
-    assertEquals(await repository.exists({ _id: undefined }), Result.ok(false));
-    assertEquals(await repository.exists({ _id: false }), Result.ok(false));
-    assertEquals(await repository.exists({ _id: "" }), Result.ok(false));
+    assertEquals(await repository.has({ _id: 1 }), Result.ok(true));
+    assertEquals(await repository.has({ _id: null }), Result.ok(false));
+    assertEquals(await repository.has({ _id: undefined }), Result.ok(false));
+    assertEquals(await repository.has({ _id: false }), Result.ok(false));
+    assertEquals(await repository.has({ _id: "" }), Result.ok(false));
     const idRepo = new RESTRepository(
       Object,
       "",
       "id" as unknown as keyof Object,
     );
-    assertEquals(await idRepo.exists({ _id: 1 }), Result.ok(false));
-    assertEquals(await idRepo.exists({ id: 1 }), Result.ok(true));
+    assertEquals(await idRepo.has({ _id: 1 }), Result.ok(false));
+    assertEquals(await idRepo.has({ id: 1 }), Result.ok(true));
   }),
 );
 

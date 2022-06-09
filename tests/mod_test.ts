@@ -14,4 +14,5 @@ Deno.test("Public API Assertions", () => {
   assertEquals(typeof mod.observe, "function");
   assertEquals(typeof mod.Result, "object");
   assertEquals(typeof mod.RESTRepository, "function");
+  assertEquals(typeof mod.LocalRepository, "function");
 });

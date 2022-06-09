@@ -9,7 +9,7 @@
     ]
   },
   "tasks": {
-    "test": "deno test -A --unstable --no-check=remote --location https://example.com",
+    "test": "deno test -A --unstable --no-check --location https://example.com",
     "build": "deno run -A --unstable --no-check=remote ./scripts/build-npm.ts"
   },
   "lint": {
