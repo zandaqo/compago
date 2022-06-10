@@ -1,8 +1,14 @@
-import { Repository } from "./repository.ts";
+import type { Constructor } from "./constructor.ts";
+import type { Repository } from "./repository.ts";
 import { Result } from "./result.ts";
 
+/**
+ * Implementation of the Repository interface
+ * for operating on data stored locally in IndexedDB.
+ */
 export class LocalRepository<T extends object> implements Repository<T> {
   constructor(
+    public Entity: Constructor<T>,
     public db: IDBDatabase,
     public store: string,
     public key: keyof T,
@@ -30,7 +36,11 @@ export class LocalRepository<T extends object> implements Repository<T> {
           .objectStore(this.store)
           .getAll(key),
       );
-      if (result.ok && result.value) list.push(...result.value);
+      if (result.ok && result.value) {
+        list.push(...result.value.map(
+          (item) => this.deserialize(item),
+        ));
+      }
     }
     return Result.ok(list);
   }
@@ -39,7 +49,7 @@ export class LocalRepository<T extends object> implements Repository<T> {
     return await LocalRepository.promisify(
       this.db.transaction(this.store, "readwrite")
         .objectStore(this.store)
-        .add(value),
+        .add(this.serialize(value)),
     );
   }
 
@@ -51,7 +61,7 @@ export class LocalRepository<T extends object> implements Repository<T> {
     );
     if (!request.ok) return request;
     if (!request.value) return Result.fail(undefined);
-    return request;
+    return Result.ok(this.deserialize(request.value));
   }
 
   async update(_id: string, updates: Partial<T>) {
@@ -68,6 +78,14 @@ export class LocalRepository<T extends object> implements Repository<T> {
         .objectStore(this.store)
         .delete(id),
     );
+  }
+
+  serialize(entity: Partial<T>): unknown {
+    return entity;
+  }
+
+  deserialize(value: unknown): T {
+    return new this.Entity(value);
   }
 
   static promisify<T>(

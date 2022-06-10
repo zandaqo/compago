@@ -3,7 +3,7 @@ import type { Repository } from "./repository.ts";
 import { Result } from "./result.ts";
 
 /**
- * RESTRepository encapsulates the logic required to access data sources
+ * Encapsulates the logic required to access data sources
  * exposed as RESTful APIs.
  */
 export class RESTRepository<T extends object> implements Repository<T> {
@@ -20,10 +20,8 @@ export class RESTRepository<T extends object> implements Repository<T> {
     public idProperty: string = "_id",
   ) {}
 
-  has(value: T): Promise<Result<boolean, undefined>> {
-    return Promise.resolve(
-      Result.ok(!!value[this.idProperty as keyof T]),
-    );
+  has(id: string): Promise<Result<boolean, undefined>> {
+    return Promise.resolve(Result.ok(!!id));
   }
 
   async query<U>(
@@ -98,12 +96,10 @@ export class RESTRepository<T extends object> implements Repository<T> {
   }
 
   async save(value: T): Promise<Result<unknown, Response | TypeError>> {
-    const exists = await this.has(value);
+    const id = value[this.idProperty as keyof T] as unknown as string;
+    const exists = await this.has(id);
     if (exists.value) {
-      return this.update(
-        value[this.idProperty as keyof T] as unknown as string,
-        value,
-      );
+      return this.update(id, value);
     }
     return this.create(value);
   }
