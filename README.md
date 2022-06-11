@@ -233,6 +233,42 @@ class CommentElement extends LitElement {
 }
 ```
 
+## State Persistance with Repositories
+
+A repository is a design pattern of data-centric, domain-driven design that
+encapsulates the logic for accessing data sources while abstracting the
+underlying persistence technology. Web applications exchange data with a variety
+of data sources, such as servers exposed through a RESTful API, local storage
+using IndexedDB API, or databases through their respective drivers. Compago
+offers a unifying interface for repositories and implementations for RESTful
+APIs (`RESTRepository`) and local storage with IndexedDB (`LocalRepository`).
+
+```typescript
+import { RESTRepository } from 'compago';
+
+class Comment {
+  id = 0;
+  text = '';
+  meta = {
+    author: '';
+    date: new Date();
+  }
+}
+
+// Create a repository for comments that will access the API end point `/comments`
+const remoteRepository = new RESTRepository(Comment, '/comments', 'id');
+
+// retrieve the comment with id 1
+// by sending a GET request to `/comments/1` API end-point
+const readResult = await remoteRepository.read(1);
+
+readResult.ok
+//=> true if successful
+
+const comment = readResult.value
+//=> Comment {...}
+```
+
 ## License
 
 MIT @ Maga D. Zandaqo
