@@ -68,7 +68,7 @@ export class LocalRepository<T extends object> implements Repository<T> {
     return await LocalRepository.promisify(
       this.db.transaction(this.store, "readwrite")
         .objectStore(this.store)
-        .put(updates),
+        .put(this.serialize(updates)),
     );
   }
 

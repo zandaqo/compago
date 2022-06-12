@@ -56,4 +56,18 @@ export interface Repository<T extends object> {
    * @param id id of the object
    */
   delete(id: unknown): Promise<Result<unknown, unknown>>;
+
+  /**
+   * Encode object for storage.
+   *
+   * @param entity object to serialize
+   */
+  serialize(entity: Partial<T>): unknown;
+
+  /**
+   * Create an object from a stored value.
+   *
+   * @param value value to deserialize
+   */
+  deserialize(value: unknown): T;
 }
