@@ -9,7 +9,7 @@
     ]
   },
   "tasks": {
-    "test": "deno test -A --no-check --location https://example.com",
+    "test": "deno test -A --no-check --location https://example.com ./tests",
     "build": "deno run -A --no-check ./scripts/build-npm.ts"
   },
   "lint": {

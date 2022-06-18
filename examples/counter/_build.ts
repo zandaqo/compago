@@ -62,15 +62,5 @@ await build({
     bugs: {
       url: "https://github.com/zandaqo/compago/issues",
     },
-    exports: {
-      ".": {
-        types: "./types/mod.d.ts",
-        import: "./esm/mod.js",
-      },
-      "./*": {
-        types: "./types/*.d.ts",
-        import: "./esm/*.js",
-      },
-    },
   },
 });

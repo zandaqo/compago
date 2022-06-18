@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.140.0/testing/asserts.ts";
 // @ts-ignore 2306
-import { JSDOM } from "https://esm.sh/jsdom";
+import { JSDOM } from "https://esm.sh/jsdom@19.0.0";
 
 const {
   window,
