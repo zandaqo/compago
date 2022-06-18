@@ -6,7 +6,7 @@ import {
 await emptyDir("npm");
 
 await build({
-  entryPoints: ["./mod.ts"],
+  entryPoints: ["./counter.ts"],
   outDir: "./npm",
   typeCheck: false,
   test: false,
@@ -16,21 +16,23 @@ await build({
     target: "Latest",
     sourceMap: true,
     inlineSources: true,
-    lib: ["es2021", "dom"],
   },
   mappings: {
     "https://cdn.skypack.dev/lit@2.2.6?dts": {
       name: "lit",
-      version: "^2.2.6",
+      version: "^2.2.5",
+      peerDependency: true,
     },
-    "https://cdn.skypack.dev/lit@2.2.6/directive.js?dts": {
+    "https://cdn.skypack.dev/lit@2.2.6/decorators.js?dts": {
       name: "lit",
-      version: "^2.2.6",
-      subPath: "directive.js",
+      version: "^2.2.5",
+      subPath: "decorators.js",
+      peerDependency: true,
     },
-    "https://cdn.skypack.dev/trusted-types?dts": {
-      name: "trusted-types",
-      version: "^2.0.0",
+    "https://cdn.skypack.dev/compago@5.0.1": {
+      name: "compago",
+      version: "^5.0.1",
+      peerDependency: true,
     },
   },
   shims: {
@@ -38,16 +40,17 @@ await build({
     timers: false,
   },
   package: {
-    name: "compago",
+    private: true,
+    name: "compago-example-counter",
     version: Deno.args[0],
-    main: "mod.js",
+    main: "counter.js",
     type: "module",
-    description: "A minimalist MVC framework for modern browsers.",
+    description: "An example of a Web Component written with Deno",
     keywords: [
-      "framework",
-      "frontend",
-      "full-stack",
+      "web component",
+      "deno",
       "lit",
+      "compago",
     ],
     author: "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
     license: "MIT",
@@ -71,6 +74,3 @@ await build({
     },
   },
 });
-
-Deno.copyFileSync("LICENSE", "npm/LICENSE");
-Deno.copyFileSync("README.md", "npm/README.md");

@@ -273,7 +273,7 @@ export class _Observable<T extends object = object> extends EventTarget {
         processed.push(target[key]);
         target[key] = this.getProxy(
           target[key],
-          `${path}.${key}`,
+          `${path}.${key as string}`,
           observable,
           processed,
         );
@@ -362,7 +362,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     const path: string = target[sPath];
     const observable: _Observable = target[sObservable];
     const previous = target[property];
-    const propertyPath = `${path}.${property}`;
+    const propertyPath = `${path}.${property as string}`;
     target[property] = _Observable.isObjectObservable(value)
       ? _Observable.getProxy(value, propertyPath, observable, [value])
       : value;
@@ -387,7 +387,7 @@ export class _Observable<T extends object = object> extends EventTarget {
     const path = target[sPath];
     const observable = target[sObservable];
     const previous = target[property];
-    const propertyPath = `${path}.${property}`;
+    const propertyPath = `${path}.${property as string}`;
     delete target[property];
     observable.dispatchEvent(
       new ChangeEvent(propertyPath, ChangeType.Delete, previous),

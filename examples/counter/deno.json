@@ -10,11 +10,6 @@
   },
   "tasks": {
     "test": "deno test -A --no-check --location https://example.com",
-    "build": "deno run -A --no-check ./scripts/build-npm.ts"
-  },
-  "lint": {
-    "rules": {
-      "exclude": ["ban-types"]
-    }
+    "build": "deno run -A --no-check _build.ts"
   }
 }
