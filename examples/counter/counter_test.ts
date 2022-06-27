@@ -1,11 +1,15 @@
 import { assertEquals } from "https://deno.land/std@0.140.0/testing/asserts.ts";
-// @ts-ignore 2306
 import { JSDOM } from "https://esm.sh/jsdom@19.0.0";
 
 const {
   window,
 } = new JSDOM(
   `<!DOCTYPE html><html><head></head><body></body></html>`,
+  {
+    url: "https://example.com/",
+    referrer: "https://example.org/",
+    contentType: "text/html",
+  },
 );
 globalThis.document = window.document;
 globalThis.HTMLElement = window.HTMLElement;
