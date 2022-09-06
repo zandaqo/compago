@@ -1,4 +1,4 @@
-import { LitElement } from "./deps.ts";
+import { ReactiveElement } from "./deps.ts";
 import { ObservedValue, sObservable, sPath } from "./observable.ts";
 import type { ChangeEvent } from "./observable.ts";
 import { Constructor } from "./constructor.ts";
@@ -6,7 +6,7 @@ import { Constructor } from "./constructor.ts";
 const sHandlers = Symbol.for("c-handlers");
 const sObservables = Symbol.for("c-observables");
 
-export function ObserverElement<U extends Constructor<LitElement>>(
+export function ObserverElement<U extends Constructor<ReactiveElement>>(
   Base: U,
 ) {
   return class ObserverElement extends Base {

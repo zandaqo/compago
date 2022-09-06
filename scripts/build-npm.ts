@@ -1,7 +1,7 @@
 import {
   build,
   emptyDir,
-} from "https://raw.githubusercontent.com/denoland/dnt/0.26.0/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/dnt/0.30.0/mod.ts";
 
 await emptyDir("npm");
 
@@ -19,13 +19,13 @@ await build({
     lib: ["es2021", "dom"],
   },
   mappings: {
-    "https://cdn.skypack.dev/lit@2.2.6?dts": {
+    "https://cdn.skypack.dev/lit@2.3.1?dts": {
       name: "lit",
-      version: "^2.2.6",
+      version: "^2.3.1",
     },
-    "https://cdn.skypack.dev/lit@2.2.6/directive.js?dts": {
+    "https://cdn.skypack.dev/lit@2.3.1/directive.js?dts": {
       name: "lit",
-      version: "^2.2.6",
+      version: "^2.3.1",
       subPath: "directive.js",
     },
     "https://cdn.skypack.dev/trusted-types?dts": {
@@ -48,6 +48,9 @@ await build({
       "frontend",
       "full-stack",
       "lit",
+      "state",
+      "reactive",
+      "DDD",
     ],
     author: "Maga D. Zandaqo <denelxan@gmail.com> (http://maga.name)",
     license: "MIT",

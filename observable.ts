@@ -34,13 +34,22 @@ export type ChangeType = typeof ChangeType[keyof typeof ChangeType];
  * The change event is fired by an observable when any change happens to the observable.
  */
 export class ChangeEvent extends Event {
+  path: string;
+  kind: ChangeType;
+  previous?: unknown;
+  elements?: unknown;
+
   constructor(
-    public path: string,
-    public kind: ChangeType,
-    public previous?: unknown,
-    public elements?: unknown,
+    path: string,
+    kind: ChangeType,
+    previous?: unknown,
+    elements?: unknown,
   ) {
     super("change", { bubbles: true, composed: true });
+    this.path = path;
+    this.kind = kind;
+    this.previous = previous;
+    this.elements = elements;
   }
 }
 
