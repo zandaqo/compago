@@ -1,7 +1,7 @@
 import {
   build,
   emptyDir,
-} from "https://raw.githubusercontent.com/denoland/dnt/0.26.0/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/dnt/0.30.0/mod.ts";
 
 await emptyDir("npm");
 
@@ -18,20 +18,20 @@ await build({
     inlineSources: true,
   },
   mappings: {
-    "https://cdn.skypack.dev/lit@2.2.6?dts": {
+    "https://cdn.skypack.dev/lit@2.3.1?dts": {
       name: "lit",
-      version: "^2.2.5",
+      version: "^2.3.1",
       peerDependency: true,
     },
-    "https://cdn.skypack.dev/lit@2.2.6/decorators.js?dts": {
+    "https://cdn.skypack.dev/lit@2.3.1/decorators.js?dts": {
       name: "lit",
-      version: "^2.2.5",
+      version: "^2.3.1",
       subPath: "decorators.js",
       peerDependency: true,
     },
-    "https://cdn.skypack.dev/compago@5.0.1": {
+    "https://cdn.skypack.dev/compago@5.0.2": {
       name: "compago",
-      version: "^5.0.1",
+      version: "^5.0.2",
       peerDependency: true,
     },
   },

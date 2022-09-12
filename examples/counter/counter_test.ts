@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.140.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.154.0/testing/asserts.ts";
 import { JSDOM } from "https://esm.sh/jsdom@19.0.0";
 
 const {
