@@ -10,6 +10,15 @@ Although most components are isomorphic and can be used independently, Compago
 works best with [Lit](https://lit.dev) for which it offers extensions focused on
 simplifying advanced state management in web components.
 
+- [Installation](#installation)
+- [State Management with Observables](#state-management-with-observables)
+  - [Quick Example](#quick-example)
+  - [Observables](#observables)
+  - [Using with Lit](#using-with-lit)
+  - [Data Binding](#data-binding)
+  - [Shared State](#shared-state)
+- [State Persistance with Repositories](#state-persistance-with-repositories)
+
 ## Installation
 
 Node.js:
@@ -45,9 +54,9 @@ when dealing with a complex domain state that involves nested objects and
 arrays. To give reactivity to complex domain objects, Compago introduces the
 `Observable` class. Observable wraps a given domain object into a proxy that
 reacts to changes on the object and all its nested structures with a `change`
-event. When used in Lit elements, additional helphers like `@observer`,
-`@observe` decorators and `bond` directive make reativity and two-way data
-binding seamless.
+event. When used in Lit elements, additional helpers like `@observer`,
+`@observe` decorators and `bond` directive make reactivity and data binding
+seamless.
 
 ### Quick Example
 
@@ -98,11 +107,11 @@ class TodoItem extends LitElement {
 ### Observables
 
 `Observable` makes monitoring changes on JavaScript objects as seamless as
-possible using the built-in Proxy and EventTarget interfaces. Under the hood,
-Observable wraps a given object into a proxy that emits `change` events whenever
-a change happens to the object or its "nested" objects and arrays. Since
-`Observable` is an extension of DOM's EventTarget, listening to changes is done
-through the standard event handling mechanisms.
+possible using the built-in Proxy and EventTarget interfaces. Observable wraps a
+given object into a proxy that emits `change` events whenever a change happens
+to the object or its "nested" objects and arrays. Since `Observable` is an
+extension of DOM's EventTarget, listening to changes is done through the
+standard event handling mechanisms.
 
 ```ts
 import { Observable } from "compago";
@@ -140,19 +149,18 @@ JSON.stringify(todo);
 //=> { "description": "...", "done": true }
 ```
 
-Observable only monitors own, public, enumberable, non-symbolic properties,
-thus, any other sort of properties (i.e. private, symbolic, or non-enumerable)
-can be used to manipulate data without triggering `change` events, e.g. to store
+Observable only monitors own, public, enumerable, non-symbolic properties, thus,
+any other sort of properties (i.e. private, symbolic, or non-enumerable) can be
+used to manipulate data without triggering `change` events, e.g. to store
 computed properties.
 
-### Using Observables with Lit
+### Using with Lit
 
-Observables nicely complement Lit element's reactive properties allowing
-separation of complex domain state (held in observables) and UI state (held in
-properties). To simplify working with observables in Lit element, Compago offers
-`ObserverElement` mixin or `observer` and `observe` decorators that handle
-attaching and detaching from observables and triggering LitElement updates when
-observables detect changes.
+Observables complement Lit element's reactive properties allowing separation of
+complex domain state (held in observables) and UI state (held in properties). To
+simplify working with observables, Compago offers `ObserverElement` mixin or
+`observer` and `observe` decorators that handle attaching and detaching from
+observables and triggering LitElement updates when observables detect changes.
 
 ```ts
 import { observer, observe } from 'compago';
@@ -197,14 +205,14 @@ const CommentElement = ObserverMixin(class extends LitElement {
 })
 ```
 
-### Two-Way Data Binding
+### Data Binding
 
 We often have to take values from DOM elements (e.g. input fields) and update
 our UI or domain states with them. To simplify the process, Compago offers the
 `bond` directive. The directive provides a declarative way to define an event
 listener that (upon being triggered) takes the specified value from its DOM
 element, optionally validates and parses it, and sets it on desired object, be
-it the element itself or a domain state object.
+it the element itself or an observable domain state object.
 
 ```ts
 class CommentElement extends LitElement {
@@ -232,6 +240,65 @@ class CommentElement extends LitElement {
   }
 }
 ```
+
+### Shared State
+
+Observable are fully independent and can be shared between components. For
+example, a parent can share "parts" of an observable with children as shown in
+our example [todo app]:
+
+```ts
+@customElement("todo-app")
+@observer()
+export class TodoApp extends LitElement {
+  // Here we create an observable that holds an array of todo objects.
+  @observe()
+  state = new Observable({ items: [] as Array<Todo> });
+  ...
+  render() {
+    return html`
+      <h1>Todos Compago & Lit</h1>
+      <section>
+          ${
+      repeat(this.state.items, (todo) =>
+        todo.id, (todo) =>
+        // We supply each todo object to a child element.
+        // Now when any of the todo objects is changed, it will trigger
+        // re-render of the todo-item and the parent todo-app,
+        // but not the sibling todo-items.
+        html`<todo-item .todo=${todo}></todo-item>`)
+    }
+      </section>
+  `;
+  }
+}
+
+@observer()
+@customElement("todo-item")
+export class TodoItem extends LitElement {
+  @observe()
+  todo!: Todo;
+
+  render() {
+    return html`
+      <input type="checkbox" .checked=${this.todo.done} @click=${
+      bond({
+        to: this.todo,
+        key: "done",
+        property: "checked",
+      })
+    }>
+      <label>${this.todo.text}</label>
+      <button @click=${this.onRemove}>x</button>
+    `;
+  }
+}
+```
+
+Observables can be shared not only between parents and children, but also
+between siblings, or the same observable can be shared by different components,
+in fact, you can use a single observable to hold all state in your app (as a
+"global store").
 
 ## State Persistance with Repositories
 
