@@ -1,7 +1,7 @@
 import {
   build,
   emptyDir,
-} from "https://raw.githubusercontent.com/denoland/dnt/0.30.0/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/dnt/0.32.0/mod.ts";
 
 await emptyDir("npm");
 
@@ -16,22 +16,7 @@ await build({
     target: "Latest",
     sourceMap: true,
     inlineSources: true,
-    lib: ["es2021", "dom"],
-  },
-  mappings: {
-    "https://cdn.skypack.dev/lit@2.3.1?dts": {
-      name: "lit",
-      version: "^2.3.1",
-    },
-    "https://cdn.skypack.dev/lit@2.3.1/directive.js?dts": {
-      name: "lit",
-      version: "^2.3.1",
-      subPath: "directive.js",
-    },
-    "https://cdn.skypack.dev/trusted-types?dts": {
-      name: "trusted-types",
-      version: "^2.0.0",
-    },
+    lib: ["es2022", "dom"],
   },
   shims: {
     deno: false,

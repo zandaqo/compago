@@ -49,7 +49,7 @@ test(
 test(
   "[RESTRepository#query] queries an url with optional search parameters",
   repositoryContext(async (repository) => {
-    const result = await repository.query<{ a: number }>(
+    const result = await repository.query<{ a: number }[]>(
       { a: "1", b: "1" },
       "/abc",
     );
@@ -63,7 +63,7 @@ test(
   "[RESTRepository#command]",
   repositoryContext(async (repository) => {
     const body = { a: "1", b: "1" };
-    const result = await repository.command<{ a: number }>(body, "/abc");
+    const result = await repository.command<{ a: number }[]>(body, "/abc");
     assertEquals(fetchStub.calls[0].args, ["/things/abc", {
       method: "POST",
       headers: {

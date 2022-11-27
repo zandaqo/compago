@@ -1,4 +1,4 @@
-import "https://deno.land/x/indexeddb@1.3.0/polyfill_memory.ts";
+import "https://deno.land/x/indexeddb@1.3.5/polyfill_memory.ts";
 import { assertEquals } from "./test_deps.ts";
 import { LocalRepository } from "../local-repository.ts";
 

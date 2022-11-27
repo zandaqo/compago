@@ -1,19 +1,4 @@
-import "https://cdn.skypack.dev/trusted-types?dts";
-
-export {
-  Directive,
-  directive,
-  PartType,
-} from "https://cdn.skypack.dev/lit@2.3.1/directive.js?dts";
-
-export type {
-  EventPart,
-  PartInfo,
-} from "https://cdn.skypack.dev/lit@2.3.1/directive.js?dts";
-
-export type { PropertyDeclaration } from "https://cdn.skypack.dev/lit@2.3.1?dts";
-
-export {
-  LitElement,
-  ReactiveElement,
-} from "https://cdn.skypack.dev/lit@2.3.1?dts";
+export { LitElement, ReactiveElement } from "npm:lit@2.4.1";
+export type { PropertyDeclaration } from "npm:lit@2.4.1";
+export { Directive, directive, PartType } from "npm:lit@2.4.1/directive.js";
+export type { EventPart, PartInfo } from "npm:lit@2.4.1/directive.js";
