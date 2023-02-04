@@ -1,7 +1,7 @@
 import {
   build,
   emptyDir,
-} from "https://raw.githubusercontent.com/denoland/dnt/0.32.0/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/dnt/0.33.1/mod.ts";
 
 await emptyDir("npm");
 
