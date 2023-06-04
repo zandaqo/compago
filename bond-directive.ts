@@ -13,8 +13,7 @@ type BondOptions<T extends object, K extends keyof T> = {
   /**
    * Parse function to apply to the value, gets the bond value as the parameter
    */
-  // deno-lint-ignore no-explicit-any
-  parse?: (...args: any[]) => T[K];
+  parse?: (...args: unknown[]) => T[K];
   /**
    * The validator function to check the value
    *

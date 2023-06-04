@@ -1,7 +1,9 @@
 import {
   build,
   emptyDir,
-} from "https://raw.githubusercontent.com/denoland/dnt/0.33.1/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/dnt/0.37.0/mod.ts";
+
+const version = await Deno.readTextFile("./VERSION");
 
 await emptyDir("npm");
 
@@ -10,13 +12,13 @@ await build({
   outDir: "./npm",
   typeCheck: false,
   test: false,
-  declaration: true,
+  declaration: "inline",
   scriptModule: false,
   compilerOptions: {
     target: "Latest",
     sourceMap: true,
     inlineSources: true,
-    lib: ["es2022", "dom"],
+    lib: ["ES2022", "DOM"],
   },
   shims: {
     deno: false,
@@ -24,7 +26,7 @@ await build({
   },
   package: {
     name: "compago",
-    version: Deno.args[0],
+    version: version.trim(),
     main: "mod.js",
     type: "module",
     description: "A minimalist MVC framework for modern browsers.",
@@ -49,11 +51,11 @@ await build({
     },
     exports: {
       ".": {
-        types: "./types/mod.d.ts",
+        types: "./esm/mod.d.ts",
         import: "./esm/mod.js",
       },
       "./*": {
-        types: "./types/*.d.ts",
+        types: "./esm/*.d.ts",
         import: "./esm/*.js",
       },
     },
