@@ -1,18 +1,5 @@
-import "https://cdn.skypack.dev/trusted-types?dts";
-export { css, html, LitElement } from "https://cdn.skypack.dev/lit@2.3.1?dts";
-export {
-  customElement,
-  property,
-  state,
-} from "https://cdn.skypack.dev/lit@2.3.1/decorators.js?dts";
-export { repeat } from "https://cdn.skypack.dev/lit@2.3.1/directives/repeat.js?dts";
-export {
-  createRef,
-  ref,
-} from "https://cdn.skypack.dev/lit@2.3.1/directives/ref.js?dts";
-export {
-  bond,
-  Observable,
-  observe,
-  observer,
-} from "https://raw.githubusercontent.com/zandaqo/compago/5.0.2/mod.ts";
+export { css, html, LitElement } from "npm:lit@2.7.5";
+export { customElement, property, state } from "npm:lit@2.7.5/decorators.js";
+export { repeat } from "npm:lit@2.7.5/directives/repeat.js";
+export { createRef, ref } from "npm:lit@2.7.5/directives/ref.js";
+export { bond, Observable, observe, observer } from "npm:compago@5.0.5";

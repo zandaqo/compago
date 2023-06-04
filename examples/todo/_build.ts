@@ -1,9 +1,11 @@
-import * as esbuild from "https://deno.land/x/esbuild@v0.15.7/mod.js";
-import { denoPlugin } from "https://deno.land/x/esbuild_deno_loader@0.5.2/mod.ts";
+import * as esbuild from "https://deno.land/x/esbuild@v0.17.19/mod.js";
+import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.0/mod.ts";
 
 esbuild
   .build({
-    plugins: [denoPlugin()],
+    plugins: [...denoPlugins({
+      nodeModulesDir: true,
+    })],
     entryPoints: ["./main.ts"],
     outfile: "./main.js",
     target: "es2022",

@@ -1,6 +1,6 @@
-import { css, html, LitElement } from "https://cdn.skypack.dev/lit@2.3.1?dts";
-import { state } from "https://cdn.skypack.dev/lit@2.3.1/decorators.js?dts";
-import { bond } from "https://raw.githubusercontent.com/zandaqo/compago/5.0.2/mod.ts";
+import { css, html, LitElement } from "npm:lit@2.7.5";
+import { state } from "npm:lit@2.7.5/decorators.js";
+import { bond } from "npm:compago@5.0.5";
 
 class MyCounter extends LitElement {
   // HACK: Have to use `declare` here and assign default value separately
